@@ -1,5 +1,6 @@
-import os, sys, time, argparse, pickle
+import os, sys, time, argparse, pickle, json, math
 from pathlib import Path
+from datetime import datetime
 import yaml
 import cv2
 import numpy as np
@@ -299,6 +300,41 @@ def ensure(path):
     Path(path).mkdir(parents=True, exist_ok=True)
     return Path(path)
 
+def now_iso():
+    return datetime.now().isoformat(timespec="seconds")
+
+def parse_optional_int(value):
+    if value in (None, "", "null", "None"):
+        return None
+    return int(value)
+
+def append_csv(path, df):
+    path = Path(path)
+    if df is None or df.empty:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, mode="a", header=not path.exists(), index=False)
+
+def configure_runtime(cfg):
+    runtime = cfg.get("runtime", {})
+    edge = cfg.get("edge_profile", {})
+    threads = int(runtime.get("opencv_num_threads", runtime.get("max_threads", edge.get("simulated_cores", 4))))
+    try:
+        cv2.setNumThreads(max(1, threads))
+    except Exception:
+        pass
+    torch_threads = int(runtime.get("torch_num_threads", threads))
+    try:
+        import torch
+        torch.set_num_threads(max(1, torch_threads))
+        if not bool(runtime.get("cuda_enabled", False)):
+            os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    except Exception:
+        pass
+
+def gpu_profile():
+    return math.nan, math.nan
+
 def sequence_summary_paths(out_root, category, video, pipeline):
     seq_out = Path(out_root) / "raw_results" / category / video / pipeline
     return [
@@ -308,8 +344,19 @@ def sequence_summary_paths(out_root, category, video, pipeline):
         seq_out / "sequence_object_summary.csv",
     ]
 
-def sequence_result_complete(out_root, category, video, pipeline):
-    return all(path.exists() for path in sequence_summary_paths(out_root, category, video, pipeline))
+def sequence_result_complete(out_root, category, video, pipeline, expected_frames=None):
+    if not all(path.exists() for path in sequence_summary_paths(out_root, category, video, pipeline)):
+        return False
+    if expected_frames in (None, "", "null", "None"):
+        return True
+    frame_metrics = Path(out_root) / "raw_results" / category / video / pipeline / "frame_metrics.csv"
+    if not frame_metrics.exists():
+        return False
+    try:
+        rows = sum(1 for _ in open(frame_metrics, "r", encoding="utf-8")) - 1
+    except Exception:
+        return False
+    return rows >= int(expected_frames)
 
 def has_external_run_experiment_process(config_path=None):
     current_pid = os.getpid()
@@ -333,6 +380,28 @@ def is_stale_progress_row(row, stale_minutes):
     except Exception:
         return True
     return age.total_seconds() > stale_minutes * 60
+
+PROGRESS_COLUMNS = [
+    "job_id",
+    "category",
+    "video",
+    "pipeline",
+    "status",
+    "frames_expected",
+    "frames_done",
+    "started_at",
+    "updated_at",
+    "completed_at",
+    "runtime_seconds",
+    "avg_fps",
+    "p95_latency_ms",
+    "activation",
+    "energy_per_frame",
+    "simulated_runtime_energy_per_frame",
+    "error_message",
+    "output_path",
+    "message",
+]
 
 def progress_summary(progress):
     counts = progress["status"].value_counts().to_dict()
@@ -397,44 +466,110 @@ def initialize_run_progress(out_root, sequences, pipelines, cfg):
         progress = pd.DataFrame(
             [
                 {
+                    "job_id": f"{seq['category']}/{seq['video']}/{pipeline}",
                     "category": seq["category"],
                     "video": seq["video"],
                     "pipeline": pipeline,
                     "status": "pending",
-                    "expected_eval_frames": expected_by_seq[(seq["category"], seq["video"])],
+                    "frames_expected": expected_by_seq[(seq["category"], seq["video"])],
+                    "frames_done": 0,
+                    "started_at": "",
                     "updated_at": "",
+                    "completed_at": "",
+                    "runtime_seconds": "",
+                    "avg_fps": "",
+                    "p95_latency_ms": "",
+                    "activation": "",
+                    "energy_per_frame": "",
+                    "simulated_runtime_energy_per_frame": "",
+                    "error_message": "",
+                    "output_path": str(Path(out_root) / "raw_results" / seq["category"] / seq["video"] / pipeline),
                     "message": "",
                 }
                 for seq in sequences
                 for pipeline in pipelines
             ]
         )
+    for col in PROGRESS_COLUMNS:
+        if col not in progress.columns:
+            if col == "job_id":
+                progress[col] = progress.apply(lambda r: f"{r['category']}/{r['video']}/{r['pipeline']}", axis=1)
+            elif col == "frames_expected":
+                progress[col] = progress.apply(lambda r: expected_by_seq.get((r["category"], r["video"]), ""), axis=1)
+            elif col == "output_path":
+                progress[col] = progress.apply(
+                    lambda r: str(Path(out_root) / "raw_results" / r["category"] / r["video"] / r["pipeline"]),
+                    axis=1,
+                )
+            else:
+                progress[col] = ""
+    if "expected_eval_frames" in progress.columns:
+        progress["frames_expected"] = progress["frames_expected"].where(
+            progress["frames_expected"].astype(str).str.len() > 0,
+            progress["expected_eval_frames"],
+        )
+    existing_jobs = set(zip(progress["category"].astype(str), progress["video"].astype(str), progress["pipeline"].astype(str)))
+    new_rows = []
+    for seq in sequences:
+        for pipeline in pipelines:
+            key = (str(seq["category"]), str(seq["video"]), str(pipeline))
+            if key in existing_jobs:
+                continue
+            new_rows.append({
+                "job_id": f"{seq['category']}/{seq['video']}/{pipeline}",
+                "category": seq["category"],
+                "video": seq["video"],
+                "pipeline": pipeline,
+                "status": "pending",
+                "frames_expected": expected_by_seq[(seq["category"], seq["video"])],
+                "frames_done": 0,
+                "started_at": "",
+                "updated_at": "",
+                "completed_at": "",
+                "runtime_seconds": "",
+                "avg_fps": "",
+                "p95_latency_ms": "",
+                "activation": "",
+                "energy_per_frame": "",
+                "simulated_runtime_energy_per_frame": "",
+                "error_message": "",
+                "output_path": str(Path(out_root) / "raw_results" / seq["category"] / seq["video"] / pipeline),
+                "message": "",
+            })
+    if new_rows:
+        progress = pd.concat([progress, pd.DataFrame(new_rows)], ignore_index=True)
     recovered = 0
     for idx, row in progress.iterrows():
-        if sequence_result_complete(out_root, row["category"], row["video"], row["pipeline"]):
+        expected_frames = expected_by_seq.get((row["category"], row["video"]), row.get("frames_expected", None))
+        if sequence_result_complete(out_root, row["category"], row["video"], row["pipeline"], expected_frames):
             progress.loc[idx, "status"] = "completed"
             progress.loc[idx, "message"] = "checkpoint exists"
+            progress.loc[idx, "frames_done"] = expected_frames
+        elif str(progress.loc[idx, "status"]) == "completed":
+            progress.loc[idx, "status"] = "pending"
+            progress.loc[idx, "message"] = "checkpoint incomplete for current expected frames"
         elif (
             auto_recover
             and str(progress.loc[idx, "status"]) == "running"
             and ((not external_runner_active) or is_stale_progress_row(row, stale_minutes))
         ):
             progress.loc[idx, "status"] = "pending"
-            progress.loc[idx, "updated_at"] = pd.Timestamp.now().isoformat(timespec="seconds")
+            progress.loc[idx, "updated_at"] = now_iso()
             progress.loc[idx, "message"] = f"auto-recovered stale running state; stale>{stale_minutes:g}min or no external runner"
             recovered += 1
+    progress = progress[PROGRESS_COLUMNS]
     progress.to_csv(progress_path, index=False)
     if recovered:
         print(f"[AUTO-RECOVER] reset {recovered} stale running job(s) to pending")
     print_progress_summary(progress_path, "START PROGRESS")
     return progress_path
 
-def update_run_progress(progress_path, category, video, pipeline, status, message=""):
+def update_run_progress(progress_path, category, video, pipeline, status, message="", metrics=None):
     progress_path = Path(progress_path)
     if not progress_path.exists():
         return
     progress = pd.read_csv(progress_path)
-    for col in ["status", "updated_at", "message"]:
+    for col in ["status", "started_at", "updated_at", "completed_at", "error_message", "message"]:
         if col in progress.columns:
             progress[col] = progress[col].fillna("").astype(str)
     mask = (
@@ -444,11 +579,317 @@ def update_run_progress(progress_path, category, video, pipeline, status, messag
     )
     if mask.any():
         progress.loc[mask, "status"] = status
-        progress.loc[mask, "updated_at"] = pd.Timestamp.now().isoformat(timespec="seconds")
+        progress.loc[mask, "updated_at"] = now_iso()
         progress.loc[mask, "message"] = str(message)[:500]
+        if status == "running":
+            progress.loc[mask & (progress["started_at"].fillna("").astype(str) == ""), "started_at"] = now_iso()
+        if status == "completed":
+            progress.loc[mask, "completed_at"] = now_iso()
+            progress.loc[mask, "error_message"] = ""
+        if status == "failed":
+            progress.loc[mask, "error_message"] = str(message)[:500]
+        if metrics:
+            for key, value in metrics.items():
+                if key in progress.columns:
+                    progress.loc[mask, key] = value
     progress.to_csv(progress_path, index=False)
     if status in {"completed", "failed"}:
         print_progress_summary(progress_path, "JOB PROGRESS")
+
+def write_run_plan(run_plan_path, sequences):
+    run_plan_path = Path(run_plan_path)
+    if run_plan_path.exists():
+        return pd.read_csv(run_plan_path)
+    rows = []
+    for i, seq in enumerate(sequences, start=1):
+        rows.append({
+            "day_index": i,
+            "priority": i,
+            "category": seq["category"],
+            "video": seq["video"],
+            "max_frames": "",
+            "status": "pending",
+            "notes": "",
+        })
+    plan = pd.DataFrame(rows)
+    run_plan_path.parent.mkdir(parents=True, exist_ok=True)
+    plan.to_csv(run_plan_path, index=False)
+    return plan
+
+def apply_run_filters(sequences, cfg, args):
+    if args.category:
+        sequences = [s for s in sequences if s["category"] == args.category]
+    if args.video:
+        sequences = [s for s in sequences if s["video"] == args.video]
+    if args.pipeline:
+        cfg["pipelines"] = [args.pipeline]
+    if args.max_frames is not None:
+        cfg.setdefault("evaluation", {})["max_frames_per_video"] = int(args.max_frames)
+    if args.run_plan:
+        plan = write_run_plan(args.run_plan, sequences)
+        allowed = {
+            (str(row["category"]), str(row["video"]))
+            for _, row in plan.iterrows()
+            if str(row.get("status", "pending")).lower() != "skip"
+        }
+        sequences = [s for s in sequences if (s["category"], s["video"]) in allowed]
+    return sequences
+
+def limit_sequences_for_run(sequences, progress_path, max_videos_per_run):
+    if not max_videos_per_run:
+        return sequences
+    progress_path = Path(progress_path)
+    if not progress_path.exists():
+        return sequences[: int(max_videos_per_run)]
+    progress = pd.read_csv(progress_path)
+    active = progress[progress["status"].isin(["pending", "running", "failed"])].copy()
+    wanted = []
+    for seq in sequences:
+        key = (seq["category"], seq["video"])
+        if ((active["category"] == key[0]) & (active["video"] == key[1])).any():
+            wanted.append(key)
+        if len(wanted) >= int(max_videos_per_run):
+            break
+    wanted = set(wanted)
+    return [s for s in sequences if (s["category"], s["video"]) in wanted]
+
+def update_daily_progress_report(out_root, progress_path, next_resume_command):
+    out_root = Path(out_root)
+    progress = pd.read_csv(progress_path) if Path(progress_path).exists() else pd.DataFrame()
+    summary = progress_summary(progress) if not progress.empty else {"completed": 0, "pending": 0, "running": 0, "failed": 0, "current_job": ""}
+    lines = [
+        "# Daily Progress Report",
+        "",
+        f"Updated at `{now_iso()}`.",
+        "",
+        "## Progress",
+        "",
+        "```text",
+        f"completed={summary['completed']}",
+        f"pending={summary['pending']}",
+        f"running={summary['running']}",
+        f"failed={summary['failed']}",
+        f"current_job={summary['current_job'] or '-'}",
+        "```",
+        "",
+        "## Next Resume Command",
+        "",
+        "```bat",
+        next_resume_command,
+        "```",
+    ]
+    if not progress.empty:
+        by_video = progress.groupby(["category", "video"])["status"].apply(lambda s: int((s == "completed").sum())).reset_index(name="completed_jobs")
+        lines += ["", "## Recent Video Progress", "", by_video.tail(20).to_markdown(index=False)]
+    (out_root / "daily_progress_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+def write_official_edge_reports(out_root, pipelines):
+    out_root = Path(out_root)
+    event_path = out_root / "summary_event_metrics.csv"
+    pixel_path = out_root / "summary_pixel_metrics.csv"
+    edge_path = out_root / "summary_edge_metrics.csv"
+    object_path = out_root / "summary_object_metrics.csv"
+    if not (event_path.exists() and pixel_path.exists() and edge_path.exists()):
+        return
+    ev = pd.read_csv(event_path)
+    px = pd.read_csv(pixel_path)
+    edge = pd.read_csv(edge_path)
+    obj = pd.read_csv(object_path) if object_path.exists() else pd.DataFrame()
+    keys = ["category", "video", "pipeline"]
+    merged = px.merge(ev, on=keys, how="outer").merge(edge, on=keys, how="outer")
+    if not obj.empty:
+        obj_cols = [c for c in ["category", "video", "pipeline", "mAP_50"] if c in obj.columns]
+        if obj_cols:
+            merged = merged.merge(obj[obj_cols], on=keys, how="outer")
+    merged["mAP_50"] = merged.get("mAP_50", 0)
+    merged["Energy/frame"] = merged.get("Energy/frame", merged.get("energy_frame", 0))
+    merged["Simulated_runtime_energy/frame"] = merged.get("simulated_runtime_energy/frame", 0)
+    merged["Activation"] = merged.get("YOLO_activation_rate", 0)
+    merged["Avg_FPS"] = merged.get("avg_FPS", 0)
+    merged["P95_latency_ms"] = merged.get("P95_latency_ms", 0)
+    merged["Reuse_rate"] = merged.get("reused_prediction_rate", 0)
+    merged.to_csv(out_root / "official_like_results.csv", index=False)
+    merged.to_csv(out_root / "per_video_summary.csv", index=False)
+    edge.to_csv(out_root / "edge_runtime_summary.csv", index=False)
+    per_category = merged.groupby(["category", "pipeline"], as_index=False).mean(numeric_only=True)
+    per_category.to_csv(out_root / "per_category_summary.csv", index=False)
+
+    final = merged.groupby("pipeline", as_index=False).mean(numeric_only=True)
+    final = final.rename(columns={"pipeline": "Pipeline", "FMeasure": "CDnet_FMeasure"})
+    for col in ["CDnet_FMeasure", "Event_F1", "mAP_50", "Activation", "Avg_FPS", "P95_latency_ms", "Energy/frame", "Simulated_runtime_energy/frame", "Reuse_rate"]:
+        if col not in final.columns:
+            final[col] = 0.0
+    max_f = max(1e-9, float(final["CDnet_FMeasure"].max()))
+    max_event = max(1e-9, float(final["Event_F1"].max()))
+    max_fps = max(1e-9, float(final["Avg_FPS"].max()))
+    max_energy = max(1e-9, float(final["Energy/frame"].max()))
+    final["AE_Score"] = (
+        0.35 * (final["CDnet_FMeasure"] / max_f)
+        + 0.25 * (final["Event_F1"] / max_event)
+        + 0.15 * (1.0 - final["Activation"])
+        + 0.15 * (final["Avg_FPS"] / max_fps)
+        + 0.10 * (1.0 - final["Energy/frame"] / max_energy)
+    )
+    final["Pareto"] = True
+    final["Pipeline"] = pd.Categorical(final["Pipeline"], categories=pipelines, ordered=True)
+    final = final.sort_values("Pipeline")
+    final["Pipeline"] = final["Pipeline"].astype(str)
+    cols = ["Pipeline", "CDnet_FMeasure", "Event_F1", "mAP_50", "Activation", "Avg_FPS", "P95_latency_ms", "Energy/frame", "Simulated_runtime_energy/frame", "Reuse_rate", "AE_Score", "Pareto"]
+    final[cols].to_csv(out_root / "final_main_comparison.csv", index=False)
+
+    metrics = [
+        ("Best CDnet_FMeasure", "CDnet_FMeasure", "max"),
+        ("Best Event_F1", "Event_F1", "max"),
+        ("Best mAP_50", "mAP_50", "max"),
+        ("Lowest Activation", "Activation", "min"),
+        ("Highest Avg_FPS", "Avg_FPS", "max"),
+        ("Lowest P95 latency", "P95_latency_ms", "min"),
+        ("Lowest Energy/frame", "Energy/frame", "min"),
+        ("Lowest Simulated_runtime_energy/frame", "Simulated_runtime_energy/frame", "min"),
+        ("Highest AE_Score", "AE_Score", "max"),
+    ]
+    best_rows = []
+    for label, col, direction in metrics:
+        idx = final[col].idxmax() if direction == "max" else final[col].idxmin()
+        best_rows.append({"metric": label, "Pipeline": final.loc[idx, "Pipeline"], "value": final.loc[idx, col]})
+    pd.DataFrame(best_rows).to_csv(out_root / "best_by_metric.csv", index=False)
+
+    base = final[final["Pipeline"] == "P3_MOG2"]
+    comparisons = [
+        ("ASMAG_TR_CONTROLLER", "P3_MOG2"),
+        ("ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED", "P3_MOG2"),
+        ("ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED", "ASMAG_TR_CONTROLLER"),
+        ("ASMAG_TR_FAST", "P3_MOG2"),
+        ("P2_FrameDiff", "P3_MOG2"),
+        ("P1_YOLO_Only", "P3_MOG2"),
+    ]
+    gain_rows = []
+    for left, right in comparisons:
+        ldf = final[final["Pipeline"] == left]
+        rdf = final[final["Pipeline"] == right]
+        if ldf.empty or rdf.empty:
+            continue
+        lrow, rrow = ldf.iloc[0], rdf.iloc[0]
+        gain_rows.append({
+            "Comparison": f"{left} vs {right}",
+            "FMeasure_gain": lrow["CDnet_FMeasure"] - rrow["CDnet_FMeasure"],
+            "Event_F1_gain": lrow["Event_F1"] - rrow["Event_F1"],
+            "Activation_saving": rrow["Activation"] - lrow["Activation"],
+            "Energy_saving": rrow["Energy/frame"] - lrow["Energy/frame"],
+            "Simulated_runtime_energy_saving": rrow["Simulated_runtime_energy/frame"] - lrow["Simulated_runtime_energy/frame"],
+            "FPS_gain": lrow["Avg_FPS"] - rrow["Avg_FPS"],
+            "P95_latency_gain": rrow["P95_latency_ms"] - lrow["P95_latency_ms"],
+            "AE_Score_gain": lrow["AE_Score"] - rrow["AE_Score"],
+            "Interpretation": "positive savings mean lower activation/energy/latency than comparison",
+        })
+    pd.DataFrame(gain_rows).to_csv(out_root / "gain_summary.csv", index=False)
+
+    frame_runtime = out_root / "frame_runtime_log.csv"
+    if frame_runtime.exists():
+        fr = pd.read_csv(frame_runtime)
+        if "selected_mode" in fr.columns:
+            mode = fr[fr["selected_mode"].fillna("") != ""].groupby(["pipeline", "selected_mode"], as_index=False).size()
+            mode.to_csv(out_root / "mode_usage_summary.csv", index=False)
+    if not (out_root / "mode_usage_summary.csv").exists():
+        pd.DataFrame(columns=["pipeline", "selected_mode", "size"]).to_csv(out_root / "mode_usage_summary.csv", index=False)
+
+    charts_dir = ensure(out_root / "charts")
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        chart_specs = [
+            ("fmeasure_by_pipeline.png", "CDnet_FMeasure", "FMeasure"),
+            ("event_f1_by_pipeline.png", "Event_F1", "Event F1"),
+            ("fps_by_pipeline.png", "Avg_FPS", "Avg FPS"),
+            ("latency_p95_by_pipeline.png", "P95_latency_ms", "P95 latency ms"),
+            ("cpu_by_pipeline.png", "avg_process_cpu_percent", "CPU %"),
+            ("ram_by_pipeline.png", "avg_ram_mb", "RAM MB"),
+            ("activation_by_pipeline.png", "Activation", "Activation"),
+            ("energy_by_pipeline.png", "Energy/frame", "Energy/frame"),
+            ("simulated_energy_by_pipeline.png", "Simulated_runtime_energy/frame", "Sim runtime energy/frame"),
+        ]
+        chart_source = final.merge(edge.groupby("pipeline", as_index=False).mean(numeric_only=True).rename(columns={"pipeline": "Pipeline"}), on="Pipeline", how="left")
+        for filename, col, ylabel in chart_specs:
+            if col not in chart_source.columns:
+                continue
+            plt.figure(figsize=(10, 5))
+            plt.bar(chart_source["Pipeline"], chart_source[col].astype(float))
+            plt.xticks(rotation=25, ha="right")
+            plt.ylabel(ylabel)
+            plt.tight_layout()
+            plt.savefig(charts_dir / filename, dpi=160)
+            plt.close()
+        plt.figure(figsize=(7, 5))
+        plt.scatter(final["Energy/frame"], final["CDnet_FMeasure"])
+        for _, row in final.iterrows():
+            plt.annotate(row["Pipeline"], (row["Energy/frame"], row["CDnet_FMeasure"]), fontsize=8)
+        plt.xlabel("Energy/frame")
+        plt.ylabel("FMeasure")
+        plt.tight_layout()
+        plt.savefig(charts_dir / "pareto_fmeasure_energy.png", dpi=160)
+        plt.close()
+        plt.figure(figsize=(7, 5))
+        plt.scatter(final["Activation"], final["CDnet_FMeasure"])
+        for _, row in final.iterrows():
+            plt.annotate(row["Pipeline"], (row["Activation"], row["CDnet_FMeasure"]), fontsize=8)
+        plt.xlabel("Activation")
+        plt.ylabel("FMeasure")
+        plt.tight_layout()
+        plt.savefig(charts_dir / "pareto_activation_fmeasure.png", dpi=160)
+        plt.close()
+        for filename, value_col in [("per_category_fmeasure_heatmap.png", "CDnet_FMeasure"), ("per_category_latency_heatmap.png", "P95_latency_ms")]:
+            pivot = per_category.rename(columns={"FMeasure": "CDnet_FMeasure"}).pivot(index="category", columns="pipeline", values=value_col)
+            plt.figure(figsize=(12, 6))
+            plt.imshow(pivot.values.astype(float), aspect="auto")
+            plt.colorbar(label=value_col)
+            plt.xticks(range(len(pivot.columns)), pivot.columns, rotation=25, ha="right")
+            plt.yticks(range(len(pivot.index)), pivot.index)
+            plt.tight_layout()
+            plt.savefig(charts_dir / filename, dpi=160)
+            plt.close()
+    except Exception as exc:
+        print(f"[WARN] chart generation skipped: {exc}")
+
+    best_f = final.loc[final["CDnet_FMeasure"].idxmax()]
+    best_event = final.loc[final["Event_F1"].idxmax()]
+    best_fps = final.loc[final["Avg_FPS"].idxmax()]
+    best_latency = final.loc[final["P95_latency_ms"].idxmin()]
+    best_energy = final.loc[final["Energy/frame"].idxmin()]
+    lines = [
+        "# Official-Like Edge Profile Summary",
+        "",
+        f"Updated at `{now_iso()}`.",
+        "",
+        f"- Best FMeasure: `{best_f['Pipeline']}` (`{best_f['CDnet_FMeasure']:.4f}`).",
+        f"- Best Event_F1: `{best_event['Pipeline']}` (`{best_event['Event_F1']:.4f}`).",
+        f"- Best FPS: `{best_fps['Pipeline']}` (`{best_fps['Avg_FPS']:.4f}`).",
+        f"- Best latency: `{best_latency['Pipeline']}` (`{best_latency['P95_latency_ms']:.4f}` ms P95).",
+        f"- Best activation/energy: `{best_energy['Pipeline']}` (`{best_energy['Energy/frame']:.4f}` energy/frame).",
+        "- ASMAG_TR_CONTROLLER remains the category-aware upper-bound comparator when present.",
+        "- ONLINE_CALIBRATED is the deployable label-free variant to watch; confirm after full frame_step=1 completes.",
+        "- This partial/complete official-like run should be compared against sampled results before final paper claims.",
+        "- CPU-only edge profiling reports latency/FPS/CPU/RAM without requiring NVIDIA CUDA.",
+        "- Limitation: CPU-only PC profiling is a proxy for true embedded edge hardware.",
+    ]
+    (out_root / "auto_research_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+def collect_completed_sequence_summaries(out_root, pipelines):
+    out_root = Path(out_root)
+    all_ev, all_px, all_edge, all_obj = [], [], [], []
+    for pipeline in pipelines:
+        for event_path in (out_root / "raw_results").rglob(f"{pipeline}/sequence_event_summary.csv"):
+            seq_dir = event_path.parent
+            pixel_path = seq_dir / "sequence_pixel_summary.csv"
+            edge_path = seq_dir / "sequence_edge_summary.csv"
+            object_path = seq_dir / "sequence_object_summary.csv"
+            if not (pixel_path.exists() and edge_path.exists() and object_path.exists()):
+                continue
+            all_ev.append(pd.read_csv(event_path).iloc[0].to_dict())
+            all_px.append(pd.read_csv(pixel_path).iloc[0].to_dict())
+            all_edge.append(pd.read_csv(edge_path).iloc[0].to_dict())
+            all_obj.append(pd.read_csv(object_path).iloc[0].to_dict())
+    return all_ev, all_px, all_edge, all_obj
 
 def build_research_summary(event_rows, pixel_rows, edge_rows):
     keys = ["category", "video", "pipeline"]
@@ -912,7 +1353,14 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         "edge": seq_out / "sequence_edge_summary.csv",
         "object": seq_out / "sequence_object_summary.csv",
     }
-    if bool(cfg.get("resume_existing_results", False)) and all(path.exists() for path in resume_paths.values()):
+    expected_for_resume = expected_eval_frame_count(seq, cfg)
+    if bool(cfg.get("resume_existing_results", False)) and sequence_result_complete(
+        out_root,
+        seq["category"],
+        seq["video"],
+        pipeline_name,
+        expected_for_resume,
+    ):
         return tuple(pd.read_csv(path).iloc[0].to_dict() for path in resume_paths.values())
 
     eval_cfg = cfg.get("evaluation", {})
@@ -1061,6 +1509,7 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             prev = frame.copy()
             continue
 
+        frame_start_time = now_iso()
         t0 = time.time()
         frame_label = frame_number(frame_files[idx]) if frames_source is None else idx
         evaluated_index = processed
@@ -1169,8 +1618,13 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         if delay > 0:
             time.sleep(delay)
         latency_ms = (time.time()-t0)*1000
+        frame_end_time = now_iso()
         fps = 1000.0/latency_ms if latency_ms > 0 else 0
         cpu, ram = cpu_ram_percent(proc, cores, ram_gb)
+        system_cpu = psutil.cpu_percent(interval=None)
+        process_ram_mb = proc.memory_info().rss / (1024 * 1024)
+        system_ram_percent = psutil.virtual_memory().percent
+        gpu_util, gpu_memory = gpu_profile()
 
         pred_alert = bool(np.sum(pred_mask > 0) > 0)
         e_state, is_active = event_state_from_masks(pred_alert, gt, cdnet_gt_config)
@@ -1260,6 +1714,8 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             "frame_id": frame_number(frame_files[idx]) if frames_source is None else idx,
             "raw_frame_id": frame_label,
             "evaluated_index": evaluated_index,
+            "start_time": frame_start_time,
+            "end_time": frame_end_time,
             "Is_Active": is_active,
             "gate_open": int(gate_open),
             "yolo_called": int(gate_open),
@@ -1273,8 +1729,15 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             "Event_State": e_state,
             "latency_ms": latency_ms,
             "FPS": fps,
+            "fps_instant": fps,
             "CPU_Usage": cpu,
             "RAM_Usage": ram,
+            "process_cpu_percent": cpu,
+            "system_cpu_percent": system_cpu,
+            "process_ram_mb": process_ram_mb,
+            "system_ram_percent": system_ram_percent,
+            "gpu_util_percent": gpu_util,
+            "gpu_memory_mb": gpu_memory,
             "is_warmup": 0,
             "reused_prediction": reused_prediction,
             "reuse_age": reuse_age,
@@ -1286,6 +1749,8 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             "mog2_used": mog2_used,
             "framediff_used": framediff_used,
             "energy_frame": energy_value,
+            "energy_proxy_frame": energy_value,
+            "simulated_runtime_energy_frame": "",
             "energy_unit": energy_cfg.get("unit", "relative_energy_unit"),
             "pred_object_count": len(pred_boxes),
             "gt_object_count": len(gt_boxes),
@@ -1316,7 +1781,43 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         processed += 1
 
     df = pd.DataFrame(rows)
+    if not df.empty:
+        max_latency = max(1e-9, float(df["latency_ms"].max()))
+        gpu_norm = df["gpu_util_percent"].fillna(0).astype(float) / 100.0 if "gpu_util_percent" in df.columns else 0.0
+        df["simulated_runtime_energy_frame"] = (
+            1.0
+            + 5.0 * df["yolo_called"].astype(float)
+            + 1.0 * (df["process_cpu_percent"].astype(float) / 100.0)
+            + 1.0 * (df["latency_ms"].astype(float) / max_latency)
+            + 2.0 * gpu_norm
+            + 0.1 * df["reused_prediction"].astype(float)
+        )
     df.to_csv(seq_out / "frame_metrics.csv", index=False)
+    edge_cols = [
+        "pipeline",
+        "category",
+        "video",
+        "frame_id",
+        "evaluated_index",
+        "start_time",
+        "end_time",
+        "latency_ms",
+        "fps_instant",
+        "process_cpu_percent",
+        "system_cpu_percent",
+        "process_ram_mb",
+        "system_ram_percent",
+        "gpu_util_percent",
+        "gpu_memory_mb",
+        "yolo_called",
+        "reused_prediction",
+        "selected_mode",
+        "energy_proxy_frame",
+        "simulated_runtime_energy_frame",
+    ]
+    edge_profile_df = df[[c for c in edge_cols if c in df.columns]].copy() if not df.empty else pd.DataFrame(columns=edge_cols)
+    edge_profile_df.to_csv(seq_out / "edge_profile.csv", index=False)
+    append_csv(out_root / "frame_runtime_log.csv", edge_profile_df)
     if pipeline_key == "P4_ASMAG_PLUS" and bool(eval_cfg.get("save_p4_diagnostics", False)):
         write_p4_diagnostics(
             out_root,
@@ -1330,13 +1831,23 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
     objsum = summarize_object_records(object_records) if object_records else {}
 
     activation = yolo_calls / processed if processed else 0
+    runtime_seconds = float(df["latency_ms"].sum() / 1000.0) if not df.empty else 0.0
+    energy_per_frame = float(df["energy_frame"].mean()) if not df.empty and "energy_frame" in df.columns else 0.0
+    simulated_energy_per_frame = float(df["simulated_runtime_energy_frame"].mean()) if not df.empty and "simulated_runtime_energy_frame" in df.columns else 0.0
     edge_summary = {
         "avg_CPU": float(df["CPU_Usage"].mean()) if not df.empty else 0,
+        "avg_process_cpu_percent": float(df["process_cpu_percent"].mean()) if not df.empty else 0,
+        "max_process_cpu_percent": float(df["process_cpu_percent"].max()) if not df.empty else 0,
         "median_CPU": float(df["CPU_Usage"].median()) if not df.empty else 0,
         "avg_RAM": float(df["RAM_Usage"].mean()) if not df.empty else 0,
+        "avg_ram_mb": float(df["process_ram_mb"].mean()) if not df.empty else 0,
+        "max_ram_mb": float(df["process_ram_mb"].max()) if not df.empty else 0,
         "avg_FPS": float(df["FPS"].mean()) if not df.empty else 0,
         "median_FPS": float(df["FPS"].median()) if not df.empty else 0,
+        "avg_latency_ms": float(df["latency_ms"].mean()) if not df.empty else 0,
+        "median_latency_ms": float(df["latency_ms"].median()) if not df.empty else 0,
         "P95_latency_ms": float(df["latency_ms"].quantile(0.95)) if not df.empty else 0,
+        "P99_latency_ms": float(df["latency_ms"].quantile(0.99)) if not df.empty else 0,
         "YOLO_activation_rate": activation,
         "processed_frames": processed,
         "temporal_roi_start": temporal_roi_start if temporal_roi_start is not None else "",
@@ -1345,11 +1856,37 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         "skipped_frames_before_roi": skipped_frames_before_roi,
         "warmup_frames": warmup_processed,
         "reused_prediction_count": reused_predictions,
-        "reused_prediction_rate": reused_predictions / processed if processed else 0
+        "reused_prediction_rate": reused_predictions / processed if processed else 0,
+        "Energy/frame": energy_per_frame,
+        "simulated_runtime_energy/frame": simulated_energy_per_frame,
+        "runtime_seconds": runtime_seconds,
     }
 
     common = {"category": seq["category"], "video": seq["video"], "pipeline": pipeline_name}
     result = ({**common, **ev}, {**common, **pxsum}, {**common, **edge_summary}, {**common, **objsum})
+    summary_payload = {
+        **common,
+        "frames_processed": processed,
+        "CDnet_FMeasure": pxsum.get("FMeasure", 0),
+        "Event_F1": ev.get("Event_F1", 0),
+        "mAP_50": objsum.get("mAP_50", 0),
+        "Activation": activation,
+        "Reuse_rate": reused_predictions / processed if processed else 0,
+        "Avg_FPS": edge_summary["avg_FPS"],
+        "avg_latency_ms": edge_summary["avg_latency_ms"],
+        "median_latency_ms": edge_summary["median_latency_ms"],
+        "p95_latency_ms": edge_summary["P95_latency_ms"],
+        "p99_latency_ms": edge_summary["P99_latency_ms"],
+        "avg_process_cpu_percent": edge_summary["avg_process_cpu_percent"],
+        "max_process_cpu_percent": edge_summary["max_process_cpu_percent"],
+        "avg_ram_mb": edge_summary["avg_ram_mb"],
+        "max_ram_mb": edge_summary["max_ram_mb"],
+        "Energy/frame": edge_summary["Energy/frame"],
+        "simulated_runtime_energy/frame": edge_summary["simulated_runtime_energy/frame"],
+        "runtime_seconds": edge_summary["runtime_seconds"],
+    }
+    with open(seq_out / "summary.json", "w", encoding="utf-8") as f:
+        json.dump(summary_payload, f, indent=2)
     for payload, path in zip(result, resume_paths.values()):
         pd.DataFrame([payload]).to_csv(path, index=False)
     return result
@@ -1357,10 +1894,18 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
+    ap.add_argument("--run-plan", default="")
+    ap.add_argument("--max-videos-per-run", type=int, default=None)
+    ap.add_argument("--progress-only", action="store_true")
+    ap.add_argument("--category", default="")
+    ap.add_argument("--video", default="")
+    ap.add_argument("--pipeline", default="")
+    ap.add_argument("--max-frames", type=int, default=None)
     args = ap.parse_args()
     with open(args.config, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
     cfg["_config_path"] = args.config
+    configure_runtime(cfg)
 
     out_root = ensure(Path(cfg.get("output_root", "outputs")) / cfg["experiment_name"])
     print(f"[RUN] Experiment: {cfg['experiment_name']}")
@@ -1375,12 +1920,27 @@ def main():
     else:
         sequences = scan_cdnet(cfg["dataset_root"], cfg["categories"], cfg.get("videos", "auto"))
         frames, gts = None, None
+    sequences = apply_run_filters(sequences, cfg, args)
 
     if not sequences:
         print("[ERROR] No sequences found. Check dataset_root/categories.")
         return
 
     progress_path = initialize_run_progress(out_root, sequences, cfg["pipelines"], cfg)
+    default_resume = f"python src/run_experiment.py --config {args.config}"
+    resume_run_plan = args.run_plan or cfg.get("run_plan", "")
+    if resume_run_plan:
+        default_resume += f" --run-plan {resume_run_plan}"
+    if args.max_videos_per_run:
+        default_resume += f" --max-videos-per-run {args.max_videos_per_run}"
+    elif resume_run_plan:
+        default_resume += " --max-videos-per-run 1"
+    if args.progress_only:
+        print_progress_summary(progress_path, "PROGRESS ONLY")
+        update_daily_progress_report(out_root, progress_path, default_resume.replace(" --progress-only", ""))
+        return
+
+    sequences = limit_sequences_for_run(sequences, progress_path, args.max_videos_per_run)
 
     all_ev, all_px, all_edge, all_obj, all_cdnet_frame_rows = [], [], [], [], []
     for seq in sequences:
@@ -1390,7 +1950,22 @@ def main():
             update_run_progress(progress_path, seq["category"], seq["video"], p, "running")
             try:
                 ev, px, ed, obj = unpack_sequence_result(process_sequence(cfg, seq, p, detector, frames, gts))
-                update_run_progress(progress_path, seq["category"], seq["video"], p, "completed")
+                update_run_progress(
+                    progress_path,
+                    seq["category"],
+                    seq["video"],
+                    p,
+                    "completed",
+                    metrics={
+                        "frames_done": ed.get("evaluated_frames", ed.get("processed_frames", "")),
+                        "runtime_seconds": ed.get("runtime_seconds", ""),
+                        "avg_fps": ed.get("avg_FPS", ""),
+                        "p95_latency_ms": ed.get("P95_latency_ms", ""),
+                        "activation": ed.get("YOLO_activation_rate", ""),
+                        "energy_per_frame": ed.get("Energy/frame", ""),
+                        "simulated_runtime_energy_per_frame": ed.get("simulated_runtime_energy/frame", ""),
+                    },
+                )
             except Exception as exc:
                 update_run_progress(progress_path, seq["category"], seq["video"], p, "failed", repr(exc))
                 raise
@@ -1407,6 +1982,15 @@ def main():
                 f"EvalFrames={ed.get('evaluated_frames',0)} | "
                 f"SkippedBeforeROI={ed.get('skipped_frames_before_roi',0)}"
             )
+        update_daily_progress_report(out_root, progress_path, default_resume)
+
+    all_ev, all_px, all_edge, all_obj = collect_completed_sequence_summaries(out_root, cfg["pipelines"])
+    all_cdnet_frame_rows = []
+    for frame_metrics_path in (out_root / "raw_results").rglob("frame_metrics.csv"):
+        try:
+            all_cdnet_frame_rows.extend(pd.read_csv(frame_metrics_path).to_dict("records"))
+        except Exception:
+            pass
 
     pd.DataFrame(all_ev).to_csv(out_root / "summary_event_metrics.csv", index=False)
     pd.DataFrame(all_px).to_csv(out_root / "summary_pixel_metrics.csv", index=False)
@@ -1465,6 +2049,8 @@ def main():
     write_online_controller_diagnostics(out_root, all_cdnet_frame_rows)
     pareto_summary = write_pareto_metrics(out_root, cfg.get("pareto", {}))
     create_summary_charts(out_root)
+    write_official_edge_reports(out_root, cfg["pipelines"])
+    update_daily_progress_report(out_root, progress_path, default_resume)
 
     print("\n[DONE] Summary files:")
     print(f" - {out_root/'summary_event_metrics.csv'}")
@@ -1487,6 +2073,8 @@ def main():
         print(f" - Best activation saving: {best_efficiency['Pipeline']} (Activation={best_efficiency['Activation']:.4f}, Avg_FPS={best_efficiency['Avg_FPS']:.2f})")
         print(f" - Best Research Score: {best_score['Pipeline']} (Research_Score={best_score['Research_Score']:.4f})")
     print_pipeline_final_table(out_root, pareto_summary)
+    print_progress_summary(progress_path, "END PROGRESS")
+    print(f"[NEXT_RESUME_COMMAND] {default_resume}")
 
 if __name__ == "__main__":
     main()
