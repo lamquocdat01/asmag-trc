@@ -49,6 +49,13 @@ PIPELINE_ALIASES = {
     "ASMAG_TR_FAST": "P4_ASMAG_PLUS_EFFICIENT_REUSE",
 }
 
+ONLINE_CONTROLLER_PIPELINE = "ASMAG_TR_CONTROLLER_ONLINE"
+ONLINE_CONTROLLER_P3TUNED_PIPELINE = "ASMAG_TR_CONTROLLER_ONLINE_P3TUNED"
+ONLINE_CONTROLLER_PIPELINES = {
+    ONLINE_CONTROLLER_PIPELINE,
+    ONLINE_CONTROLLER_P3TUNED_PIPELINE,
+}
+
 CONTROLLER_CATEGORY_POLICY = {
     "baseline": "FAST",
     "badWeather": "ACC",
@@ -79,6 +86,129 @@ def effective_pipeline_name(pipeline_name, category):
     if pipeline_name != "ASMAG_TR_CONTROLLER":
         return pipeline_name
     return CONTROLLER_MODE_TO_PIPELINE[controller_mode_for_category(category)]
+
+def normalize01(value, scale):
+    if scale <= 0:
+        return 0.0
+    return max(0.0, min(1.0, float(value) / float(scale)))
+
+def online_mode_from_difficulty(score, fast_threshold=0.30, p3_threshold=0.60):
+    if score < fast_threshold:
+        return "FAST"
+    if score < p3_threshold:
+        return "ACC"
+    return "P3_FALLBACK"
+
+class OnlineSceneDifficultyEstimator:
+    def __init__(self, cfg=None):
+        cfg = cfg or {}
+        self.window = int(cfg.get("window", 30))
+        self.min_stable_frames = int(cfg.get("min_stable_frames", cfg.get("min_mode_duration", 10)))
+        self.fast_threshold = float(cfg.get("fast_threshold", 0.30))
+        self.p3_threshold = float(cfg.get("p3_threshold", 0.60))
+        self.disagreement_high_threshold = float(cfg.get("disagreement_high_threshold", 0.35))
+        self.fallback_boost_if_disagreement_high = bool(cfg.get("fallback_boost_if_disagreement_high", False))
+        self.force_p3_if_fd_mog_disagreement_high = bool(cfg.get("force_p3_if_fd_mog_disagreement_high", False))
+        self.force_p3_if_knn_mog_disagreement_high = bool(cfg.get("force_p3_if_knn_mog_disagreement_high", False))
+        self.max_switch_per_100_frames = int(cfg.get("max_switch_per_100_frames", 6))
+        self.current_mode = str(cfg.get("initial_mode", "ACC"))
+        self.candidate_mode = self.current_mode
+        self.candidate_frames = 0
+        self.mode_duration = 0
+        self.mode_switch_count = 0
+        self.switch_eval_indices = []
+        self.history = []
+
+    def update(self, gate_info, gate_open, reused_prediction, is_active, evaluated_index):
+        frame_record = {
+            "motion_density": float(gate_info.get("motion_density", 0.0) or 0.0),
+            "component_count": float(gate_info.get("kept_components", 0.0) or 0.0),
+            "fd_mog_disagreement": abs(float(gate_info.get("fd_area", 0.0) or 0.0) - float(gate_info.get("mog_area", 0.0) or 0.0))
+            / max(1.0, float(gate_info.get("image_area", 0.0) or gate_info.get("frame_area", 0.0) or 1.0)),
+            "knn_mog_disagreement": abs(float(gate_info.get("knn_area", 0.0) or 0.0) - float(gate_info.get("mog_area", 0.0) or 0.0))
+            / max(1.0, float(gate_info.get("image_area", 0.0) or gate_info.get("frame_area", 0.0) or 1.0)),
+            "illumination_diff": float(gate_info.get("illumination_diff", 0.0) or 0.0),
+            "reuse_success": int(reused_prediction),
+            "is_active": int(is_active),
+            "gate_closed": int(not gate_open),
+        }
+        self.history.append(frame_record)
+        if len(self.history) > self.window:
+            self.history = self.history[-self.window:]
+
+        h = pd.DataFrame(self.history)
+        features = {
+            "motion_density_mean": float(h["motion_density"].mean()),
+            "motion_density_std": float(h["motion_density"].std(ddof=0)),
+            "component_count_mean": float(h["component_count"].mean()),
+            "component_count_std": float(h["component_count"].std(ddof=0)),
+            "fd_mog_disagreement": float(h["fd_mog_disagreement"].mean()),
+            "knn_mog_disagreement": float(h["knn_mog_disagreement"].mean()),
+            "illumination_variance": float(h["illumination_diff"].var(ddof=0)),
+            "reuse_success_rate": float(h["reuse_success"].mean()),
+            "active_frame_rate": float(h["is_active"].mean()),
+            "gate_closed_rate": float(h["gate_closed"].mean()),
+        }
+        features["motion_density_std_norm"] = normalize01(features["motion_density_std"], 0.05)
+        features["component_count_std_norm"] = normalize01(features["component_count_std"], 12.0)
+        features["fd_mog_disagreement_norm"] = normalize01(features["fd_mog_disagreement"], 0.08)
+        features["knn_mog_disagreement_norm"] = normalize01(features["knn_mog_disagreement"], 0.08)
+        features["illumination_variance_norm"] = normalize01(features["illumination_variance"], 400.0)
+        features["reuse_failure_rate"] = 1.0 - features["reuse_success_rate"]
+        features["gate_instability"] = min(features["gate_closed_rate"], 1.0 - features["gate_closed_rate"]) * 2.0
+        difficulty = (
+            0.20 * features["motion_density_std_norm"]
+            + 0.15 * features["component_count_std_norm"]
+            + 0.20 * features["fd_mog_disagreement_norm"]
+            + 0.15 * features["illumination_variance_norm"]
+            + 0.10 * features["reuse_failure_rate"]
+            + 0.10 * features["active_frame_rate"]
+            + 0.10 * features["gate_instability"]
+        )
+        fd_high = features["fd_mog_disagreement"] >= self.disagreement_high_threshold
+        knn_high = features["knn_mog_disagreement"] >= self.disagreement_high_threshold
+        if self.fallback_boost_if_disagreement_high and (fd_high or knn_high):
+            difficulty = max(difficulty, self.p3_threshold)
+        force_p3 = (
+            (self.force_p3_if_fd_mog_disagreement_high and fd_high)
+            or (self.force_p3_if_knn_mog_disagreement_high and knn_high)
+        )
+        desired_mode = "P3_FALLBACK" if force_p3 else online_mode_from_difficulty(
+            difficulty,
+            self.fast_threshold,
+            self.p3_threshold,
+        )
+        if desired_mode == self.current_mode:
+            self.candidate_mode = desired_mode
+            self.candidate_frames = 0
+        elif desired_mode == self.candidate_mode:
+            self.candidate_frames += 1
+        else:
+            self.candidate_mode = desired_mode
+            self.candidate_frames = 1
+
+        self.switch_eval_indices = [i for i in self.switch_eval_indices if evaluated_index - i < 100]
+        can_switch = len(self.switch_eval_indices) < self.max_switch_per_100_frames
+        if self.candidate_frames >= self.min_stable_frames and can_switch:
+            self.current_mode = self.candidate_mode
+            self.candidate_frames = 0
+            self.mode_duration = 0
+            self.mode_switch_count += 1
+            self.switch_eval_indices.append(evaluated_index)
+        else:
+            self.mode_duration += 1
+
+        features.update({
+            "SceneDifficulty": difficulty,
+            "selected_mode": self.current_mode,
+            "desired_mode": desired_mode,
+            "emergency_p3_fallback": int(force_p3),
+            "fd_mog_disagreement_high": int(fd_high),
+            "knn_mog_disagreement_high": int(knn_high),
+            "mode_switch_count": self.mode_switch_count,
+            "mode_duration": self.mode_duration,
+        })
+        return features
 
 def p4_efficient_cfg_for_pipeline(cfg, pipeline_name):
     efficient_cfg = dict(cfg.get("p4_asmag_plus", {}))
@@ -115,6 +245,56 @@ def sequence_summary_paths(out_root, category, video, pipeline):
 def sequence_result_complete(out_root, category, video, pipeline):
     return all(path.exists() for path in sequence_summary_paths(out_root, category, video, pipeline))
 
+def has_external_run_experiment_process(config_path=None):
+    current_pid = os.getpid()
+    for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+        try:
+            if proc.info["pid"] == current_pid:
+                continue
+            cmdline = " ".join(proc.info.get("cmdline") or [])
+            if "run_experiment.py" in cmdline and (not config_path or str(config_path) in cmdline):
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return False
+
+def is_stale_progress_row(row, stale_minutes):
+    updated_at = str(row.get("updated_at", "") or "").strip()
+    if not updated_at:
+        return True
+    try:
+        age = pd.Timestamp.now() - pd.Timestamp(updated_at)
+    except Exception:
+        return True
+    return age.total_seconds() > stale_minutes * 60
+
+def progress_summary(progress):
+    counts = progress["status"].value_counts().to_dict()
+    running = progress[progress["status"] == "running"]
+    current_job = ""
+    if not running.empty:
+        row = running.iloc[0]
+        current_job = f"{row['category']}/{row['video']}/{row['pipeline']}"
+    return {
+        "completed": int(counts.get("completed", 0)),
+        "pending": int(counts.get("pending", 0)),
+        "running": int(counts.get("running", 0)),
+        "failed": int(counts.get("failed", 0)),
+        "current_job": current_job,
+    }
+
+def print_progress_summary(progress_path, label="PROGRESS"):
+    progress_path = Path(progress_path)
+    if not progress_path.exists():
+        return
+    progress = pd.read_csv(progress_path)
+    summary = progress_summary(progress)
+    print(
+        f"[{label}] completed={summary['completed']} | "
+        f"pending={summary['pending']} | running={summary['running']} | "
+        f"failed={summary['failed']} | current_job={summary['current_job'] or '-'}"
+    )
+
 def expected_eval_frame_count(seq, cfg):
     eval_cfg = cfg.get("evaluation", {})
     frame_step = max(1, int(eval_cfg.get("frame_step", 1)))
@@ -134,6 +314,10 @@ def expected_eval_frame_count(seq, cfg):
 
 def initialize_run_progress(out_root, sequences, pipelines, cfg):
     progress_path = Path(out_root) / "run_progress.csv"
+    progress_cfg = cfg.get("progress", {})
+    auto_recover = bool(progress_cfg.get("auto_recover_stale_jobs", True))
+    stale_minutes = float(progress_cfg.get("stale_running_minutes", 10))
+    external_runner_active = has_external_run_experiment_process(cfg.get("_config_path"))
     expected_by_seq = {
         (seq["category"], seq["video"]): expected_eval_frame_count(seq, cfg)
         for seq in sequences
@@ -159,14 +343,24 @@ def initialize_run_progress(out_root, sequences, pipelines, cfg):
                 for pipeline in pipelines
             ]
         )
+    recovered = 0
     for idx, row in progress.iterrows():
         if sequence_result_complete(out_root, row["category"], row["video"], row["pipeline"]):
             progress.loc[idx, "status"] = "completed"
             progress.loc[idx, "message"] = "checkpoint exists"
-        elif str(progress.loc[idx, "status"]) == "running":
+        elif (
+            auto_recover
+            and str(progress.loc[idx, "status"]) == "running"
+            and ((not external_runner_active) or is_stale_progress_row(row, stale_minutes))
+        ):
             progress.loc[idx, "status"] = "pending"
-            progress.loc[idx, "message"] = "reset stale running state"
+            progress.loc[idx, "updated_at"] = pd.Timestamp.now().isoformat(timespec="seconds")
+            progress.loc[idx, "message"] = f"auto-recovered stale running state; stale>{stale_minutes:g}min or no external runner"
+            recovered += 1
     progress.to_csv(progress_path, index=False)
+    if recovered:
+        print(f"[AUTO-RECOVER] reset {recovered} stale running job(s) to pending")
+    print_progress_summary(progress_path, "START PROGRESS")
     return progress_path
 
 def update_run_progress(progress_path, category, video, pipeline, status, message=""):
@@ -187,6 +381,8 @@ def update_run_progress(progress_path, category, video, pipeline, status, messag
         progress.loc[mask, "updated_at"] = pd.Timestamp.now().isoformat(timespec="seconds")
         progress.loc[mask, "message"] = str(message)[:500]
     progress.to_csv(progress_path, index=False)
+    if status in {"completed", "failed"}:
+        print_progress_summary(progress_path, "JOB PROGRESS")
 
 def build_research_summary(event_rows, pixel_rows, edge_rows):
     keys = ["category", "video", "pipeline"]
@@ -303,6 +499,54 @@ def print_pipeline_final_table(out_root, pareto_summary):
             table[col] = 0.0
     print("\n[FINAL PIPELINE SUMMARY]")
     print(table[cols].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
+
+def write_online_controller_diagnostics(out_root, frame_rows):
+    if not frame_rows:
+        return
+    df = pd.DataFrame(frame_rows)
+    df = df[df["pipeline"].isin(ONLINE_CONTROLLER_PIPELINES)].copy()
+    if df.empty or "SceneDifficulty" not in df.columns:
+        return
+
+    def pctl(values, q):
+        return float(values.quantile(q)) if len(values) else 0.0
+
+    scene_rows = []
+    usage_rows = []
+    for (category, video, pipeline), group in df.groupby(["category", "video", "pipeline"], sort=False):
+        difficulty = group["SceneDifficulty"].astype(float)
+        scene_rows.append({
+            "category": category,
+            "video": video,
+            "pipeline": pipeline,
+            "frames": len(group),
+            "scene_difficulty_mean": float(difficulty.mean()),
+            "scene_difficulty_std": float(difficulty.std(ddof=0)),
+            "scene_difficulty_min": float(difficulty.min()),
+            "scene_difficulty_p25": pctl(difficulty, 0.25),
+            "scene_difficulty_p50": pctl(difficulty, 0.50),
+            "scene_difficulty_p75": pctl(difficulty, 0.75),
+            "scene_difficulty_p90": pctl(difficulty, 0.90),
+            "scene_difficulty_p95": pctl(difficulty, 0.95),
+            "scene_difficulty_max": float(difficulty.max()),
+        })
+        counts = group["selected_mode"].value_counts()
+        frames = max(1, len(group))
+        usage_rows.append({
+            "category": category,
+            "video": video,
+            "pipeline": pipeline,
+            "frames": len(group),
+            "FAST_frames": int(counts.get("FAST", 0)),
+            "ACC_frames": int(counts.get("ACC", 0)),
+            "P3_FALLBACK_frames": int(counts.get("P3_FALLBACK", 0)),
+            "FAST_rate": float(counts.get("FAST", 0) / frames),
+            "ACC_rate": float(counts.get("ACC", 0) / frames),
+            "P3_FALLBACK_rate": float(counts.get("P3_FALLBACK", 0) / frames),
+        })
+
+    pd.DataFrame(scene_rows).to_csv(Path(out_root) / "online_scene_difficulty_summary.csv", index=False)
+    pd.DataFrame(usage_rows).to_csv(Path(out_root) / "online_mode_usage_by_video.csv", index=False)
 
 def build_p4_precision_comparison(event_rows, pixel_rows, edge_rows):
     research = build_research_summary(event_rows, pixel_rows, edge_rows)
@@ -591,6 +835,7 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
     category_policy_mode = controller_selected_mode
     execution_pipeline_name = effective_pipeline_name(pipeline_name, seq["category"])
     pipeline_key = canonical_pipeline_name(execution_pipeline_name)
+    is_online_controller = pipeline_name in ONLINE_CONTROLLER_PIPELINES
     exp = cfg["experiment_name"]
     out_root = Path(cfg.get("output_root", "outputs")) / exp
     seq_out = ensure(out_root / "raw_results" / seq["category"] / seq["video"] / pipeline_name)
@@ -646,7 +891,7 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         "P4_ASMAG_PLUS_BALANCED",
         "P4_ASMAG_PLUS_EFFICIENT",
         "P4_ASMAG_PLUS_EFFICIENT_REUSE",
-    }
+    } or is_online_controller
     if eval_positions and frames_source is None and uses_bg_subtractor:
         loop_positions = range(eval_positions[0], eval_positions[-1] + 1)
     else:
@@ -657,7 +902,18 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
     else:
         warmup_positions = []
 
-    if pipeline_key == "P2_FrameDiff":
+    online_gates = {}
+    online_estimator = None
+    if is_online_controller:
+        online_gates = {
+            "P3_FALLBACK": MOG2Gate(min_area_ratio=cfg.get("p4_asmag_plus", {}).get("min_area_ratio", 0.001)),
+            "ACC": ASMAGPlusEfficientGate(p4_efficient_cfg_for_pipeline(cfg, "ASMAG_TR_ACC")),
+            "FAST": ASMAGPlusEfficientGate(p4_efficient_cfg_for_pipeline(cfg, "ASMAG_TR_FAST")),
+        }
+        online_cfg_key = "online_controller_p3tuned" if pipeline_name == ONLINE_CONTROLLER_P3TUNED_PIPELINE else "online_controller"
+        online_estimator = OnlineSceneDifficultyEstimator(cfg.get(online_cfg_key, cfg.get("online_controller", {})))
+        gate = None
+    elif pipeline_key == "P2_FrameDiff":
         gate = FrameDiffGate(min_area_ratio=cfg.get("p4_asmag_plus", {}).get("min_area_ratio", 0.001))
     elif pipeline_key == "P3_MOG2":
         gate = MOG2Gate(min_area_ratio=cfg.get("p4_asmag_plus", {}).get("min_area_ratio", 0.001))
@@ -699,11 +955,19 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         frame = read_frame(frame_files[idx])
         if frame is None:
             continue
-        gate.process(frame, prev)
+        if is_online_controller:
+            for online_gate in online_gates.values():
+                online_gate.process(frame, prev)
+        else:
+            gate.process(frame, prev)
         prev = frame.copy()
         warmup_processed += 1
 
-    if warmup_processed and hasattr(gate, "reset_runtime_state"):
+    if warmup_processed and is_online_controller:
+        for online_gate in online_gates.values():
+            if hasattr(online_gate, "reset_runtime_state"):
+                online_gate.reset_runtime_state()
+    elif warmup_processed and hasattr(gate, "reset_runtime_state"):
         gate.reset_runtime_state()
 
     for idx in loop_positions:
@@ -718,7 +982,10 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
 
         should_evaluate = idx in eval_position_set
         if not should_evaluate:
-            if pipeline_key != "P1_YOLO_Only":
+            if is_online_controller:
+                for online_gate in online_gates.values():
+                    online_gate.process(frame, prev, {"is_evaluation": False})
+            elif pipeline_key != "P1_YOLO_Only":
                 gate.process(frame, prev, {"is_evaluation": False})
             prev = frame.copy()
             continue
@@ -732,15 +999,30 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         gate_info = {"gate_score": 1.0, "motion_area": 0, "watchdog_triggered": 0}
 
         if pipeline_key != "P1_YOLO_Only":
-            gate_open, gate_mask, gate_info = gate.process(
-                frame,
-                prev,
-                {
-                    "is_evaluation": True,
-                    "evaluated_index": evaluated_index,
-                    "raw_frame_id": frame_label,
-                },
-            )
+            gate_state = {
+                "is_evaluation": True,
+                "evaluated_index": evaluated_index,
+                "raw_frame_id": frame_label,
+            }
+            if is_online_controller:
+                online_outputs = {}
+                for mode, online_gate in online_gates.items():
+                    online_outputs[mode] = online_gate.process(frame, prev, gate_state)
+                telemetry_open, _, telemetry_info = online_outputs["ACC"]
+                telemetry_info["image_area"] = frame.shape[0] * frame.shape[1]
+                feature_info = online_estimator.update(
+                    telemetry_info,
+                    telemetry_open,
+                    0,
+                    0,
+                    evaluated_index,
+                )
+                controller_selected_mode = feature_info["selected_mode"]
+                category_policy_mode = "ONLINE"
+                gate_open, gate_mask, gate_info = online_outputs[controller_selected_mode]
+                gate_info = {**gate_info, **feature_info, "image_area": frame.shape[0] * frame.shape[1]}
+            else:
+                gate_open, gate_mask, gate_info = gate.process(frame, prev, gate_state)
 
         detection = None
         pred_mask = np.zeros(frame.shape[:2], dtype=np.uint8)
@@ -770,8 +1052,11 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
                 last_detection_eval_index = evaluated_index
                 last_detection_raw_frame_id = frame_label
         else:
-            if pipeline_key == "P4_ASMAG_PLUS_EFFICIENT_REUSE":
-                reuse_cfg = cfg.get("p4_efficient", {})
+            if pipeline_key == "P4_ASMAG_PLUS_EFFICIENT_REUSE" or (is_online_controller and controller_selected_mode in {"ACC", "FAST"}):
+                if is_online_controller:
+                    reuse_cfg = p4_efficient_cfg_for_pipeline(cfg, CONTROLLER_MODE_TO_PIPELINE[controller_selected_mode])
+                else:
+                    reuse_cfg = p4_efficient_cfg_for_pipeline(cfg, execution_pipeline_name)
                 reuse_max_eval_age = int(reuse_cfg.get("reuse_max_eval_age", reuse_cfg.get("reuse_max_age", 5)))
                 reuse_max_raw_age_cfg = reuse_cfg.get("reuse_max_raw_age", None)
                 use_raw_age_limit = reuse_max_raw_age_cfg not in (None, "", "null", "None")
@@ -805,7 +1090,9 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             else:
                 pred_mask = np.zeros(frame.shape[:2], dtype=np.uint8)
 
-        if pipeline_key in {"P4_ASMAG_PLUS", "P4_ASMAG_PLUS_PRECISION", "P4_ASMAG_PLUS_BALANCED", "P4_ASMAG_PLUS_EFFICIENT", "P4_ASMAG_PLUS_EFFICIENT_REUSE"} and hasattr(gate, "update_after_detection"):
+        if is_online_controller and controller_selected_mode in online_gates and hasattr(online_gates[controller_selected_mode], "update_after_detection"):
+            online_gates[controller_selected_mode].update_after_detection(bool(gate_open and np.sum(pred_mask > 0) > 0))
+        elif pipeline_key in {"P4_ASMAG_PLUS", "P4_ASMAG_PLUS_PRECISION", "P4_ASMAG_PLUS_BALANCED", "P4_ASMAG_PLUS_EFFICIENT", "P4_ASMAG_PLUS_EFFICIENT_REUSE"} and hasattr(gate, "update_after_detection"):
             gate.update_after_detection(bool(gate_open and np.sum(pred_mask > 0) > 0))
 
         if delay > 0:
@@ -816,6 +1103,10 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
 
         pred_alert = bool(np.sum(pred_mask > 0) > 0)
         e_state, is_active = event_state_from_masks(pred_alert, gt, cdnet_gt_config)
+        if is_online_controller and online_estimator.history:
+            online_estimator.history[-1]["is_active"] = int(is_active)
+            online_estimator.history[-1]["reuse_success"] = int(reused_prediction)
+            online_estimator.history[-1]["gate_closed"] = int(not gate_open)
         px = pixel_metrics(pred_mask, gt, cdnet_gt_config)
         px_rows.append(px)
 
@@ -843,7 +1134,10 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         obj_30 = object_counts_at_threshold(pred_boxes, gt_boxes, 0.3)
         obj_50 = object_counts_at_threshold(pred_boxes, gt_boxes, 0.5)
         obj_75 = object_counts_at_threshold(pred_boxes, gt_boxes, 0.75)
-        mog2_used, framediff_used = energy_usage_flags(pipeline_key)
+        energy_pipeline_key = pipeline_key
+        if is_online_controller:
+            energy_pipeline_key = canonical_pipeline_name(CONTROLLER_MODE_TO_PIPELINE[controller_selected_mode])
+        mog2_used, framediff_used = energy_usage_flags(energy_pipeline_key)
         energy_inputs = {
             "yolo_called": int(gate_open),
             "reused_prediction": reused_prediction,
@@ -995,6 +1289,7 @@ def main():
     args = ap.parse_args()
     with open(args.config, "r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
+    cfg["_config_path"] = args.config
 
     out_root = ensure(Path(cfg.get("output_root", "outputs")) / cfg["experiment_name"])
     print(f"[RUN] Experiment: {cfg['experiment_name']}")
@@ -1075,6 +1370,8 @@ def main():
         "ASMAG_TR_ACC",
         "ASMAG_TR_FAST",
         "ASMAG_TR_CONTROLLER",
+        "ASMAG_TR_CONTROLLER_ONLINE",
+        "ASMAG_TR_CONTROLLER_ONLINE_P3TUNED",
     ]
     final_comparison = build_pipeline_comparison(research_summary, final_pipelines)
     if not final_comparison.empty:
@@ -1093,6 +1390,7 @@ def main():
     p4_reuse_comparison = build_p4_reuse_comparison(all_ev, all_px, all_edge)
     if not p4_reuse_comparison.empty:
         p4_reuse_comparison.to_csv(out_root / "p4_reuse_comparison.csv", index=False)
+    write_online_controller_diagnostics(out_root, all_cdnet_frame_rows)
     pareto_summary = write_pareto_metrics(out_root, cfg.get("pareto", {}))
     create_summary_charts(out_root)
 
