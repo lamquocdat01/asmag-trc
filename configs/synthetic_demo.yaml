@@ -1,0 +1,65 @@
+experiment_name: synthetic_demo
+dataset_mode: synthetic
+dataset_root: ""
+output_root: "outputs"
+
+cdnet_gt:
+  foreground_values: [255]
+  background_values: [0]
+  ignore_values: [50, 85, 170]
+
+energy_proxy:
+  E_base: 1.0
+  E_gate: 0.2
+  E_yolo: 5.0
+  E_reuse: 0.1
+  E_mog2: 0.5
+  E_framediff: 0.1
+  unit: "relative_energy_unit"
+
+synthetic:
+  num_frames: 160
+  width: 320
+  height: 180
+
+categories:
+  - synthetic
+
+videos:
+  synthetic:
+    - moving_box
+
+pipelines:
+  - P1_YOLO_Only
+  - P2_FrameDiff
+  - P3_MOG2
+  - P4_ASMAG_PLUS
+
+detector_mode: mock
+model_name: mock_detector
+
+edge_profile:
+  name: desktop_fast
+  simulated_cores: 2
+  simulated_ram_gb: 4
+  delay_penalty_sec: 0.0
+  resize_width_for_gating: 320
+
+evaluation:
+  frame_step: 1
+  max_frames_per_video: null
+  save_binary_masks: true
+  save_qualitative_samples: true
+  iou_threshold: 0.3
+
+p4_asmag_plus:
+  min_area_ratio: 0.001
+  open_threshold: 0.55
+  close_threshold: 0.30
+  watchdog_closed_frames: 12
+  watchdog_interval: 6
+  recent_object_memory: 30
+  entropy_threshold: 8.5
+  use_component_entropy: true
+  use_hysteresis: true
+  use_dual_mask: true

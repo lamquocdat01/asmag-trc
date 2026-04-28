@@ -1,0 +1,68 @@
+experiment_name: q2_core_debug
+dataset_mode: cdnet
+dataset_root: "D:/THS Programing/06.6 ASMAG Project/dataset cdnet2014/archive/dataset"
+output_root: "outputs"
+
+cdnet_gt:
+  foreground_values: [255]
+  background_values: [0]
+  ignore_values: [50, 85, 170]
+
+energy_proxy:
+  E_base: 1.0
+  E_gate: 0.2
+  E_yolo: 5.0
+  E_reuse: 0.1
+  E_mog2: 0.5
+  E_framediff: 0.1
+  unit: "relative_energy_unit"
+
+categories:
+  - baseline
+  - dynamicBackground
+  - intermittentObjectMotion
+  - shadow
+  - cameraJitter
+  - nightVideos
+
+videos: auto
+
+pipelines:
+  - P1_YOLO_Only
+  - P2_FrameDiff
+  - P3_MOG2
+  - P4_ASMAG_PLUS
+
+# mock = chạy nhanh để test framework
+# yolo = chạy YOLO thật nếu đã cài ultralytics và có model
+detector_mode: mock
+model_name: yolo26s-seg
+model_path: "models/yolo/yolo26s-seg.pt"
+
+edge_profile:
+  name: edge_cpu_2core
+  simulated_cores: 2
+  simulated_ram_gb: 4
+  delay_penalty_sec: 0.005
+  resize_width_for_gating: 320
+
+evaluation:
+  use_temporal_roi: true
+  warmup_frames: 50
+  frame_step: 10
+  max_frames_per_video: 500
+  save_binary_masks: false
+  save_qualitative_samples: false
+  iou_threshold: 0.3
+
+p4_asmag_plus:
+  min_area_ratio: 0.0008
+  open_threshold: 0.55
+  close_threshold: 0.30
+  watchdog_closed_frames: 12
+  watchdog_interval: 6
+  recent_object_memory: 30
+  entropy_threshold: 8.5
+  use_component_entropy: true
+  use_hysteresis: true
+  use_dual_mask: true

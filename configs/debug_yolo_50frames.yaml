@@ -1,0 +1,92 @@
+experiment_name: debug_yolo_50frames
+dataset_mode: cdnet
+dataset_root: "D:/THS Programing/06.6 ASMAG Project/dataset cdnet2014/archive/dataset"
+output_root: "outputs"
+
+cdnet_gt:
+  foreground_values: [255]
+  background_values: [0]
+  ignore_values: [50, 85, 170]
+
+energy_proxy:
+  E_base: 1.0
+  E_gate: 0.2
+  E_yolo: 5.0
+  E_reuse: 0.1
+  E_mog2: 0.5
+  E_framediff: 0.1
+  unit: "relative_energy_unit"
+
+categories:
+  - baseline
+
+videos:
+  baseline:
+    - highway
+
+pipelines:
+  - P3_MOG2
+  - P4_ASMAG_PLUS
+  - P4_ASMAG_PLUS_PRECISION
+  - P4_ASMAG_PLUS_BALANCED
+
+detector_mode: yolo
+model_name: yolo26s-seg
+model_path: "models/yolo/yolo26s-seg.pt"
+
+edge_profile:
+  name: edge_cpu_2core
+  simulated_cores: 2
+  simulated_ram_gb: 4
+  delay_penalty_sec: 0.005
+  resize_width_for_gating: 320
+
+evaluation:
+  use_temporal_roi: true
+  warmup_frames: 30
+  frame_step: 10
+  max_frames_per_video: 100
+  save_binary_masks: true
+  save_qualitative_samples: true
+  save_p4_diagnostics: true
+  p4_diagnostic_frames:
+    - 470
+  p4_diagnostic_top_fp: 10
+  iou_threshold: 0.3
+
+p4_asmag_plus:
+  min_area_ratio: 0.0008
+  open_threshold: 0.55
+  close_threshold: 0.30
+  watchdog_closed_frames: 12
+  watchdog_interval: 6
+  recent_object_memory: 30
+  entropy_threshold: 8.5
+  use_component_entropy: true
+  use_hysteresis: true
+  use_dual_mask: true
+
+p4_precision:
+  fusion_mode: "majority_2_of_3"
+  knn_max_area_ratio_for_gate: 0.03
+  knn_max_area_ratio_for_filter: 0.02
+  max_component_area_ratio: 0.025
+  min_component_area_ratio: 0.0003
+  max_aspect_ratio: 8.0
+  min_solidity: 0.12
+  use_mog2_as_primary_filter: true
+
+p4_balanced:
+  fusion_mode: "mog2_plus_agreement"
+  knn_max_area_ratio_for_gate: 0.03
+  knn_max_area_ratio_for_filter: 0.02
+  min_component_area_ratio: 0.0002
+  max_component_area_ratio: 0.04
+  max_aspect_ratio: 10.0
+  min_solidity: 0.08
+  dilate_mog_iterations: 1
+  dilate_fd_iterations: 1
+  open_threshold: 0.60
+  close_threshold: 0.40
+  watchdog_closed_frames: 25
+  watchdog_interval: 10
