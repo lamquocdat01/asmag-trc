@@ -1,4 +1,4 @@
-import os, sys, time, argparse
+import os, sys, time, argparse, pickle
 from pathlib import Path
 import yaml
 import cv2
@@ -51,10 +51,25 @@ PIPELINE_ALIASES = {
 
 ONLINE_CONTROLLER_PIPELINE = "ASMAG_TR_CONTROLLER_ONLINE"
 ONLINE_CONTROLLER_P3TUNED_PIPELINE = "ASMAG_TR_CONTROLLER_ONLINE_P3TUNED"
+ONLINE_CONTROLLER_CALIBRATED_PIPELINE = "ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED"
 ONLINE_CONTROLLER_PIPELINES = {
     ONLINE_CONTROLLER_PIPELINE,
     ONLINE_CONTROLLER_P3TUNED_PIPELINE,
+    ONLINE_CONTROLLER_CALIBRATED_PIPELINE,
 }
+
+ONLINE_MODE_FEATURE_COLUMNS = [
+    "motion_density_mean",
+    "motion_density_std",
+    "component_count_mean",
+    "component_count_std",
+    "fd_mog_disagreement",
+    "knn_mog_disagreement",
+    "illumination_variance",
+    "reuse_success_rate",
+    "active_frame_rate",
+    "gate_closed_rate",
+]
 
 CONTROLLER_CATEGORY_POLICY = {
     "baseline": "FAST",
@@ -111,6 +126,7 @@ class OnlineSceneDifficultyEstimator:
         self.force_p3_if_fd_mog_disagreement_high = bool(cfg.get("force_p3_if_fd_mog_disagreement_high", False))
         self.force_p3_if_knn_mog_disagreement_high = bool(cfg.get("force_p3_if_knn_mog_disagreement_high", False))
         self.max_switch_per_100_frames = int(cfg.get("max_switch_per_100_frames", 6))
+        self.use_hysteresis = bool(cfg.get("use_hysteresis", True))
         self.current_mode = str(cfg.get("initial_mode", "ACC"))
         self.candidate_mode = self.current_mode
         self.candidate_frames = 0
@@ -118,6 +134,28 @@ class OnlineSceneDifficultyEstimator:
         self.mode_switch_count = 0
         self.switch_eval_indices = []
         self.history = []
+        self.policy_model = None
+        self.policy_name = ""
+        self.policy_feature_columns = ONLINE_MODE_FEATURE_COLUMNS
+        policy_path = str(cfg.get("mode_policy_path", "") or "").strip()
+        if policy_path:
+            with open(policy_path, "rb") as f:
+                artifact = pickle.load(f)
+            self.policy_model = artifact.get("model", artifact) if isinstance(artifact, dict) else artifact
+            if isinstance(artifact, dict):
+                self.policy_name = str(artifact.get("policy_name", "calibrated_policy"))
+                self.policy_feature_columns = list(artifact.get("feature_columns", ONLINE_MODE_FEATURE_COLUMNS))
+            else:
+                self.policy_name = "calibrated_policy"
+
+    def predict_calibrated_mode(self, features):
+        if self.policy_model is None:
+            return None
+        row = pd.DataFrame(
+            [[float(features.get(col, 0.0) or 0.0) for col in self.policy_feature_columns]],
+            columns=self.policy_feature_columns,
+        )
+        return str(self.policy_model.predict(row)[0])
 
     def update(self, gate_info, gate_open, reused_prediction, is_active, evaluated_index):
         frame_record = {
@@ -173,11 +211,37 @@ class OnlineSceneDifficultyEstimator:
             (self.force_p3_if_fd_mog_disagreement_high and fd_high)
             or (self.force_p3_if_knn_mog_disagreement_high and knn_high)
         )
-        desired_mode = "P3_FALLBACK" if force_p3 else online_mode_from_difficulty(
-            difficulty,
-            self.fast_threshold,
-            self.p3_threshold,
+        calibrated_mode = self.predict_calibrated_mode(features)
+        desired_mode = calibrated_mode or (
+            "P3_FALLBACK" if force_p3 else online_mode_from_difficulty(
+                difficulty,
+                self.fast_threshold,
+                self.p3_threshold,
+            )
         )
+        if not self.use_hysteresis:
+            if desired_mode != self.current_mode:
+                self.mode_switch_count += 1
+                self.mode_duration = 0
+                self.switch_eval_indices.append(evaluated_index)
+            else:
+                self.mode_duration += 1
+            self.current_mode = desired_mode
+            self.candidate_mode = desired_mode
+            self.candidate_frames = 0
+            features.update({
+                "SceneDifficulty": difficulty,
+                "selected_mode": self.current_mode,
+                "desired_mode": desired_mode,
+                "calibrated_policy_mode": calibrated_mode or "",
+                "calibrated_policy_name": self.policy_name,
+                "emergency_p3_fallback": int(force_p3),
+                "fd_mog_disagreement_high": int(fd_high),
+                "knn_mog_disagreement_high": int(knn_high),
+                "mode_switch_count": self.mode_switch_count,
+                "mode_duration": self.mode_duration,
+            })
+            return features
         if desired_mode == self.current_mode:
             self.candidate_mode = desired_mode
             self.candidate_frames = 0
@@ -202,6 +266,8 @@ class OnlineSceneDifficultyEstimator:
             "SceneDifficulty": difficulty,
             "selected_mode": self.current_mode,
             "desired_mode": desired_mode,
+            "calibrated_policy_mode": calibrated_mode or "",
+            "calibrated_policy_name": self.policy_name,
             "emergency_p3_fallback": int(force_p3),
             "fd_mog_disagreement_high": int(fd_high),
             "knn_mog_disagreement_high": int(knn_high),
@@ -910,7 +976,12 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             "ACC": ASMAGPlusEfficientGate(p4_efficient_cfg_for_pipeline(cfg, "ASMAG_TR_ACC")),
             "FAST": ASMAGPlusEfficientGate(p4_efficient_cfg_for_pipeline(cfg, "ASMAG_TR_FAST")),
         }
-        online_cfg_key = "online_controller_p3tuned" if pipeline_name == ONLINE_CONTROLLER_P3TUNED_PIPELINE else "online_controller"
+        if pipeline_name == ONLINE_CONTROLLER_CALIBRATED_PIPELINE:
+            online_cfg_key = "online_controller_calibrated"
+        elif pipeline_name == ONLINE_CONTROLLER_P3TUNED_PIPELINE:
+            online_cfg_key = "online_controller_p3tuned"
+        else:
+            online_cfg_key = "online_controller"
         online_estimator = OnlineSceneDifficultyEstimator(cfg.get(online_cfg_key, cfg.get("online_controller", {})))
         gate = None
     elif pipeline_key == "P2_FrameDiff":
@@ -1372,6 +1443,7 @@ def main():
         "ASMAG_TR_CONTROLLER",
         "ASMAG_TR_CONTROLLER_ONLINE",
         "ASMAG_TR_CONTROLLER_ONLINE_P3TUNED",
+        "ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED",
     ]
     final_comparison = build_pipeline_comparison(research_summary, final_pipelines)
     if not final_comparison.empty:

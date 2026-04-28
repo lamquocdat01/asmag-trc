@@ -1,0 +1,141 @@
+experiment_name: q2_core_extended_online_controller_calibrated
+dataset_mode: cdnet
+dataset_root: "D:/THS Programing/06.6 ASMAG Project/dataset cdnet2014/archive/dataset"
+output_root: "outputs"
+resume_existing_results: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 10
+
+categories:
+  - baseline
+  - dynamicBackground
+  - intermittentObjectMotion
+  - shadow
+  - cameraJitter
+  - nightVideos
+
+videos: auto
+
+pipelines:
+  - P3_MOG2
+  - ASMAG_TR_CONTROLLER
+  - ASMAG_TR_CONTROLLER_ONLINE_P3TUNED
+  - ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED
+
+detector_mode: yolo
+model_name: yolo26s-seg
+model_path: "models/yolo/yolo26s-seg.pt"
+
+edge_profile:
+  name: edge_cpu_2core
+  simulated_cores: 2
+  simulated_ram_gb: 4
+  delay_penalty_sec: 0.005
+  resize_width_for_gating: 320
+
+evaluation:
+  use_temporal_roi: true
+  warmup_frames: 50
+  frame_step: 5
+  max_frames_per_video: 1000
+  save_binary_masks: false
+  save_qualitative_samples: false
+
+online_controller:
+  window: 30
+  fast_threshold: 0.30
+  p3_threshold: 0.60
+  min_mode_duration: 10
+  max_switch_per_100_frames: 6
+  initial_mode: ACC
+  fallback_boost_if_disagreement_high: false
+  disagreement_high_threshold: 0.35
+  force_p3_if_fd_mog_disagreement_high: false
+  force_p3_if_knn_mog_disagreement_high: false
+
+online_controller_p3tuned:
+  window: 30
+  fast_threshold: 0.30
+  p3_threshold: 0.50
+  min_mode_duration: 10
+  max_switch_per_100_frames: 6
+  initial_mode: ACC
+  fallback_boost_if_disagreement_high: true
+  disagreement_high_threshold: 0.35
+  force_p3_if_fd_mog_disagreement_high: true
+  force_p3_if_knn_mog_disagreement_high: true
+
+online_controller_calibrated:
+  window: 30
+  initial_mode: ACC
+  use_hysteresis: false
+  mode_policy_path: "outputs/q2_core_extended_online_controller_calibrated/online_mode_policy.pkl"
+
+cdnet_gt:
+  enabled: true
+  foreground_values: [255]
+  background_values: [0]
+  ignore_values: [50, 85, 170]
+
+object_level_metrics:
+  enabled: true
+  source: "mask_to_boxes"
+  iou_thresholds: [0.3, 0.5, 0.75]
+  map_50_95: true
+  min_gt_area: 20
+  min_pred_area: 20
+  confidence_mode: "proxy_if_missing"
+
+event_metrics:
+  enabled: true
+
+energy_proxy:
+  enabled: true
+  mode: "proxy"
+  E_base: 1.0
+  E_gate: 0.2
+  E_yolo: 5.0
+  E_reuse: 0.1
+  E_mog2: 0.5
+  E_framediff: 0.1
+  unit: "relative_energy_unit"
+
+pareto:
+  enabled: true
+  ae_score_formula:
+    FMeasure_weight: 0.25
+    Event_F1_weight: 0.25
+    mAP_50_weight: 0.20
+    Activation_saving_weight: 0.15
+    FPS_norm_weight: 0.10
+    Energy_saving_weight: 0.05
+
+p4_asmag_plus:
+  min_area_ratio: 0.0008
+  open_threshold: 0.55
+  close_threshold: 0.30
+  watchdog_closed_frames: 12
+  watchdog_interval: 6
+  recent_object_memory: 30
+  entropy_threshold: 8.5
+  use_component_entropy: true
+  use_hysteresis: true
+  use_dual_mask: true
+
+p4_efficient:
+  open_threshold: 0.72
+  close_threshold: 0.45
+  force_close_threshold: 0.78
+  beta: 0.7
+  max_open_streak: 12
+  cooldown_frames: 1
+  sample_interval: 10
+  min_area_ratio: 0.0015
+  use_final_mask_from: "P4_ASMAG_PLUS"
+  reuse_max_age: 5
+  reuse_max_eval_age: 5
+  reuse_max_raw_age: null
+  reuse_decay: false
+  reuse_stop_closed_streak: 8
