@@ -15,6 +15,7 @@ PIPELINE_ORDER = [
     "P4_ASMAG_PLUS",
     "ASMAG_TR_ACC",
     "ASMAG_TR_FAST",
+    "ASMAG_TR_CONTROLLER",
 ]
 
 
@@ -268,6 +269,7 @@ def make_charts(out_dir, main):
 def write_summary_md(out_dir, main, best, rankings, category_insight, video_cases):
     acc = main[main["Pipeline"] == "ASMAG_TR_ACC"].iloc[0]
     fast = main[main["Pipeline"] == "ASMAG_TR_FAST"].iloc[0]
+    controller = main[main["Pipeline"] == "ASMAG_TR_CONTROLLER"]
     p3 = main[main["Pipeline"] == "P3_MOG2"].iloc[0]
 
     acc_ok = (p3["CDnet_FMeasure"] - acc["CDnet_FMeasure"] <= 0.05) and (acc["Activation"] < p3["Activation"] - 0.05)
@@ -275,10 +277,19 @@ def write_summary_md(out_dir, main, best, rankings, category_insight, video_case
         fast["Activation"] == main["Activation"].min()
         and fast["Estimated_energy_per_frame"] == main["Estimated_energy_per_frame"].min()
     )
-    tr = main[main["Pipeline"].isin(["ASMAG_TR_ACC", "ASMAG_TR_FAST"])]
+    tr = main[main["Pipeline"].isin(["ASMAG_TR_ACC", "ASMAG_TR_FAST", "ASMAG_TR_CONTROLLER"])]
     baselines = main[main["Pipeline"].isin(["P1_YOLO_Only", "P2_FrameDiff", "P3_MOG2", "P4_ASMAG_PLUS"])]
     tr_best = tr.sort_values("AE_Score", ascending=False).iloc[0]
     baseline_best = baselines.sort_values("AE_Score", ascending=False).iloc[0]
+    controller_line = ""
+    if not controller.empty:
+        ctrl = controller.iloc[0]
+        controller_line = (
+            f"- ASMAG_TR_CONTROLLER: FMeasure {ctrl['CDnet_FMeasure']:.4f} vs P3_MOG2 {p3['CDnet_FMeasure']:.4f}, "
+            f"activation {ctrl['Activation']:.4f} vs {p3['Activation']:.4f}, "
+            f"energy/frame {ctrl['Estimated_energy_per_frame']:.4f} vs {p3['Estimated_energy_per_frame']:.4f}, "
+            f"AE_Score {ctrl['AE_Score']:.4f}."
+        )
     strong_cats = category_insight[
         category_insight["note"].str.contains("ASMAG-TR|FAST|ACC", regex=True, na=False)
     ]["category"].tolist()
@@ -303,6 +314,7 @@ def write_summary_md(out_dir, main, best, rankings, category_insight, video_case
         f"(FMeasure {acc['CDnet_FMeasure']:.4f} vs P3_MOG2 {p3['CDnet_FMeasure']:.4f}, activation {acc['Activation']:.4f} vs {p3['Activation']:.4f}).",
         f"- ASMAG_TR_FAST recommendation: {'yes, use as efficiency-oriented mode' if fast_ok else 'use only as an aggressive efficiency mode with accuracy trade-off'} "
         f"(activation {fast['Activation']:.4f}, energy/frame {fast['Estimated_energy_per_frame']:.4f}).",
+        controller_line,
         "- ASMAG-TR should be positioned as an adaptive inference-control framework, not as a SOTA foreground segmentation method, because P2_FrameDiff/P3_MOG2 still lead several accuracy metrics.",
         "- ASMAG_TR_FAST has a visible FMeasure/mAP trade-off; this is the expected cost of lower activation and energy.",
         "",

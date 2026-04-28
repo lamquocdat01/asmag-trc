@@ -49,8 +49,36 @@ PIPELINE_ALIASES = {
     "ASMAG_TR_FAST": "P4_ASMAG_PLUS_EFFICIENT_REUSE",
 }
 
+CONTROLLER_CATEGORY_POLICY = {
+    "baseline": "FAST",
+    "badWeather": "ACC",
+    "intermittentObjectMotion": "ACC",
+    "thermal": "ACC",
+    "PTZ": "P3_FALLBACK",
+    "cameraJitter": "P3_FALLBACK",
+    "dynamicBackground": "P3_FALLBACK",
+    "lowFramerate": "P3_FALLBACK",
+    "nightVideos": "P3_FALLBACK",
+    "shadow": "P3_FALLBACK",
+    "turbulence": "P3_FALLBACK",
+}
+
+CONTROLLER_MODE_TO_PIPELINE = {
+    "FAST": "ASMAG_TR_FAST",
+    "ACC": "ASMAG_TR_ACC",
+    "P3_FALLBACK": "P3_MOG2",
+}
+
 def canonical_pipeline_name(pipeline_name):
     return PIPELINE_ALIASES.get(pipeline_name, pipeline_name)
+
+def controller_mode_for_category(category):
+    return CONTROLLER_CATEGORY_POLICY.get(category, "P3_FALLBACK")
+
+def effective_pipeline_name(pipeline_name, category):
+    if pipeline_name != "ASMAG_TR_CONTROLLER":
+        return pipeline_name
+    return CONTROLLER_MODE_TO_PIPELINE[controller_mode_for_category(category)]
 
 def p4_efficient_cfg_for_pipeline(cfg, pipeline_name):
     efficient_cfg = dict(cfg.get("p4_asmag_plus", {}))
@@ -559,7 +587,10 @@ def write_p4_diagnostics(out_root, diagnostics, always_frames=None, top_n=10):
     )
 
 def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_source=None):
-    pipeline_key = canonical_pipeline_name(pipeline_name)
+    controller_selected_mode = controller_mode_for_category(seq["category"]) if pipeline_name == "ASMAG_TR_CONTROLLER" else ""
+    category_policy_mode = controller_selected_mode
+    execution_pipeline_name = effective_pipeline_name(pipeline_name, seq["category"])
+    pipeline_key = canonical_pipeline_name(execution_pipeline_name)
     exp = cfg["experiment_name"]
     out_root = Path(cfg.get("output_root", "outputs")) / exp
     seq_out = ensure(out_root / "raw_results" / seq["category"] / seq["video"] / pipeline_name)
@@ -641,7 +672,7 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         balanced_cfg.update(cfg.get("p4_balanced", {}))
         gate = ASMAGPlusBalancedGate(balanced_cfg)
     elif pipeline_key in {"P4_ASMAG_PLUS_EFFICIENT", "P4_ASMAG_PLUS_EFFICIENT_REUSE"}:
-        gate = ASMAGPlusEfficientGate(p4_efficient_cfg_for_pipeline(cfg, pipeline_name))
+        gate = ASMAGPlusEfficientGate(p4_efficient_cfg_for_pipeline(cfg, execution_pipeline_name))
     else:
         gate = None
 
@@ -867,6 +898,13 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             "Is_Active": is_active,
             "gate_open": int(gate_open),
             "yolo_called": int(gate_open),
+            "selected_mode": controller_selected_mode,
+            "category_policy_mode": category_policy_mode,
+            "used_p3_fallback": int(controller_selected_mode == "P3_FALLBACK"),
+            "used_acc": int(controller_selected_mode == "ACC"),
+            "used_fast": int(controller_selected_mode == "FAST"),
+            "activation": int(gate_open),
+            "energy_proxy": energy_value,
             "Event_State": e_state,
             "latency_ms": latency_ms,
             "FPS": fps,
@@ -1036,6 +1074,7 @@ def main():
         "P4_ASMAG_PLUS",
         "ASMAG_TR_ACC",
         "ASMAG_TR_FAST",
+        "ASMAG_TR_CONTROLLER",
     ]
     final_comparison = build_pipeline_comparison(research_summary, final_pipelines)
     if not final_comparison.empty:
