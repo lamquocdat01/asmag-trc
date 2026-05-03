@@ -56,3 +56,15 @@
 - Current progress after smoke: `completed=1`, `pending=317`, `running=0`, `failed=0`.
 - Smoke command: `python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --category baseline --video highway --pipeline P3_MOG2 --max-frames 50`.
 - Smoke result: frames `50`, FMeasure `0.8727`, Event_F1 `1.0000`, Activation `1.0000`, Avg_FPS `4.1100`, P95 latency `313.8325 ms`, Energy/frame `6.7000`, Simulated_runtime_energy/frame `7.9084`.
+
+## 2026-04-29 G2G3 SingleJob Runner
+
+- Status: setup completed; no experiment job run during validation.
+- Added/verified `--max-jobs-per-run 1` so one invocation runs exactly one pending category/video/pipeline job.
+- Live progress now includes visual terminal block, progress bars, current job index, completed video count, CPU/RAM process, energy metrics, ETA, and fun status line.
+- Current progress: `completed=6/318`, `pending=312`, `running=0`, `failed=0`, completed videos `1/53`.
+- Last completed job: `badWeather/blizzard/ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED`.
+- Next pending job: `badWeather/skating/P1_YOLO_Only`.
+- Resume one job command: `python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --run-plan configs/full_cdnet2014_official_edge_video_run_plan.csv --max-jobs-per-run 1`.
+
+- `2026-05-03T17:33:21` G2G3 final official-like completed: completed=318/318, pending=0, running=0, failed=0, videos=53/53, best_fmeasure=ASMAG_TR_CONTROLLER:0.5939, best_event=ASMAG_TR_CONTROLLER:0.7114.

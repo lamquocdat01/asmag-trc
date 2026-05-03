@@ -19,6 +19,12 @@ runtime:
 progress:
   auto_recover_stale_jobs: true
   stale_running_minutes: 10
+  print_progress_every_frames: 25
+  write_progress_every_frames: 25
+  progress_heartbeat_seconds: 30
+  show_eta: true
+  show_current_frame: true
+  show_overall_percent: true
 
 categories:
   - badWeather

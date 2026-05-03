@@ -7,6 +7,12 @@ import numpy as np
 import pandas as pd
 import psutil
 
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 # allow running from project root
 sys.path.append(str(Path(__file__).resolve().parent))
 
@@ -40,6 +46,16 @@ from metrics.object_level_metrics import (
 )
 from metrics.pareto_metrics import write_pareto_metrics
 from visualization.plots import create_summary_charts
+from utils.progress_monitor import (
+    ProgressMonitor,
+    build_live_payload,
+    format_job,
+    print_progress_block,
+    print_progress_only_report,
+    show_live_progress,
+    summarize_progress,
+    write_idle_live_progress,
+)
 
 PIPELINE_ALIASES = {
     "P4_PRECISION": "P4_ASMAG_PLUS_PRECISION",
@@ -389,6 +405,7 @@ PROGRESS_COLUMNS = [
     "status",
     "frames_expected",
     "frames_done",
+    "progress_percent",
     "started_at",
     "updated_at",
     "completed_at",
@@ -473,6 +490,7 @@ def initialize_run_progress(out_root, sequences, pipelines, cfg):
                     "status": "pending",
                     "frames_expected": expected_by_seq[(seq["category"], seq["video"])],
                     "frames_done": 0,
+                    "progress_percent": 0,
                     "started_at": "",
                     "updated_at": "",
                     "completed_at": "",
@@ -501,6 +519,8 @@ def initialize_run_progress(out_root, sequences, pipelines, cfg):
                     lambda r: str(Path(out_root) / "raw_results" / r["category"] / r["video"] / r["pipeline"]),
                     axis=1,
                 )
+            elif col == "progress_percent":
+                progress[col] = 0.0
             else:
                 progress[col] = ""
     if "expected_eval_frames" in progress.columns:
@@ -523,6 +543,7 @@ def initialize_run_progress(out_root, sequences, pipelines, cfg):
                 "status": "pending",
                 "frames_expected": expected_by_seq[(seq["category"], seq["video"])],
                 "frames_done": 0,
+                "progress_percent": 0,
                 "started_at": "",
                 "updated_at": "",
                 "completed_at": "",
@@ -538,6 +559,10 @@ def initialize_run_progress(out_root, sequences, pipelines, cfg):
             })
     if new_rows:
         progress = pd.concat([progress, pd.DataFrame(new_rows)], ignore_index=True)
+    for idx, row in progress.iterrows():
+        key = (str(row["category"]), str(row["video"]))
+        if key in expected_by_seq:
+            progress.loc[idx, "frames_expected"] = expected_by_seq[key]
     recovered = 0
     for idx, row in progress.iterrows():
         expected_frames = expected_by_seq.get((row["category"], row["video"]), row.get("frames_expected", None))
@@ -545,9 +570,11 @@ def initialize_run_progress(out_root, sequences, pipelines, cfg):
             progress.loc[idx, "status"] = "completed"
             progress.loc[idx, "message"] = "checkpoint exists"
             progress.loc[idx, "frames_done"] = expected_frames
+            progress.loc[idx, "progress_percent"] = 100.0
         elif str(progress.loc[idx, "status"]) == "completed":
             progress.loc[idx, "status"] = "pending"
             progress.loc[idx, "message"] = "checkpoint incomplete for current expected frames"
+            progress.loc[idx, "progress_percent"] = 0.0
         elif (
             auto_recover
             and str(progress.loc[idx, "status"]) == "running"
@@ -583,18 +610,41 @@ def update_run_progress(progress_path, category, video, pipeline, status, messag
         progress.loc[mask, "message"] = str(message)[:500]
         if status == "running":
             progress.loc[mask & (progress["started_at"].fillna("").astype(str) == ""), "started_at"] = now_iso()
+            progress.loc[mask, "progress_percent"] = progress.loc[mask, "progress_percent"].replace("", 0)
         if status == "completed":
             progress.loc[mask, "completed_at"] = now_iso()
             progress.loc[mask, "error_message"] = ""
+            progress.loc[mask, "progress_percent"] = 100.0
         if status == "failed":
             progress.loc[mask, "error_message"] = str(message)[:500]
         if metrics:
             for key, value in metrics.items():
                 if key in progress.columns:
                     progress.loc[mask, key] = value
+            if "frames_done" in metrics and "frames_expected" in progress.columns:
+                try:
+                    frames_done = float(metrics.get("frames_done") or 0)
+                    frames_expected = float(progress.loc[mask, "frames_expected"].iloc[0] or 0)
+                    progress.loc[mask, "progress_percent"] = (frames_done / frames_expected * 100.0) if frames_expected else 0.0
+                except Exception:
+                    pass
     progress.to_csv(progress_path, index=False)
     if status in {"completed", "failed"}:
         print_progress_summary(progress_path, "JOB PROGRESS")
+
+def get_progress_status(progress_path, category, video, pipeline):
+    progress_path = Path(progress_path)
+    if not progress_path.exists():
+        return ""
+    progress = pd.read_csv(progress_path)
+    mask = (
+        (progress["category"].astype(str) == str(category))
+        & (progress["video"].astype(str) == str(video))
+        & (progress["pipeline"].astype(str) == str(pipeline))
+    )
+    if not mask.any():
+        return ""
+    return str(progress.loc[mask, "status"].iloc[0] or "")
 
 def write_run_plan(run_plan_path, sequences):
     run_plan_path = Path(run_plan_path)
@@ -653,6 +703,46 @@ def limit_sequences_for_run(sequences, progress_path, max_videos_per_run):
     wanted = set(wanted)
     return [s for s in sequences if (s["category"], s["video"]) in wanted]
 
+def limit_sequences_for_jobs(sequences, progress_path, max_jobs_per_run):
+    if not max_jobs_per_run:
+        return sequences
+    progress_path = Path(progress_path)
+    if not progress_path.exists():
+        return sequences
+    progress = pd.read_csv(progress_path)
+    active = progress[progress["status"].fillna("").astype(str).isin(["pending", "running", "failed"])].copy()
+    wanted = []
+    for _, row in active.iterrows():
+        key = (str(row["category"]), str(row["video"]))
+        if key not in wanted:
+            wanted.append(key)
+        if len(wanted) >= int(max_jobs_per_run):
+            break
+    wanted = set(wanted)
+    return [s for s in sequences if (str(s["category"]), str(s["video"])) in wanted]
+
+def print_final_progress_report(progress_path, resume_command):
+    progress = pd.read_csv(progress_path) if Path(progress_path).exists() else pd.DataFrame()
+    summary = summarize_progress(progress)
+    print("[G2G3 FINAL PROGRESS]")
+    print(f"completed={summary['completed']} / total={summary['total']}")
+    print(f"pending={summary['pending']}")
+    print(f"running={summary['running']}")
+    print(f"failed={summary['failed']}")
+    print(f"completed_videos={summary['completed_video_count']} / {summary['total_video_count']}")
+    print(f"last_completed_job={format_job(summary['last_completed'])}")
+    print(f"next_pending_job={format_job(summary['next_pending'])}")
+    print(f"resume_command={resume_command}")
+
+def print_single_job_start_block(category, video, pipeline, out_root):
+    print("=" * 60)
+    print("🚀 [G2G3 SINGLE-JOB RUN STARTED]")
+    print(f"🎯 Current mission : {category} / {video} / {pipeline}")
+    print("📦 Job type        : 1 video + 1 pipeline")
+    print(f"📍 Output folder   : {out_root}")
+    print("🧠 Mode            : CPU Edge Simulation")
+    print("=" * 60)
+
 def update_daily_progress_report(out_root, progress_path, next_resume_command):
     out_root = Path(out_root)
     progress = pd.read_csv(progress_path) if Path(progress_path).exists() else pd.DataFrame()
@@ -677,11 +767,108 @@ def update_daily_progress_report(out_root, progress_path, next_resume_command):
         "```bat",
         next_resume_command,
         "```",
+        "",
+        "## Progress Monitor",
+        "",
+        "- Live JSON: `outputs/full_cdnet2014_official_edge_profile_pc/live_progress.json`",
+        "- Live Markdown: `outputs/full_cdnet2014_official_edge_profile_pc/live_progress.md`",
+        "- Progress-only: `python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --progress-only`",
+        "- Show live: `python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --show-live-progress`",
     ]
     if not progress.empty:
         by_video = progress.groupby(["category", "video"])["status"].apply(lambda s: int((s == "completed").sum())).reset_index(name="completed_jobs")
         lines += ["", "## Recent Video Progress", "", by_video.tail(20).to_markdown(index=False)]
     (out_root / "daily_progress_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+def append_experiment_log(out_root, message):
+    out_root = Path(out_root)
+    log_path = out_root / "experiment_log.md"
+    with open(log_path, "a", encoding="utf-8") as f:
+        f.write(f"\n- `{now_iso()}` {message}\n")
+
+def upsert_marked_section(path, start_marker, end_marker, content):
+    path = Path(path)
+    if path.exists():
+        text = path.read_text(encoding="utf-8")
+    else:
+        text = ""
+    section = f"\n{start_marker}\n{content.rstrip()}\n{end_marker}\n"
+    start = text.find(start_marker)
+    end = text.find(end_marker)
+    if start >= 0 and end >= start:
+        end += len(end_marker)
+        text = text[:start].rstrip() + section + text[end:].lstrip("\n")
+    else:
+        text = text.rstrip() + "\n" + section
+    path.write_text(text, encoding="utf-8")
+
+def update_project_tracking(progress_path, resume_command, session_completed_start=0, event_message="status"):
+    progress = pd.read_csv(progress_path) if Path(progress_path).exists() else pd.DataFrame()
+    summary = summarize_progress(progress)
+    completed_delta = max(0, int(summary["completed"]) - int(session_completed_start or 0))
+    last_completed = format_job(summary["last_completed"])
+    next_pending = format_job(summary["next_pending"])
+    failed_jobs = summary.get("failed_jobs", [])
+    failed_lines = "\n".join(
+        f"- `{format_job(row)}`: {row.get('error_message', '')}"
+        for row in failed_jobs[:20]
+    ) or "- None"
+    status_block = "\n".join([
+        "## G2G3 Auto Resume Status",
+        "",
+        f"- Updated at: `{now_iso()}`",
+        f"- Event: {event_message}",
+        f"- Completed: `{summary['completed']} / {summary['total']}`",
+        f"- Pending: `{summary['pending']}`",
+        f"- Running: `{summary['running']}`",
+        f"- Failed: `{summary['failed']}`",
+        f"- Overall progress: `{summary['overall_percent']:.4f}%`",
+        f"- Completed videos: `{summary['completed_video_count']} / {summary['total_video_count']}`",
+        f"- Jobs completed this session: `{completed_delta}`",
+        f"- Last completed job: `{last_completed}`",
+        f"- Next pending job: `{next_pending}`",
+        f"- Resume command: `{resume_command}`",
+        "",
+        "### Failed Jobs",
+        "",
+        failed_lines,
+    ])
+    upsert_marked_section(
+        "PROJECT_STATE.md",
+        "<!-- G2G3_AUTO_STATUS_START -->",
+        "<!-- G2G3_AUTO_STATUS_END -->",
+        status_block,
+    )
+    upsert_marked_section(
+        "TASK_BOARD.md",
+        "<!-- G2G3_AUTO_STATUS_START -->",
+        "<!-- G2G3_AUTO_STATUS_END -->",
+        status_block,
+    )
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
+    with open(logs_dir / "daily_log.md", "a", encoding="utf-8") as f:
+        f.write(
+            f"\n- `{now_iso()}` G2G3 auto status: {event_message}; "
+            f"completed={summary['completed']}/{summary['total']}, "
+            f"pending={summary['pending']}, running={summary['running']}, failed={summary['failed']}, "
+            f"videos={summary['completed_video_count']}/{summary['total_video_count']}, "
+            f"session_completed={completed_delta}, last={last_completed}, next={next_pending}\n"
+        )
+
+def print_job_completed_block(category, video, pipeline, metrics):
+    print("[JOB COMPLETED]")
+    print(f"{category}/{video}/{pipeline}")
+    for key in [
+        "frames_done",
+        "runtime_seconds",
+        "avg_fps",
+        "p95_latency_ms",
+        "activation",
+        "energy_per_frame",
+        "simulated_runtime_energy_per_frame",
+    ]:
+        print(f"{key}={metrics.get(key, '')}")
 
 def write_official_edge_reports(out_root, pipelines):
     out_root = Path(out_root)
@@ -1337,7 +1524,7 @@ def write_p4_diagnostics(out_root, diagnostics, always_frames=None, top_n=10):
         diag_dir / "p4_mask_source_diagnostics.csv", index=False
     )
 
-def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_source=None):
+def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_source=None, progress_path=None, session_started_at=None):
     controller_selected_mode = controller_mode_for_category(seq["category"]) if pipeline_name == "ASMAG_TR_CONTROLLER" else ""
     category_policy_mode = controller_selected_mode
     execution_pipeline_name = effective_pipeline_name(pipeline_name, seq["category"])
@@ -1415,6 +1602,7 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         warmup_positions = range(warmup_start, eval_positions[0])
     else:
         warmup_positions = []
+    total_eval_frames = len(eval_positions)
 
     online_gates = {}
     online_estimator = None
@@ -1469,6 +1657,12 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
     last_detection_frame_id = None
     last_detection_eval_index = None
     last_detection_raw_frame_id = None
+    job_started_at = time.time()
+    progress_cfg = cfg.get("progress", {})
+    write_progress_every_frames = max(1, int(progress_cfg.get("write_progress_every_frames", 25)))
+    progress_monitor = None
+    if progress_path is not None:
+        progress_monitor = ProgressMonitor(out_root, progress_path, cfg, session_started_at=session_started_at)
 
     for idx in warmup_positions:
         frame = read_frame(frame_files[idx])
@@ -1777,6 +1971,69 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             qdir = ensure(seq_out / "qualitative")
             draw_qualitative(frame, gt, pred_mask, qdir / f"frame_{frame_label:06d}_overlay.png")
 
+        evaluated_frames = processed + 1
+        latencies_so_far = [float(r["latency_ms"]) for r in rows]
+        fps_values_so_far = [float(r["FPS"]) for r in rows]
+        latency_avg_so_far = float(np.mean(latencies_so_far)) if latencies_so_far else 0.0
+        latency_p95_so_far = float(np.quantile(latencies_so_far, 0.95)) if latencies_so_far else 0.0
+        fps_avg_so_far = float(np.mean(fps_values_so_far)) if fps_values_so_far else 0.0
+        cpu_process_so_far = float(rows[-1].get("process_cpu_percent", 0.0) or 0.0) if rows else 0.0
+        ram_process_so_far = float(rows[-1].get("process_ram_mb", 0.0) or 0.0) if rows else 0.0
+        energy_avg_so_far = float(np.mean([float(r.get("energy_frame", 0.0) or 0.0) for r in rows])) if rows else 0.0
+        max_latency_so_far = max(1e-9, max(latencies_so_far) if latencies_so_far else 0.0)
+        sim_energy_values_so_far = []
+        for r in rows:
+            sim_energy_values_so_far.append(
+                1.0
+                + 5.0 * float(r.get("yolo_called", 0.0) or 0.0)
+                + 1.0 * (float(r.get("process_cpu_percent", 0.0) or 0.0) / 100.0)
+                + 1.0 * (float(r.get("latency_ms", 0.0) or 0.0) / max_latency_so_far)
+                + 2.0 * (float(r.get("gpu_util_percent", 0.0) or 0.0) / 100.0)
+                + 0.1 * float(r.get("reused_prediction", 0.0) or 0.0)
+            )
+        simulated_energy_avg_so_far = float(np.mean(sim_energy_values_so_far)) if sim_energy_values_so_far else 0.0
+        runtime_job_so_far = time.time() - job_started_at
+        if progress_path is not None and (
+            evaluated_frames == 1
+            or evaluated_frames % write_progress_every_frames == 0
+            or evaluated_frames == total_eval_frames
+        ):
+            update_run_progress(
+                progress_path,
+                seq["category"],
+                seq["video"],
+                pipeline_name,
+                "running",
+                "live progress heartbeat",
+                metrics={
+                    "frames_done": evaluated_frames,
+                    "progress_percent": (evaluated_frames / total_eval_frames * 100.0) if total_eval_frames else 0.0,
+                    "runtime_seconds": runtime_job_so_far,
+                    "avg_fps": fps_avg_so_far,
+                    "p95_latency_ms": latency_p95_so_far,
+                },
+            )
+        if progress_monitor is not None:
+            progress_monitor.update(
+                seq["category"],
+                seq["video"],
+                pipeline_name,
+                current_frame=evaluated_frames,
+                total_frames=total_eval_frames,
+                evaluated_frames=evaluated_frames,
+                fps_current=fps,
+                fps_avg=fps_avg_so_far,
+                latency_avg_ms=latency_avg_so_far,
+                latency_p95_so_far_ms=latency_p95_so_far,
+                runtime_current_job_seconds=runtime_job_so_far,
+                cpu_process_percent=cpu_process_so_far,
+                ram_process_mb=ram_process_so_far,
+                energy_per_frame=energy_avg_so_far,
+                simulated_runtime_energy_per_frame=simulated_energy_avg_so_far,
+                message="running",
+                force=evaluated_frames == total_eval_frames,
+            )
+
         prev = frame.copy()
         processed += 1
 
@@ -1896,7 +2153,9 @@ def main():
     ap.add_argument("--config", required=True)
     ap.add_argument("--run-plan", default="")
     ap.add_argument("--max-videos-per-run", type=int, default=None)
+    ap.add_argument("--max-jobs-per-run", type=int, default=None)
     ap.add_argument("--progress-only", action="store_true")
+    ap.add_argument("--show-live-progress", action="store_true")
     ap.add_argument("--category", default="")
     ap.add_argument("--video", default="")
     ap.add_argument("--pipeline", default="")
@@ -1911,8 +2170,9 @@ def main():
     print(f"[RUN] Experiment: {cfg['experiment_name']}")
     print(f"[OUT] {out_root}")
 
-    detector = create_detector(cfg.get("detector_mode", "mock"), cfg.get("model_path", ""), cfg.get("model_name", "mock_detector"))
-    print(f"[DETECTOR] {cfg.get('detector_mode')} - {cfg.get('model_name')}")
+    if args.show_live_progress:
+        show_live_progress(out_root)
+        return
 
     if cfg.get("dataset_mode") == "synthetic":
         frames, gts = make_synthetic_sequence(**cfg.get("synthetic", {}))
@@ -1931,44 +2191,107 @@ def main():
     resume_run_plan = args.run_plan or cfg.get("run_plan", "")
     if resume_run_plan:
         default_resume += f" --run-plan {resume_run_plan}"
-    if args.max_videos_per_run:
+    if args.max_jobs_per_run:
+        default_resume += f" --max-jobs-per-run {args.max_jobs_per_run}"
+    elif args.max_videos_per_run:
         default_resume += f" --max-videos-per-run {args.max_videos_per_run}"
     elif resume_run_plan:
-        default_resume += " --max-videos-per-run 1"
+        default_resume += " --max-jobs-per-run 1"
     if args.progress_only:
-        print_progress_summary(progress_path, "PROGRESS ONLY")
+        print_progress_only_report(progress_path, default_resume.replace(" --progress-only", ""))
+        write_idle_live_progress(out_root, progress_path, "progress-only check; no experiment running")
         update_daily_progress_report(out_root, progress_path, default_resume.replace(" --progress-only", ""))
         return
 
-    sequences = limit_sequences_for_run(sequences, progress_path, args.max_videos_per_run)
+    detector = create_detector(cfg.get("detector_mode", "mock"), cfg.get("model_path", ""), cfg.get("model_name", "mock_detector"))
+    print(f"[DETECTOR] {cfg.get('detector_mode')} - {cfg.get('model_name')}")
+    session_started_at = time.time()
+    session_completed_start = summarize_progress(pd.read_csv(progress_path))["completed"] if Path(progress_path).exists() else 0
+    if args.max_jobs_per_run:
+        sequences = limit_sequences_for_jobs(sequences, progress_path, args.max_jobs_per_run)
+    else:
+        sequences = limit_sequences_for_run(sequences, progress_path, args.max_videos_per_run)
 
     all_ev, all_px, all_edge, all_obj, all_cdnet_frame_rows = [], [], [], [], []
+    jobs_attempted = 0
+    stop_after_job_limit = False
     for seq in sequences:
         print(f"\n[SEQ] {seq['category']}/{seq['video']}")
         for p in cfg["pipelines"]:
+            current_status = get_progress_status(progress_path, seq["category"], seq["video"], p)
+            if current_status == "completed":
+                print(f"  - Skipping completed {p}")
+                continue
+            if args.max_jobs_per_run and jobs_attempted >= args.max_jobs_per_run:
+                stop_after_job_limit = True
+                break
             print(f"  - Running {p} ...")
+            if args.max_jobs_per_run:
+                print_single_job_start_block(seq["category"], seq["video"], p, out_root)
+            jobs_attempted += 1
             update_run_progress(progress_path, seq["category"], seq["video"], p, "running")
             try:
-                ev, px, ed, obj = unpack_sequence_result(process_sequence(cfg, seq, p, detector, frames, gts))
+                ev, px, ed, obj = unpack_sequence_result(
+                    process_sequence(
+                        cfg,
+                        seq,
+                        p,
+                        detector,
+                        frames,
+                        gts,
+                        progress_path=progress_path,
+                        session_started_at=session_started_at,
+                    )
+                )
+                completed_metrics = {
+                    "frames_done": ed.get("evaluated_frames", ed.get("processed_frames", "")),
+                    "progress_percent": 100.0,
+                    "runtime_seconds": ed.get("runtime_seconds", ""),
+                    "avg_fps": ed.get("avg_FPS", ""),
+                    "p95_latency_ms": ed.get("P95_latency_ms", ""),
+                    "activation": ed.get("YOLO_activation_rate", ""),
+                    "energy_per_frame": ed.get("Energy/frame", ""),
+                    "simulated_runtime_energy_per_frame": ed.get("simulated_runtime_energy/frame", ""),
+                }
                 update_run_progress(
                     progress_path,
                     seq["category"],
                     seq["video"],
                     p,
                     "completed",
-                    metrics={
-                        "frames_done": ed.get("evaluated_frames", ed.get("processed_frames", "")),
-                        "runtime_seconds": ed.get("runtime_seconds", ""),
-                        "avg_fps": ed.get("avg_FPS", ""),
-                        "p95_latency_ms": ed.get("P95_latency_ms", ""),
-                        "activation": ed.get("YOLO_activation_rate", ""),
-                        "energy_per_frame": ed.get("Energy/frame", ""),
-                        "simulated_runtime_energy_per_frame": ed.get("simulated_runtime_energy/frame", ""),
-                    },
+                    metrics=completed_metrics,
+                )
+                print_job_completed_block(seq["category"], seq["video"], p, completed_metrics)
+                append_experiment_log(
+                    out_root,
+                    f"completed `{seq['category']}/{seq['video']}/{p}` "
+                    f"frames={completed_metrics.get('frames_done')} "
+                    f"runtime_seconds={completed_metrics.get('runtime_seconds')} "
+                    f"avg_fps={completed_metrics.get('avg_fps')}",
+                )
+                update_daily_progress_report(out_root, progress_path, default_resume)
+                update_project_tracking(
+                    progress_path,
+                    default_resume,
+                    session_completed_start,
+                    f"completed {seq['category']}/{seq['video']}/{p}",
                 )
             except Exception as exc:
                 update_run_progress(progress_path, seq["category"], seq["video"], p, "failed", repr(exc))
-                raise
+                append_experiment_log(out_root, f"failed `{seq['category']}/{seq['video']}/{p}` error={repr(exc)}")
+                write_idle_live_progress(out_root, progress_path, f"failed: {seq['category']}/{seq['video']}/{p}")
+                print(f"[JOB FAILED] {seq['category']}/{seq['video']}/{p}: {repr(exc)}")
+                update_daily_progress_report(out_root, progress_path, default_resume)
+                update_project_tracking(
+                    progress_path,
+                    default_resume,
+                    session_completed_start,
+                    f"failed {seq['category']}/{seq['video']}/{p}",
+                )
+                if args.max_jobs_per_run and jobs_attempted >= args.max_jobs_per_run:
+                    stop_after_job_limit = True
+                    break
+                continue
             all_ev.append(ev); all_px.append(px); all_edge.append(ed)
             all_obj.append(obj)
             frame_metrics_path = out_root / "raw_results" / seq["category"] / seq["video"] / p / "frame_metrics.csv"
@@ -1982,7 +2305,12 @@ def main():
                 f"EvalFrames={ed.get('evaluated_frames',0)} | "
                 f"SkippedBeforeROI={ed.get('skipped_frames_before_roi',0)}"
             )
+            if args.max_jobs_per_run and jobs_attempted >= args.max_jobs_per_run:
+                stop_after_job_limit = True
+                break
         update_daily_progress_report(out_root, progress_path, default_resume)
+        if stop_after_job_limit:
+            break
 
     all_ev, all_px, all_edge, all_obj = collect_completed_sequence_summaries(out_root, cfg["pipelines"])
     all_cdnet_frame_rows = []
@@ -2051,6 +2379,8 @@ def main():
     create_summary_charts(out_root)
     write_official_edge_reports(out_root, cfg["pipelines"])
     update_daily_progress_report(out_root, progress_path, default_resume)
+    write_idle_live_progress(out_root, progress_path, "run completed or paused after selected batch")
+    update_project_tracking(progress_path, default_resume, session_completed_start, "run completed or paused after selected batch")
 
     print("\n[DONE] Summary files:")
     print(f" - {out_root/'summary_event_metrics.csv'}")
@@ -2074,6 +2404,7 @@ def main():
         print(f" - Best Research Score: {best_score['Pipeline']} (Research_Score={best_score['Research_Score']:.4f})")
     print_pipeline_final_table(out_root, pareto_summary)
     print_progress_summary(progress_path, "END PROGRESS")
+    print_final_progress_report(progress_path, default_resume)
     print(f"[NEXT_RESUME_COMMAND] {default_resume}")
 
 if __name__ == "__main__":
