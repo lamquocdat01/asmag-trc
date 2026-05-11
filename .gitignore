@@ -1,0 +1,6 @@
+# Phase 8A generated datasets and model artifacts
+outputs/phase8a_policy_dataset/*.parquet
+outputs/phase8a_policy_dataset/*.pkl
+outputs/phase8a_policy_dataset/*.joblib
+outputs/phase8a_policy_dataset/cache/
+outputs/phase8a_policy_dataset/tmp/
