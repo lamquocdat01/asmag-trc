@@ -313,7 +313,7 @@ Con mot so file khong nam trong commit 9D vi la thay doi ngoai scope hoac output
 <!-- G2G3_AUTO_STATUS_START -->
 ## G2G3 Auto Resume Status
 
-- Updated at: `2026-05-20T17:04:36`
+- Updated at: `2026-05-21T13:58:07`
 - Event: run completed or paused after selected batch
 - Completed: `56 / 56`
 - Pending: `0`
@@ -321,10 +321,10 @@ Con mot so file khong nam trong commit 9D vi la thay doi ngoai scope hoac output
 - Failed: `0`
 - Overall progress: `100.0000%`
 - Completed videos: `0 / 14`
-- Jobs completed this session: `4`
+- Jobs completed this session: `30`
 - Last completed job: `turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED`
 - Next pending job: `-`
-- Resume command: `python src/run_experiment.py --config configs\asmag_tr_controller_online_guarded_cdnet_q1_sic1c1r3d_observer_purity_subset_dryrun.yaml`
+- Resume command: `python src/run_experiment.py --config configs/guarded_v2_residual_risk_subset_dryrun.yaml --max-jobs-per-run 30`
 
 ### Failed Jobs
 

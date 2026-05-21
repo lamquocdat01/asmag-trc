@@ -11174,3 +11174,121 @@ Ket qua representative:
 - `2026-05-20T17:03:54` G2G3 auto status: completed turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=56/56, pending=0, running=0, failed=0, videos=0/14, session_completed=4, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
 
 - `2026-05-20T17:04:36` G2G3 auto status: run completed or paused after selected batch; completed=56/56, pending=0, running=0, failed=0, videos=0/14, session_completed=4, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-21T12:05:46` G2G3 auto status: completed badWeather/snowFall/P3_MOG2; completed=1/56, pending=55, running=0, failed=0, videos=0/14, session_completed=1, last=badWeather/snowFall/P3_MOG2, next=badWeather/snowFall/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T12:06:17` G2G3 auto status: completed badWeather/snowFall/ASMAG_TR_CONTROLLER; completed=2/56, pending=54, running=0, failed=0, videos=0/14, session_completed=2, last=badWeather/snowFall/ASMAG_TR_CONTROLLER, next=badWeather/snowFall/ONLINE_CALIBRATED
+
+- `2026-05-21T13:17:07` G2G3 auto status: completed badWeather/snowFall/ONLINE_CALIBRATED; completed=3/56, pending=53, running=0, failed=0, videos=0/14, session_completed=1, last=badWeather/snowFall/ONLINE_CALIBRATED, next=badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:17:33` G2G3 auto status: completed badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=4/56, pending=52, running=0, failed=0, videos=0/14, session_completed=2, last=badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fountain01/P3_MOG2
+
+- `2026-05-21T13:18:12` G2G3 auto status: completed dynamicBackground/fountain01/P3_MOG2; completed=5/56, pending=51, running=0, failed=0, videos=0/14, session_completed=3, last=dynamicBackground/fountain01/P3_MOG2, next=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:18:43` G2G3 auto status: completed dynamicBackground/fountain01/ASMAG_TR_CONTROLLER; completed=6/56, pending=50, running=0, failed=0, videos=0/14, session_completed=4, last=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER, next=dynamicBackground/fountain01/ONLINE_CALIBRATED
+
+- `2026-05-21T13:19:36` G2G3 auto status: completed dynamicBackground/fountain01/ONLINE_CALIBRATED; completed=7/56, pending=49, running=0, failed=0, videos=0/14, session_completed=5, last=dynamicBackground/fountain01/ONLINE_CALIBRATED, next=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:20:27` G2G3 auto status: completed dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=8/56, pending=48, running=0, failed=0, videos=0/14, session_completed=6, last=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fountain02/P3_MOG2
+
+- `2026-05-21T13:20:48` G2G3 auto status: completed dynamicBackground/fountain02/P3_MOG2; completed=9/56, pending=47, running=0, failed=0, videos=0/14, session_completed=7, last=dynamicBackground/fountain02/P3_MOG2, next=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:21:02` G2G3 auto status: completed dynamicBackground/fountain02/ASMAG_TR_CONTROLLER; completed=10/56, pending=46, running=0, failed=0, videos=0/14, session_completed=8, last=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER, next=dynamicBackground/fountain02/ONLINE_CALIBRATED
+
+- `2026-05-21T13:21:10` G2G3 auto status: run completed or paused after selected batch; completed=10/56, pending=46, running=0, failed=0, videos=0/14, session_completed=8, last=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER, next=dynamicBackground/fountain02/ONLINE_CALIBRATED
+
+- `2026-05-21T13:24:26` G2G3 auto status: completed dynamicBackground/fountain02/ONLINE_CALIBRATED; completed=11/56, pending=45, running=0, failed=0, videos=0/14, session_completed=1, last=dynamicBackground/fountain02/ONLINE_CALIBRATED, next=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:24:48` G2G3 auto status: completed dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=12/56, pending=44, running=0, failed=0, videos=0/14, session_completed=2, last=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/sofa/P3_MOG2
+
+- `2026-05-21T13:25:18` G2G3 auto status: completed intermittentObjectMotion/sofa/P3_MOG2; completed=13/56, pending=43, running=0, failed=0, videos=0/14, session_completed=3, last=intermittentObjectMotion/sofa/P3_MOG2, next=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:25:41` G2G3 auto status: completed intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER; completed=14/56, pending=42, running=0, failed=0, videos=0/14, session_completed=4, last=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER, next=intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+
+- `2026-05-21T13:26:14` G2G3 auto status: completed intermittentObjectMotion/sofa/ONLINE_CALIBRATED; completed=15/56, pending=41, running=0, failed=0, videos=0/14, session_completed=5, last=intermittentObjectMotion/sofa/ONLINE_CALIBRATED, next=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:26:49` G2G3 auto status: completed intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=16/56, pending=40, running=0, failed=0, videos=0/14, session_completed=6, last=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/parking/P3_MOG2
+
+- `2026-05-21T13:27:34` G2G3 auto status: completed intermittentObjectMotion/parking/P3_MOG2; completed=17/56, pending=39, running=0, failed=0, videos=0/14, session_completed=7, last=intermittentObjectMotion/parking/P3_MOG2, next=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:27:48` G2G3 auto status: completed intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER; completed=18/56, pending=38, running=0, failed=0, videos=0/14, session_completed=8, last=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER, next=intermittentObjectMotion/parking/ONLINE_CALIBRATED
+
+- `2026-05-21T13:28:10` G2G3 auto status: completed intermittentObjectMotion/parking/ONLINE_CALIBRATED; completed=19/56, pending=37, running=0, failed=0, videos=0/14, session_completed=9, last=intermittentObjectMotion/parking/ONLINE_CALIBRATED, next=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:28:33` G2G3 auto status: completed intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=20/56, pending=36, running=0, failed=0, videos=0/14, session_completed=10, last=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/port_0_17fps/P3_MOG2
+
+- `2026-05-21T13:29:37` G2G3 auto status: completed lowFramerate/port_0_17fps/P3_MOG2; completed=21/56, pending=35, running=0, failed=0, videos=0/14, session_completed=11, last=lowFramerate/port_0_17fps/P3_MOG2, next=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:30:32` G2G3 auto status: completed lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER; completed=22/56, pending=34, running=0, failed=0, videos=0/14, session_completed=12, last=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER, next=lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+
+- `2026-05-21T13:32:11` G2G3 auto status: completed lowFramerate/port_0_17fps/ONLINE_CALIBRATED; completed=23/56, pending=33, running=0, failed=0, videos=0/14, session_completed=13, last=lowFramerate/port_0_17fps/ONLINE_CALIBRATED, next=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:32:51` G2G3 auto status: completed lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=24/56, pending=32, running=0, failed=0, videos=0/14, session_completed=14, last=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/tunnelExit_0_35fps/P3_MOG2
+
+- `2026-05-21T13:33:40` G2G3 auto status: completed lowFramerate/tunnelExit_0_35fps/P3_MOG2; completed=25/56, pending=31, running=0, failed=0, videos=0/14, session_completed=15, last=lowFramerate/tunnelExit_0_35fps/P3_MOG2, next=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:34:13` G2G3 auto status: completed lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER; completed=26/56, pending=30, running=0, failed=0, videos=0/14, session_completed=16, last=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER, next=lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+
+- `2026-05-21T13:34:21` G2G3 auto status: run completed or paused after selected batch; completed=26/56, pending=30, running=0, failed=0, videos=0/14, session_completed=16, last=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER, next=lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+
+- `2026-05-21T13:36:09` G2G3 auto status: completed lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED; completed=27/56, pending=29, running=0, failed=0, videos=0/14, session_completed=1, last=lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED, next=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:36:36` G2G3 auto status: completed lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=28/56, pending=28, running=0, failed=0, videos=0/14, session_completed=2, last=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/bridgeEntry/P3_MOG2
+
+- `2026-05-21T13:37:36` G2G3 auto status: completed nightVideos/bridgeEntry/P3_MOG2; completed=29/56, pending=27, running=0, failed=0, videos=0/14, session_completed=3, last=nightVideos/bridgeEntry/P3_MOG2, next=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:38:35` G2G3 auto status: completed nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER; completed=30/56, pending=26, running=0, failed=0, videos=0/14, session_completed=4, last=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER, next=nightVideos/bridgeEntry/ONLINE_CALIBRATED
+
+- `2026-05-21T13:40:01` G2G3 auto status: completed nightVideos/bridgeEntry/ONLINE_CALIBRATED; completed=31/56, pending=25, running=0, failed=0, videos=0/14, session_completed=5, last=nightVideos/bridgeEntry/ONLINE_CALIBRATED, next=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:40:32` G2G3 auto status: completed nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=32/56, pending=24, running=0, failed=0, videos=0/14, session_completed=6, last=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/continuousPan/P3_MOG2
+
+- `2026-05-21T13:41:31` G2G3 auto status: completed PTZ/continuousPan/P3_MOG2; completed=33/56, pending=23, running=0, failed=0, videos=0/14, session_completed=7, last=PTZ/continuousPan/P3_MOG2, next=PTZ/continuousPan/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:42:26` G2G3 auto status: completed PTZ/continuousPan/ASMAG_TR_CONTROLLER; completed=34/56, pending=22, running=0, failed=0, videos=0/14, session_completed=8, last=PTZ/continuousPan/ASMAG_TR_CONTROLLER, next=PTZ/continuousPan/ONLINE_CALIBRATED
+
+- `2026-05-21T13:45:21` G2G3 auto status: completed PTZ/continuousPan/ONLINE_CALIBRATED; completed=35/56, pending=21, running=0, failed=0, videos=0/14, session_completed=9, last=PTZ/continuousPan/ONLINE_CALIBRATED, next=PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:46:31` G2G3 auto status: completed PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=36/56, pending=20, running=0, failed=0, videos=0/14, session_completed=10, last=PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/intermittentPan/P3_MOG2
+
+- `2026-05-21T13:47:21` G2G3 auto status: completed PTZ/intermittentPan/P3_MOG2; completed=37/56, pending=19, running=0, failed=0, videos=0/14, session_completed=11, last=PTZ/intermittentPan/P3_MOG2, next=PTZ/intermittentPan/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:48:01` G2G3 auto status: completed PTZ/intermittentPan/ASMAG_TR_CONTROLLER; completed=38/56, pending=18, running=0, failed=0, videos=0/14, session_completed=12, last=PTZ/intermittentPan/ASMAG_TR_CONTROLLER, next=PTZ/intermittentPan/ONLINE_CALIBRATED
+
+- `2026-05-21T13:49:38` G2G3 auto status: completed PTZ/intermittentPan/ONLINE_CALIBRATED; completed=39/56, pending=17, running=0, failed=0, videos=0/14, session_completed=13, last=PTZ/intermittentPan/ONLINE_CALIBRATED, next=PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:50:31` G2G3 auto status: completed PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=40/56, pending=16, running=0, failed=0, videos=0/14, session_completed=14, last=PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/copyMachine/P3_MOG2
+
+- `2026-05-21T13:51:25` G2G3 auto status: completed shadow/copyMachine/P3_MOG2; completed=41/56, pending=15, running=0, failed=0, videos=0/14, session_completed=15, last=shadow/copyMachine/P3_MOG2, next=shadow/copyMachine/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:52:01` G2G3 auto status: completed shadow/copyMachine/ASMAG_TR_CONTROLLER; completed=42/56, pending=14, running=0, failed=0, videos=0/14, session_completed=16, last=shadow/copyMachine/ASMAG_TR_CONTROLLER, next=shadow/copyMachine/ONLINE_CALIBRATED
+
+- `2026-05-21T13:53:06` G2G3 auto status: completed shadow/copyMachine/ONLINE_CALIBRATED; completed=43/56, pending=13, running=0, failed=0, videos=0/14, session_completed=17, last=shadow/copyMachine/ONLINE_CALIBRATED, next=shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:53:29` G2G3 auto status: completed shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=44/56, pending=12, running=0, failed=0, videos=0/14, session_completed=18, last=shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/cubicle/P3_MOG2
+
+- `2026-05-21T13:53:53` G2G3 auto status: completed shadow/cubicle/P3_MOG2; completed=45/56, pending=11, running=0, failed=0, videos=0/14, session_completed=19, last=shadow/cubicle/P3_MOG2, next=shadow/cubicle/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:54:07` G2G3 auto status: completed shadow/cubicle/ASMAG_TR_CONTROLLER; completed=46/56, pending=10, running=0, failed=0, videos=0/14, session_completed=20, last=shadow/cubicle/ASMAG_TR_CONTROLLER, next=shadow/cubicle/ONLINE_CALIBRATED
+
+- `2026-05-21T13:54:33` G2G3 auto status: completed shadow/cubicle/ONLINE_CALIBRATED; completed=47/56, pending=9, running=0, failed=0, videos=0/14, session_completed=21, last=shadow/cubicle/ONLINE_CALIBRATED, next=shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:54:56` G2G3 auto status: completed shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=48/56, pending=8, running=0, failed=0, videos=0/14, session_completed=22, last=shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/lakeSide/P3_MOG2
+
+- `2026-05-21T13:55:14` G2G3 auto status: completed thermal/lakeSide/P3_MOG2; completed=49/56, pending=7, running=0, failed=0, videos=0/14, session_completed=23, last=thermal/lakeSide/P3_MOG2, next=thermal/lakeSide/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:55:29` G2G3 auto status: completed thermal/lakeSide/ASMAG_TR_CONTROLLER; completed=50/56, pending=6, running=0, failed=0, videos=0/14, session_completed=24, last=thermal/lakeSide/ASMAG_TR_CONTROLLER, next=thermal/lakeSide/ONLINE_CALIBRATED
+
+- `2026-05-21T13:55:49` G2G3 auto status: completed thermal/lakeSide/ONLINE_CALIBRATED; completed=51/56, pending=5, running=0, failed=0, videos=0/14, session_completed=25, last=thermal/lakeSide/ONLINE_CALIBRATED, next=thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:56:05` G2G3 auto status: completed thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=52/56, pending=4, running=0, failed=0, videos=0/14, session_completed=26, last=thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence2/P3_MOG2
+
+- `2026-05-21T13:56:33` G2G3 auto status: completed turbulence/turbulence2/P3_MOG2; completed=53/56, pending=3, running=0, failed=0, videos=0/14, session_completed=27, last=turbulence/turbulence2/P3_MOG2, next=turbulence/turbulence2/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T13:56:54` G2G3 auto status: completed turbulence/turbulence2/ASMAG_TR_CONTROLLER; completed=54/56, pending=2, running=0, failed=0, videos=0/14, session_completed=28, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER, next=turbulence/turbulence2/ONLINE_CALIBRATED
+
+- `2026-05-21T13:57:33` G2G3 auto status: completed turbulence/turbulence2/ONLINE_CALIBRATED; completed=55/56, pending=1, running=0, failed=0, videos=0/14, session_completed=29, last=turbulence/turbulence2/ONLINE_CALIBRATED, next=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T13:57:51` G2G3 auto status: completed turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=56/56, pending=0, running=0, failed=0, videos=0/14, session_completed=30, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-21T13:58:07` G2G3 auto status: run completed or paused after selected batch; completed=56/56, pending=0, running=0, failed=0, videos=0/14, session_completed=30, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-

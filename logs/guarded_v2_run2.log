@@ -1,0 +1,3236 @@
+﻿[RUN] Experiment: guarded_v2_residual_risk_subset_dryrun
+[OUT] outputs\guarded_v2_residual_risk_subset_dryrun
+[START PROGRESS] completed=10 | pending=46 | running=0 | failed=0 | current_job=-
+[DETECTOR] yolo - yolo26s-seg
+
+[SEQ] dynamicBackground/fountain02
+  - Skipping completed P3_MOG2
+  - Skipping completed ASMAG_TR_CONTROLLER
+  - Running ONLINE_CALIBRATED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : dynamicBackground / fountain02 / ONLINE_CALIBRATED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 10 / 56 | pending 45 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 11 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 17.86%
+
+⚡ FPS current      : 1.73
+⚡ FPS average      : 1.73
+⏱ Avg latency      : 579.68 ms
+⏱ P95 latency      : 579.68 ms
+🧠 CPU process      : 40.45 %
+💾 RAM process      : 685.26 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:03
+⌛ Runtime session  : 00:00:04
+🕒 ETA current job  : 00:00:57
+🕒 ETA all remain   : 00:14:52
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER
+➡️ Next pending     : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 10 / 56 | pending 45 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 11 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 17.86%
+
+⚡ FPS current      : 25.66
+⚡ FPS average      : 27.14
+⏱ Avg latency      : 84.19 ms
+⏱ P95 latency      : 417.46 ms
+🧠 CPU process      : 27.15 %
+💾 RAM process      : 694.47 MB
+🔋 Energy/frame     : 2.3000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:08
+⌛ Runtime session  : 00:00:09
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:14:52
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER
+➡️ Next pending     : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 10 / 56 | pending 45 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 11 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 17.86%
+
+⚡ FPS current      : 2.27
+⚡ FPS average      : 19.79
+⏱ Avg latency      : 192.65 ms
+⏱ P95 latency      : 588.92 ms
+🧠 CPU process      : 94.92 %
+💾 RAM process      : 697.37 MB
+🔋 Energy/frame     : 3.5480
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:19
+⌛ Runtime session  : 00:00:21
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:14:52
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER
+➡️ Next pending     : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 10 / 56 | pending 45 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 11 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 17.86%
+
+⚡ FPS current      : 33.33
+⚡ FPS average      : 21.25
+⏱ Avg latency      : 170.84 ms
+⏱ P95 latency      : 550.57 ms
+🧠 CPU process      : 27.70 %
+💾 RAM process      : 697.55 MB
+🔋 Energy/frame     : 3.4387
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:26
+⌛ Runtime session  : 00:00:27
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:14:52
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER
+➡️ Next pending     : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 10 / 56 | pending 45 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 11 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 17.86%
+
+⚡ FPS current      : 35.44
+⚡ FPS average      : 22.67
+⏱ Avg latency      : 149.35 ms
+⏱ P95 latency      : 449.65 ms
+🧠 CPU process      : 22.18 %
+💾 RAM process      : 697.69 MB
+🔋 Energy/frame     : 3.2290
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:31
+⌛ Runtime session  : 00:00:33
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:14:52
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER
+➡️ Next pending     : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+[JOB PROGRESS] completed=11 | pending=45 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+dynamicBackground/fountain02/ONLINE_CALIBRATED
+frames_done=100
+runtime_seconds=14.934581279754639
+avg_fps=22.673051138246407
+p95_latency_ms=449.6474623680112
+activation=0.29
+energy_per_frame=3.2290000000000005
+simulated_runtime_energy_per_frame=3.0985252184138714
+    EventF1=0.687 | FMeasure=0.654 | Activation=0.290 | ROI=500-1499 | EvalFrames=100 | SkippedBeforeROI=499
+  - Running ASMAG_TR_CONTROLLER_ONLINE_GUARDED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : dynamicBackground / fountain02 / ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 11 / 56 | pending 44 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 12 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 19.64%
+
+⚡ FPS current      : 2.67
+⚡ FPS average      : 2.67
+⏱ Avg latency      : 374.85 ms
+⏱ P95 latency      : 374.85 ms
+🧠 CPU process      : 32.83 %
+💾 RAM process      : 656.61 MB
+🔋 Energy/frame     : 6.8000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:02
+⌛ Runtime session  : 00:00:36
+🕒 ETA current job  : 00:00:37
+🕒 ETA all remain   : 00:14:14
+
+✅ Last completed   : dynamicBackground/fountain02/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/sofa/P3_MOG2
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 11 / 56 | pending 44 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 12 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 19.64%
+
+⚡ FPS current      : 62.46
+⚡ FPS average      : 44.11
+⏱ Avg latency      : 61.21 ms
+⏱ P95 latency      : 354.20 ms
+🧠 CPU process      : 20.02 %
+💾 RAM process      : 657.34 MB
+🔋 Energy/frame     : 2.3360
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:05
+⌛ Runtime session  : 00:00:39
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:14:14
+
+✅ Last completed   : dynamicBackground/fountain02/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/sofa/P3_MOG2
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 11 / 56 | pending 44 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 12 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 19.64%
+
+⚡ FPS current      : 3.75
+⚡ FPS average      : 29.84
+⏱ Avg latency      : 131.46 ms
+⏱ P95 latency      : 320.37 ms
+🧠 CPU process      : 143.22 %
+💾 RAM process      : 664.85 MB
+🔋 Energy/frame     : 3.9720
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:12
+⌛ Runtime session  : 00:00:46
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:14:14
+
+✅ Last completed   : dynamicBackground/fountain02/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/sofa/P3_MOG2
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 11 / 56 | pending 44 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 12 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 19.64%
+
+⚡ FPS current      : 32.74
+⚡ FPS average      : 30.20
+⏱ Avg latency      : 126.23 ms
+⏱ P95 latency      : 304.94 ms
+🧠 CPU process      : 28.12 %
+💾 RAM process      : 668.98 MB
+🔋 Energy/frame     : 3.9173
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:17
+⌛ Runtime session  : 00:00:51
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:14:14
+
+✅ Last completed   : dynamicBackground/fountain02/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/sofa/P3_MOG2
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 11 / 56 | pending 44 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 12 / 56
+🎬 Current video    : dynamicBackground / fountain02
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 19.64%
+
+⚡ FPS current      : 43.93
+⚡ FPS average      : 33.91
+⏱ Avg latency      : 111.19 ms
+⏱ P95 latency      : 295.34 ms
+🧠 CPU process      : 25.00 %
+💾 RAM process      : 674.25 MB
+🔋 Energy/frame     : 3.6420
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:21
+⌛ Runtime session  : 00:00:55
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:14:14
+
+✅ Last completed   : dynamicBackground/fountain02/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/sofa/P3_MOG2
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+[JOB PROGRESS] completed=12 | pending=44 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+frames_done=100
+runtime_seconds=11.118607759475708
+avg_fps=33.91035324508287
+p95_latency_ms=295.34212350845337
+activation=0.37
+energy_per_frame=3.6419999999999995
+simulated_runtime_energy_per_frame=4.0981863821045135
+    EventF1=0.667 | FMeasure=0.711 | Activation=0.370 | ROI=500-1499 | EvalFrames=100 | SkippedBeforeROI=499
+
+[SEQ] intermittentObjectMotion/sofa
+  - Running P3_MOG2 ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / sofa / P3_MOG2
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 12 / 56 | pending 43 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 13 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 21.43%
+
+⚡ FPS current      : 331.57
+⚡ FPS average      : 331.57
+⏱ Avg latency      : 3.02 ms
+⏱ P95 latency      : 3.02 ms
+🧠 CPU process      : 4.17 %
+💾 RAM process      : 661.74 MB
+🔋 Energy/frame     : 1.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:00
+⌛ Runtime session  : 00:00:56
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:26
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 12 / 56 | pending 43 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 13 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 21.43%
+
+⚡ FPS current      : 4.39
+⚡ FPS average      : 355.11
+⏱ Avg latency      : 53.75 ms
+⏱ P95 latency      : 264.43 ms
+🧠 CPU process      : 166.53 %
+💾 RAM process      : 679.81 MB
+🔋 Energy/frame     : 2.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:04
+⌛ Runtime session  : 00:01:00
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:26
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 12 / 56 | pending 43 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 13 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 21.43%
+
+⚡ FPS current      : 3.35
+⚡ FPS average      : 179.35
+⏱ Avg latency      : 169.18 ms
+⏱ P95 latency      : 332.23 ms
+🧠 CPU process      : 126.92 %
+💾 RAM process      : 683.93 MB
+🔋 Energy/frame     : 4.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:15
+⌛ Runtime session  : 00:01:11
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:26
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 12 / 56 | pending 43 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 13 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 21.43%
+
+⚡ FPS current      : 4.57
+⚡ FPS average      : 239.88
+⏱ Avg latency      : 142.55 ms
+⏱ P95 latency      : 326.84 ms
+🧠 CPU process      : 168.47 %
+💾 RAM process      : 683.93 MB
+🔋 Energy/frame     : 4.2333
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:20
+⌛ Runtime session  : 00:01:16
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:26
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 12 / 56 | pending 43 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 13 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[████░░░░░░░░░░░░░░░░] 21.43%
+
+⚡ FPS current      : 3.41
+⚡ FPS average      : 180.90
+⏱ Avg latency      : 170.87 ms
+⏱ P95 latency      : 324.15 ms
+🧠 CPU process      : 127.75 %
+💾 RAM process      : 684.11 MB
+🔋 Energy/frame     : 4.8500
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:30
+⌛ Runtime session  : 00:01:25
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:26
+
+✅ Last completed   : dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Progress đang đẹp lên từng frame!
+============================================================
+[JOB PROGRESS] completed=13 | pending=43 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/sofa/P3_MOG2
+frames_done=100
+runtime_seconds=17.086527824401855
+avg_fps=180.89870387654383
+p95_latency_ms=324.14945363998413
+activation=0.63
+energy_per_frame=4.8500000000000005
+simulated_runtime_energy_per_frame=5.495247115187781
+    EventF1=0.773 | FMeasure=0.180 | Activation=0.630 | ROI=500-2750 | EvalFrames=100 | SkippedBeforeROI=499
+  - Running ASMAG_TR_CONTROLLER ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / sofa / ASMAG_TR_CONTROLLER
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 13 / 56 | pending 42 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 14 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 23.21%
+
+⚡ FPS current      : 4.15
+⚡ FPS average      : 4.15
+⏱ Avg latency      : 240.90 ms
+⏱ P95 latency      : 240.90 ms
+🧠 CPU process      : 75.05 %
+💾 RAM process      : 692.34 MB
+🔋 Energy/frame     : 6.8000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:00
+⌛ Runtime session  : 00:01:27
+🕒 ETA current job  : 00:00:23
+🕒 ETA all remain   : 00:13:04
+
+✅ Last completed   : intermittentObjectMotion/sofa/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 13 / 56 | pending 42 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 14 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 23.21%
+
+⚡ FPS current      : 3.36
+⚡ FPS average      : 117.13
+⏱ Avg latency      : 86.24 ms
+⏱ P95 latency      : 282.03 ms
+🧠 CPU process      : 133.25 %
+💾 RAM process      : 692.41 MB
+🔋 Energy/frame     : 3.4200
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:03
+⌛ Runtime session  : 00:01:29
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:04
+
+✅ Last completed   : intermittentObjectMotion/sofa/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 13 / 56 | pending 42 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 14 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 23.21%
+
+⚡ FPS current      : 3.39
+⚡ FPS average      : 67.90
+⏱ Avg latency      : 163.17 ms
+⏱ P95 latency      : 298.16 ms
+🧠 CPU process      : 147.62 %
+💾 RAM process      : 692.47 MB
+🔋 Energy/frame     : 4.8160
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:10
+⌛ Runtime session  : 00:01:37
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:04
+
+✅ Last completed   : intermittentObjectMotion/sofa/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+
+😄 Fun status line  : Progress đang đẹp lên từng frame!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 13 / 56 | pending 42 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 14 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 23.21%
+
+⚡ FPS current      : 144.29
+⚡ FPS average      : 75.62
+⏱ Avg latency      : 152.24 ms
+⏱ P95 latency      : 299.46 ms
+🧠 CPU process      : 149.60 %
+💾 RAM process      : 692.51 MB
+🔋 Energy/frame     : 4.5520
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:15
+⌛ Runtime session  : 00:01:41
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:04
+
+✅ Last completed   : intermittentObjectMotion/sofa/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 13 / 56 | pending 42 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 14 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 23.21%
+
+⚡ FPS current      : 4.30
+⚡ FPS average      : 61.27
+⏱ Avg latency      : 173.28 ms
+⏱ P95 latency      : 302.62 ms
+🧠 CPU process      : 180.62 %
+💾 RAM process      : 692.66 MB
+🔋 Energy/frame     : 4.9670
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:22
+⌛ Runtime session  : 00:01:48
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:13:04
+
+✅ Last completed   : intermittentObjectMotion/sofa/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+
+😄 Fun status line  : YOLO nghỉ ít thôi, còn nhiều video phía trước 😄
+============================================================
+[JOB PROGRESS] completed=14 | pending=42 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+frames_done=100
+runtime_seconds=17.327735900878906
+avg_fps=61.27488014491368
+p95_latency_ms=302.6171326637268
+activation=0.63
+energy_per_frame=4.967
+simulated_runtime_energy_per_frame=5.992053657073381
+    EventF1=0.889 | FMeasure=0.160 | Activation=0.630 | ROI=500-2750 | EvalFrames=100 | SkippedBeforeROI=499
+  - Running ONLINE_CALIBRATED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / sofa / ONLINE_CALIBRATED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 14 / 56 | pending 41 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 15 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+⚡ FPS current      : 72.29
+⚡ FPS average      : 72.29
+⏱ Avg latency      : 13.83 ms
+⏱ P95 latency      : 13.83 ms
+🧠 CPU process      : 25.32 %
+💾 RAM process      : 715.47 MB
+🔋 Energy/frame     : 1.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:01
+⌛ Runtime session  : 00:01:50
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:12:43
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 14 / 56 | pending 41 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 15 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+⚡ FPS current      : 3.98
+⚡ FPS average      : 34.95
+⏱ Avg latency      : 107.27 ms
+⏱ P95 latency      : 344.89 ms
+🧠 CPU process      : 147.57 %
+💾 RAM process      : 715.48 MB
+🔋 Energy/frame     : 3.2120
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:06
+⌛ Runtime session  : 00:01:55
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:12:43
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : YOLO nghỉ ít thôi, còn nhiều video phía trước 😄
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 14 / 56 | pending 41 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 15 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+⚡ FPS current      : 2.16
+⚡ FPS average      : 22.80
+⏱ Avg latency      : 183.20 ms
+⏱ P95 latency      : 461.16 ms
+🧠 CPU process      : 101.25 %
+💾 RAM process      : 715.50 MB
+🔋 Energy/frame     : 4.2220
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:15
+⌛ Runtime session  : 00:02:05
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:12:43
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 14 / 56 | pending 41 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 15 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+⚡ FPS current      : 24.43
+⚡ FPS average      : 23.24
+⏱ Avg latency      : 159.05 ms
+⏱ P95 latency      : 435.89 ms
+🧠 CPU process      : 25.02 %
+💾 RAM process      : 715.55 MB
+🔋 Energy/frame     : 3.8280
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:21
+⌛ Runtime session  : 00:02:11
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:12:43
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 14 / 56 | pending 41 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 15 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+⚡ FPS current      : 2.43
+⚡ FPS average      : 19.83
+⏱ Avg latency      : 195.16 ms
+⏱ P95 latency      : 458.43 ms
+🧠 CPU process      : 135.35 %
+💾 RAM process      : 715.66 MB
+🔋 Energy/frame     : 4.2770
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:32
+⌛ Runtime session  : 00:02:21
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:43
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+[JOB PROGRESS] completed=15 | pending=41 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+frames_done=100
+runtime_seconds=19.5161235332489
+avg_fps=19.832910695638127
+p95_latency_ms=458.42543840408325
+activation=0.49
+energy_per_frame=4.276999999999999
+simulated_runtime_energy_per_frame=4.847989856200689
+    EventF1=0.870 | FMeasure=0.153 | Activation=0.490 | ROI=500-2750 | EvalFrames=100 | SkippedBeforeROI=499
+  - Running ASMAG_TR_CONTROLLER_ONLINE_GUARDED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / sofa / ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 15 / 56 | pending 40 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 16 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 26.79%
+
+⚡ FPS current      : 3.05
+⚡ FPS average      : 3.05
+⏱ Avg latency      : 328.36 ms
+⏱ P95 latency      : 328.36 ms
+🧠 CPU process      : 40.65 %
+💾 RAM process      : 695.11 MB
+🔋 Energy/frame     : 6.8000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:02
+⌛ Runtime session  : 00:02:24
+🕒 ETA current job  : 00:00:32
+🕒 ETA all remain   : 00:12:28
+
+✅ Last completed   : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/parking/P3_MOG2
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 15 / 56 | pending 40 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 16 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 26.79%
+
+⚡ FPS current      : 3.14
+⚡ FPS average      : 44.19
+⏱ Avg latency      : 127.78 ms
+⏱ P95 latency      : 375.72 ms
+🧠 CPU process      : 176.05 %
+💾 RAM process      : 696.79 MB
+🔋 Energy/frame     : 3.6120
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:06
+⌛ Runtime session  : 00:02:29
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:12:28
+
+✅ Last completed   : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/parking/P3_MOG2
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 15 / 56 | pending 40 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 16 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 26.79%
+
+⚡ FPS current      : 32.25
+⚡ FPS average      : 26.93
+⏱ Avg latency      : 225.99 ms
+⏱ P95 latency      : 472.93 ms
+🧠 CPU process      : 25.02 %
+💾 RAM process      : 700.45 MB
+🔋 Energy/frame     : 4.6140
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:17
+⌛ Runtime session  : 00:02:40
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:12:28
+
+✅ Last completed   : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/parking/P3_MOG2
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 15 / 56 | pending 40 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 16 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 26.79%
+
+⚡ FPS current      : 37.48
+⚡ FPS average      : 30.22
+⏱ Avg latency      : 181.22 ms
+⏱ P95 latency      : 471.26 ms
+🧠 CPU process      : 24.93 %
+💾 RAM process      : 704.48 MB
+🔋 Energy/frame     : 4.0213
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:21
+⌛ Runtime session  : 00:02:44
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:28
+
+✅ Last completed   : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/parking/P3_MOG2
+
+😄 Fun status line  : Bình tĩnh, video dài nhưng chúng ta bền bỉ!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 15 / 56 | pending 40 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 16 / 56
+🎬 Current video    : intermittentObjectMotion / sofa
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[█████░░░░░░░░░░░░░░░] 26.79%
+
+⚡ FPS current      : 2.54
+⚡ FPS average      : 24.17
+⏱ Avg latency      : 221.68 ms
+⏱ P95 latency      : 471.71 ms
+🧠 CPU process      : 144.00 %
+💾 RAM process      : 709.90 MB
+🔋 Energy/frame     : 4.5650
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:33
+⌛ Runtime session  : 00:02:55
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:28
+
+✅ Last completed   : intermittentObjectMotion/sofa/ONLINE_CALIBRATED
+➡️ Next pending     : intermittentObjectMotion/parking/P3_MOG2
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+[JOB PROGRESS] completed=16 | pending=40 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+frames_done=100
+runtime_seconds=22.16831374168396
+avg_fps=24.174731632208548
+p95_latency_ms=471.70761823654175
+activation=0.55
+energy_per_frame=4.5649999999999995
+simulated_runtime_energy_per_frame=5.309767796223238
+    EventF1=0.889 | FMeasure=0.170 | Activation=0.550 | ROI=500-2750 | EvalFrames=100 | SkippedBeforeROI=499
+
+[SEQ] intermittentObjectMotion/parking
+  - Running P3_MOG2 ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / parking / P3_MOG2
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 16 / 56 | pending 39 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 17 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 28.57%
+
+⚡ FPS current      : 277.36
+⚡ FPS average      : 277.36
+⏱ Avg latency      : 3.61 ms
+⏱ P95 latency      : 3.61 ms
+🧠 CPU process      : 8.05 %
+💾 RAM process      : 689.06 MB
+🔋 Energy/frame     : 1.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:00
+⌛ Runtime session  : 00:02:57
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:20
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 16 / 56 | pending 39 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 17 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 28.57%
+
+⚡ FPS current      : 3.45
+⚡ FPS average      : 51.55
+⏱ Avg latency      : 319.89 ms
+⏱ P95 latency      : 528.93 ms
+🧠 CPU process      : 139.93 %
+💾 RAM process      : 701.93 MB
+🔋 Energy/frame     : 5.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:13
+⌛ Runtime session  : 00:03:10
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:12:20
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : YOLO nghỉ ít thôi, còn nhiều video phía trước 😄
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 16 / 56 | pending 39 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 17 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 28.57%
+
+⚡ FPS current      : 2.42
+⚡ FPS average      : 36.40
+⏱ Avg latency      : 332.55 ms
+⏱ P95 latency      : 493.47 ms
+🧠 CPU process      : 100.55 %
+💾 RAM process      : 706.00 MB
+🔋 Energy/frame     : 5.9000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:26
+⌛ Runtime session  : 00:03:22
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:12:20
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 16 / 56 | pending 39 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 17 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 28.57%
+
+⚡ FPS current      : 499.20
+⚡ FPS average      : 51.38
+⏱ Avg latency      : 312.85 ms
+⏱ P95 latency      : 474.12 ms
+🧠 CPU process      : 125.00 %
+💾 RAM process      : 705.95 MB
+🔋 Energy/frame     : 5.7667
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:37
+⌛ Runtime session  : 00:03:34
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:20
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Bình tĩnh, video dài nhưng chúng ta bền bỉ!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 16 / 56 | pending 39 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 17 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 28.57%
+
+⚡ FPS current      : 396.66
+⚡ FPS average      : 94.17
+⏱ Avg latency      : 271.14 ms
+⏱ P95 latency      : 471.41 ms
+🧠 CPU process      : 8.30 %
+💾 RAM process      : 706.09 MB
+🔋 Energy/frame     : 5.3500
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:44
+⌛ Runtime session  : 00:03:41
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:20
+
+✅ Last completed   : intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Progress đang đẹp lên từng frame!
+============================================================
+[JOB PROGRESS] completed=17 | pending=39 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/parking/P3_MOG2
+frames_done=100
+runtime_seconds=27.113767862319946
+avg_fps=94.17352378238573
+p95_latency_ms=471.4120030403137
+activation=0.73
+energy_per_frame=5.350000000000003
+simulated_runtime_energy_per_frame=6.182116522296031
+    EventF1=0.617 | FMeasure=0.493 | Activation=0.730 | ROI=1100-2500 | EvalFrames=100 | SkippedBeforeROI=1099
+  - Running ASMAG_TR_CONTROLLER ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / parking / ASMAG_TR_CONTROLLER
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 17 / 56 | pending 38 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 18 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 30.36%
+
+⚡ FPS current      : 3.86
+⚡ FPS average      : 3.86
+⏱ Avg latency      : 258.98 ms
+⏱ P95 latency      : 258.98 ms
+🧠 CPU process      : 65.38 %
+💾 RAM process      : 713.86 MB
+🔋 Energy/frame     : 6.8000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:00
+⌛ Runtime session  : 00:03:42
+🕒 ETA current job  : 00:00:25
+🕒 ETA all remain   : 00:12:21
+
+✅ Last completed   : intermittentObjectMotion/parking/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 17 / 56 | pending 38 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 18 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 30.36%
+
+⚡ FPS current      : 121.71
+⚡ FPS average      : 116.49
+⏱ Avg latency      : 55.78 ms
+⏱ P95 latency      : 257.06 ms
+🧠 CPU process      : 99.72 %
+💾 RAM process      : 714.72 MB
+🔋 Energy/frame     : 2.8200
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:02
+⌛ Runtime session  : 00:03:44
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:21
+
+✅ Last completed   : intermittentObjectMotion/parking/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 17 / 56 | pending 38 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 18 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 30.36%
+
+⚡ FPS current      : 146.56
+⚡ FPS average      : 120.05
+⏱ Avg latency      : 55.54 ms
+⏱ P95 latency      : 256.95 ms
+🧠 CPU process      : 50.95 %
+💾 RAM process      : 714.66 MB
+🔋 Energy/frame     : 2.8200
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:05
+⌛ Runtime session  : 00:03:47
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:21
+
+✅ Last completed   : intermittentObjectMotion/parking/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 17 / 56 | pending 38 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 18 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 30.36%
+
+⚡ FPS current      : 68.38
+⚡ FPS average      : 113.78
+⏱ Avg latency      : 62.62 ms
+⏱ P95 latency      : 272.50 ms
+🧠 CPU process      : 21.50 %
+💾 RAM process      : 718.89 MB
+🔋 Energy/frame     : 2.8200
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:08
+⌛ Runtime session  : 00:03:50
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:21
+
+✅ Last completed   : intermittentObjectMotion/parking/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 17 / 56 | pending 38 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 18 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 30.36%
+
+⚡ FPS current      : 130.06
+⚡ FPS average      : 104.27
+⏱ Avg latency      : 82.12 ms
+⏱ P95 latency      : 440.21 ms
+🧠 CPU process      : 24.80 %
+💾 RAM process      : 719.03 MB
+🔋 Energy/frame     : 2.9220
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:13
+⌛ Runtime session  : 00:03:55
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:12:21
+
+✅ Last completed   : intermittentObjectMotion/parking/P3_MOG2
+➡️ Next pending     : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+
+😄 Fun status line  : Progress đang đẹp lên từng frame!
+============================================================
+[JOB PROGRESS] completed=18 | pending=38 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+frames_done=100
+runtime_seconds=8.21200704574585
+avg_fps=104.27089467966053
+p95_latency_ms=440.21093845367426
+activation=0.22
+energy_per_frame=2.9219999999999997
+simulated_runtime_energy_per_frame=3.413235075938007
+    EventF1=0.500 | FMeasure=0.445 | Activation=0.220 | ROI=1100-2500 | EvalFrames=100 | SkippedBeforeROI=1099
+  - Running ONLINE_CALIBRATED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / parking / ONLINE_CALIBRATED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 18 / 56 | pending 37 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 19 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 32.14%
+
+⚡ FPS current      : 39.50
+⚡ FPS average      : 39.50
+⏱ Avg latency      : 25.31 ms
+⏱ P95 latency      : 25.31 ms
+🧠 CPU process      : 23.80 %
+💾 RAM process      : 741.22 MB
+🔋 Energy/frame     : 1.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:01
+⌛ Runtime session  : 00:03:58
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:11:39
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 18 / 56 | pending 37 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 19 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 32.14%
+
+⚡ FPS current      : 36.55
+⚡ FPS average      : 35.79
+⏱ Avg latency      : 75.61 ms
+⏱ P95 latency      : 330.53 ms
+🧠 CPU process      : 27.70 %
+💾 RAM process      : 741.47 MB
+🔋 Energy/frame     : 2.6120
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:05
+⌛ Runtime session  : 00:04:02
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:11:39
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 18 / 56 | pending 37 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 19 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 32.14%
+
+⚡ FPS current      : 43.08
+⚡ FPS average      : 35.54
+⏱ Avg latency      : 82.71 ms
+⏱ P95 latency      : 353.89 ms
+🧠 CPU process      : 28.12 %
+💾 RAM process      : 741.43 MB
+🔋 Energy/frame     : 2.7160
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:10
+⌛ Runtime session  : 00:04:07
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:11:39
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 18 / 56 | pending 37 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 19 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 32.14%
+
+⚡ FPS current      : 28.90
+⚡ FPS average      : 34.41
+⏱ Avg latency      : 87.51 ms
+⏱ P95 latency      : 384.76 ms
+🧠 CPU process      : 22.18 %
+💾 RAM process      : 741.90 MB
+🔋 Energy/frame     : 2.7507
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:15
+⌛ Runtime session  : 00:04:12
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:11:39
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Giữ vững phong độ, dữ liệu đang chảy về!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 18 / 56 | pending 37 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 19 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[██████░░░░░░░░░░░░░░] 32.14%
+
+⚡ FPS current      : 50.27
+⚡ FPS average      : 34.21
+⏱ Avg latency      : 92.31 ms
+⏱ P95 latency      : 372.43 ms
+🧠 CPU process      : 24.93 %
+💾 RAM process      : 742.30 MB
+🔋 Energy/frame     : 2.8700
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:20
+⌛ Runtime session  : 00:04:17
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:11:39
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER
+➡️ Next pending     : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+[JOB PROGRESS] completed=19 | pending=37 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/parking/ONLINE_CALIBRATED
+frames_done=100
+runtime_seconds=9.230622291564941
+avg_fps=34.206931451077196
+p95_latency_ms=372.4283099174499
+activation=0.21
+energy_per_frame=2.8700000000000006
+simulated_runtime_energy_per_frame=3.0688902459616774
+    EventF1=0.510 | FMeasure=0.458 | Activation=0.210 | ROI=1100-2500 | EvalFrames=100 | SkippedBeforeROI=1099
+  - Running ASMAG_TR_CONTROLLER_ONLINE_GUARDED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : intermittentObjectMotion / parking / ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 19 / 56 | pending 36 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 20 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 33.93%
+
+⚡ FPS current      : 3.00
+⚡ FPS average      : 3.00
+⏱ Avg latency      : 333.47 ms
+⏱ P95 latency      : 333.47 ms
+🧠 CPU process      : 43.15 %
+💾 RAM process      : 721.73 MB
+🔋 Energy/frame     : 6.8000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:01
+⌛ Runtime session  : 00:04:19
+🕒 ETA current job  : 00:00:33
+🕒 ETA all remain   : 00:11:03
+
+✅ Last completed   : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/port_0_17fps/P3_MOG2
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 19 / 56 | pending 36 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 20 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 33.93%
+
+⚡ FPS current      : 36.52
+⚡ FPS average      : 30.84
+⏱ Avg latency      : 104.26 ms
+⏱ P95 latency      : 446.46 ms
+🧠 CPU process      : 25.00 %
+💾 RAM process      : 721.96 MB
+🔋 Energy/frame     : 2.8120
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:06
+⌛ Runtime session  : 00:04:24
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:11:03
+
+✅ Last completed   : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/port_0_17fps/P3_MOG2
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 19 / 56 | pending 36 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 20 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 33.93%
+
+⚡ FPS current      : 29.24
+⚡ FPS average      : 29.99
+⏱ Avg latency      : 101.32 ms
+⏱ P95 latency      : 432.78 ms
+🧠 CPU process      : 24.93 %
+💾 RAM process      : 723.22 MB
+🔋 Energy/frame     : 2.8160
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:11
+⌛ Runtime session  : 00:04:29
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:11:03
+
+✅ Last completed   : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/port_0_17fps/P3_MOG2
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 19 / 56 | pending 36 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 20 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 33.93%
+
+⚡ FPS current      : 30.52
+⚡ FPS average      : 29.92
+⏱ Avg latency      : 99.89 ms
+⏱ P95 latency      : 427.30 ms
+🧠 CPU process      : 25.00 %
+💾 RAM process      : 726.75 MB
+🔋 Energy/frame     : 2.8187
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:16
+⌛ Runtime session  : 00:04:34
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:11:03
+
+✅ Last completed   : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/port_0_17fps/P3_MOG2
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 19 / 56 | pending 36 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 20 / 56
+🎬 Current video    : intermittentObjectMotion / parking
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 33.93%
+
+⚡ FPS current      : 41.68
+⚡ FPS average      : 28.83
+⏱ Avg latency      : 109.67 ms
+⏱ P95 latency      : 427.15 ms
+🧠 CPU process      : 25.05 %
+💾 RAM process      : 732.24 MB
+🔋 Energy/frame     : 2.9700
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:22
+⌛ Runtime session  : 00:04:40
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:11:03
+
+✅ Last completed   : intermittentObjectMotion/parking/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/port_0_17fps/P3_MOG2
+
+😄 Fun status line  : YOLO nghỉ ít thôi, còn nhiều video phía trước 😄
+============================================================
+[JOB PROGRESS] completed=20 | pending=36 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+frames_done=100
+runtime_seconds=10.967224836349487
+avg_fps=28.831887848166648
+p95_latency_ms=427.1509051322937
+activation=0.23
+energy_per_frame=2.9700000000000006
+simulated_runtime_energy_per_frame=3.27770770547337
+    EventF1=0.533 | FMeasure=0.479 | Activation=0.230 | ROI=1100-2500 | EvalFrames=100 | SkippedBeforeROI=1099
+
+[SEQ] lowFramerate/port_0_17fps
+  - Running P3_MOG2 ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : lowFramerate / port_0_17fps / P3_MOG2
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 20 / 56 | pending 35 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 21 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 35.71%
+
+⚡ FPS current      : 3.69
+⚡ FPS average      : 3.69
+⏱ Avg latency      : 270.65 ms
+⏱ P95 latency      : 270.65 ms
+🧠 CPU process      : 34.33 %
+💾 RAM process      : 737.91 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:02
+⌛ Runtime session  : 00:04:44
+🕒 ETA current job  : 00:00:26
+🕒 ETA all remain   : 00:10:33
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 20 / 56 | pending 35 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 21 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 35.71%
+
+⚡ FPS current      : 2.60
+⚡ FPS average      : 2.89
+⏱ Avg latency      : 360.18 ms
+⏱ P95 latency      : 502.43 ms
+🧠 CPU process      : 126.28 %
+💾 RAM process      : 742.77 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:16
+⌛ Runtime session  : 00:04:58
+🕒 ETA current job  : 00:00:25
+🕒 ETA all remain   : 00:10:33
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Thêm một ít nữa là chạm mốc mới!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 20 / 56 | pending 35 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 21 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 35.71%
+
+⚡ FPS current      : 3.06
+⚡ FPS average      : 3.62
+⏱ Avg latency      : 377.55 ms
+⏱ P95 latency      : 499.95 ms
+🧠 CPU process      : 111.25 %
+💾 RAM process      : 743.71 MB
+🔋 Energy/frame     : 6.6000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:33
+⌛ Runtime session  : 00:05:15
+🕒 ETA current job  : 00:00:13
+🕒 ETA all remain   : 00:10:33
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 20 / 56 | pending 35 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 21 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 35.71%
+
+⚡ FPS current      : 1.79
+⚡ FPS average      : 4.23
+⏱ Avg latency      : 391.47 ms
+⏱ P95 latency      : 502.28 ms
+🧠 CPU process      : 82.92 %
+💾 RAM process      : 744.59 MB
+🔋 Energy/frame     : 6.5667
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:50
+⌛ Runtime session  : 00:05:32
+🕒 ETA current job  : 00:00:05
+🕒 ETA all remain   : 00:10:33
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 20 / 56 | pending 35 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 21 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[███████░░░░░░░░░░░░░] 35.71%
+
+⚡ FPS current      : 49.07
+⚡ FPS average      : 8.78
+⏱ Avg latency      : 361.25 ms
+⏱ P95 latency      : 505.27 ms
+🧠 CPU process      : 19.18 %
+💾 RAM process      : 744.67 MB
+🔋 Energy/frame     : 6.1500
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:01:03
+⌛ Runtime session  : 00:05:45
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:10:33
+
+✅ Last completed   : intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+[JOB PROGRESS] completed=21 | pending=35 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+lowFramerate/port_0_17fps/P3_MOG2
+frames_done=100
+runtime_seconds=36.12542486190796
+avg_fps=8.778864974217548
+p95_latency_ms=505.2661657333374
+activation=0.89
+energy_per_frame=6.150000000000003
+simulated_runtime_energy_per_frame=7.197228326505089
+    EventF1=0.352 | FMeasure=0.000 | Activation=0.890 | ROI=1000-3000 | EvalFrames=100 | SkippedBeforeROI=999
+  - Running ASMAG_TR_CONTROLLER ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : lowFramerate / port_0_17fps / ASMAG_TR_CONTROLLER
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 21 / 56 | pending 34 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 22 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 37.50%
+
+⚡ FPS current      : 3.15
+⚡ FPS average      : 3.15
+⏱ Avg latency      : 317.06 ms
+⏱ P95 latency      : 317.06 ms
+🧠 CPU process      : 50.33 %
+💾 RAM process      : 744.73 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:01
+⌛ Runtime session  : 00:05:46
+🕒 ETA current job  : 00:00:31
+🕒 ETA all remain   : 00:10:46
+
+✅ Last completed   : lowFramerate/port_0_17fps/P3_MOG2
+➡️ Next pending     : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Giữ vững phong độ, dữ liệu đang chảy về!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 21 / 56 | pending 34 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 22 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 37.50%
+
+⚡ FPS current      : 1.94
+⚡ FPS average      : 2.57
+⏱ Avg latency      : 402.26 ms
+⏱ P95 latency      : 511.38 ms
+🧠 CPU process      : 119.70 %
+💾 RAM process      : 744.74 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:14
+⌛ Runtime session  : 00:06:00
+🕒 ETA current job  : 00:00:29
+🕒 ETA all remain   : 00:10:46
+
+✅ Last completed   : lowFramerate/port_0_17fps/P3_MOG2
+➡️ Next pending     : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 21 / 56 | pending 34 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 22 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 37.50%
+
+⚡ FPS current      : 2.85
+⚡ FPS average      : 3.40
+⏱ Avg latency      : 413.35 ms
+⏱ P95 latency      : 528.08 ms
+🧠 CPU process      : 144.47 %
+💾 RAM process      : 744.86 MB
+🔋 Energy/frame     : 6.6000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:28
+⌛ Runtime session  : 00:06:14
+🕒 ETA current job  : 00:00:14
+🕒 ETA all remain   : 00:10:46
+
+✅ Last completed   : lowFramerate/port_0_17fps/P3_MOG2
+➡️ Next pending     : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 21 / 56 | pending 34 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 22 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 37.50%
+
+⚡ FPS current      : 2.53
+⚡ FPS average      : 3.76
+⏱ Avg latency      : 420.68 ms
+⏱ P95 latency      : 533.35 ms
+🧠 CPU process      : 148.53 %
+💾 RAM process      : 744.91 MB
+🔋 Energy/frame     : 6.5667
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:42
+⌛ Runtime session  : 00:06:28
+🕒 ETA current job  : 00:00:06
+🕒 ETA all remain   : 00:10:46
+
+✅ Last completed   : lowFramerate/port_0_17fps/P3_MOG2
+➡️ Next pending     : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 21 / 56 | pending 34 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 22 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 37.50%
+
+⚡ FPS current      : 30.54
+⚡ FPS average      : 8.41
+⏱ Avg latency      : 389.39 ms
+⏱ P95 latency      : 531.95 ms
+🧠 CPU process      : 24.93 %
+💾 RAM process      : 744.93 MB
+🔋 Energy/frame     : 6.1500
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:53
+⌛ Runtime session  : 00:06:39
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:10:46
+
+✅ Last completed   : lowFramerate/port_0_17fps/P3_MOG2
+➡️ Next pending     : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Progress đang đẹp lên từng frame!
+============================================================
+[JOB PROGRESS] completed=22 | pending=34 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+frames_done=100
+runtime_seconds=38.93913149833679
+avg_fps=8.405579726769435
+p95_latency_ms=531.9484710693359
+activation=0.89
+energy_per_frame=6.150000000000003
+simulated_runtime_energy_per_frame=7.127946459074092
+    EventF1=0.352 | FMeasure=0.000 | Activation=0.890 | ROI=1000-3000 | EvalFrames=100 | SkippedBeforeROI=999
+  - Running ONLINE_CALIBRATED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : lowFramerate / port_0_17fps / ONLINE_CALIBRATED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 22 / 56 | pending 33 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 23 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 39.29%
+
+⚡ FPS current      : 2.50
+⚡ FPS average      : 2.50
+⏱ Avg latency      : 399.65 ms
+⏱ P95 latency      : 399.65 ms
+🧠 CPU process      : 27.75 %
+💾 RAM process      : 857.74 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:10
+⌛ Runtime session  : 00:06:51
+🕒 ETA current job  : 00:00:39
+🕒 ETA all remain   : 00:10:59
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 22 / 56 | pending 33 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 23 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 39.29%
+
+⚡ FPS current      : 3.48
+⚡ FPS average      : 2.36
+⏱ Avg latency      : 430.76 ms
+⏱ P95 latency      : 523.41 ms
+🧠 CPU process      : 97.53 %
+💾 RAM process      : 861.50 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:34
+⌛ Runtime session  : 00:07:15
+🕒 ETA current job  : 00:00:31
+🕒 ETA all remain   : 00:10:59
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Progress đang đẹp lên từng frame!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 22 / 56 | pending 33 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 23 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 39.29%
+
+⚡ FPS current      : 2.98
+⚡ FPS average      : 2.61
+⏱ Avg latency      : 407.73 ms
+⏱ P95 latency      : 530.30 ms
+🧠 CPU process      : 103.10 %
+💾 RAM process      : 861.57 MB
+🔋 Energy/frame     : 6.6000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:55
+⌛ Runtime session  : 00:07:36
+🕒 ETA current job  : 00:00:19
+🕒 ETA all remain   : 00:10:59
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : YOLO nghỉ ít thôi, còn nhiều video phía trước 😄
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 22 / 56 | pending 33 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 23 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 39.29%
+
+⚡ FPS current      : 2.51
+⚡ FPS average      : 2.62
+⏱ Avg latency      : 408.39 ms
+⏱ P95 latency      : 529.61 ms
+🧠 CPU process      : 61.10 %
+💾 RAM process      : 861.66 MB
+🔋 Energy/frame     : 6.5667
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:01:18
+⌛ Runtime session  : 00:07:59
+🕒 ETA current job  : 00:00:09
+🕒 ETA all remain   : 00:10:59
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 22 / 56 | pending 33 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 23 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ONLINE_CALIBRATED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 39.29%
+
+⚡ FPS current      : 13.30
+⚡ FPS average      : 3.14
+⏱ Avg latency      : 384.10 ms
+⏱ P95 latency      : 512.19 ms
+🧠 CPU process      : 24.23 %
+💾 RAM process      : 861.77 MB
+🔋 Energy/frame     : 6.1500
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:01:38
+⌛ Runtime session  : 00:08:18
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:10:59
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER
+➡️ Next pending     : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+😄 Fun status line  : Bình tĩnh, video dài nhưng chúng ta bền bỉ!
+============================================================
+[JOB PROGRESS] completed=23 | pending=33 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+frames_done=100
+runtime_seconds=38.4100980758667
+avg_fps=3.1364896979794334
+p95_latency_ms=512.190842628479
+activation=0.89
+energy_per_frame=6.150000000000003
+simulated_runtime_energy_per_frame=6.873581692531242
+    EventF1=0.352 | FMeasure=0.000 | Activation=0.890 | ROI=1000-3000 | EvalFrames=100 | SkippedBeforeROI=999
+  - Running ASMAG_TR_CONTROLLER_ONLINE_GUARDED ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : lowFramerate / port_0_17fps / ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 23 / 56 | pending 32 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 24 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 41.07%
+
+⚡ FPS current      : 1.97
+⚡ FPS average      : 1.97
+⏱ Avg latency      : 507.37 ms
+⏱ P95 latency      : 507.37 ms
+🧠 CPU process      : 30.62 %
+💾 RAM process      : 733.66 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:05
+⌛ Runtime session  : 00:08:24
+🕒 ETA current job  : 00:00:50
+🕒 ETA all remain   : 00:11:07
+
+✅ Last completed   : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+
+😄 Fun status line  : Progress đang đẹp lên từng frame!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 23 / 56 | pending 32 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 24 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 41.07%
+
+⚡ FPS current      : 12.49
+⚡ FPS average      : 12.45
+⏱ Avg latency      : 207.19 ms
+⏱ P95 latency      : 540.77 ms
+🧠 CPU process      : 24.95 %
+💾 RAM process      : 771.20 MB
+🔋 Energy/frame     : 3.5720
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:17
+⌛ Runtime session  : 00:08:37
+🕒 ETA current job  : 00:00:06
+🕒 ETA all remain   : 00:11:07
+
+✅ Last completed   : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+
+😄 Fun status line  : Bình tĩnh, video dài nhưng chúng ta bền bỉ!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 23 / 56 | pending 32 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 24 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 41.07%
+
+⚡ FPS current      : 20.40
+⚡ FPS average      : 17.30
+⏱ Avg latency      : 131.85 ms
+⏱ P95 latency      : 520.67 ms
+🧠 CPU process      : 24.93 %
+💾 RAM process      : 772.18 MB
+🔋 Energy/frame     : 2.7460
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:24
+⌛ Runtime session  : 00:08:43
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:11:07
+
+✅ Last completed   : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 23 / 56 | pending 32 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 24 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 41.07%
+
+⚡ FPS current      : 25.53
+⚡ FPS average      : 16.40
+⏱ Avg latency      : 150.76 ms
+⏱ P95 latency      : 508.93 ms
+🧠 CPU process      : 60.30 %
+💾 RAM process      : 774.13 MB
+🔋 Energy/frame     : 3.2040
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:34
+⌛ Runtime session  : 00:08:53
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:11:07
+
+✅ Last completed   : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 23 / 56 | pending 32 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 24 / 56
+🎬 Current video    : lowFramerate / port_0_17fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+🧩 Video progress   : 2 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[████████░░░░░░░░░░░░] 41.07%
+
+⚡ FPS current      : 38.44
+⚡ FPS average      : 18.70
+⏱ Avg latency      : 126.19 ms
+⏱ P95 latency      : 495.16 ms
+🧠 CPU process      : 28.68 %
+💾 RAM process      : 776.09 MB
+🔋 Energy/frame     : 2.8850
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:39
+⌛ Runtime session  : 00:08:58
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:11:07
+
+✅ Last completed   : lowFramerate/port_0_17fps/ONLINE_CALIBRATED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+
+😄 Fun status line  : Bình tĩnh, video dài nhưng chúng ta bền bỉ!
+============================================================
+[JOB PROGRESS] completed=24 | pending=32 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+frames_done=100
+runtime_seconds=12.618924379348755
+avg_fps=18.700859620660502
+p95_latency_ms=495.16166448593134
+activation=0.23
+energy_per_frame=2.8850000000000007
+simulated_runtime_energy_per_frame=2.8693586566393536
+    EventF1=0.200 | FMeasure=0.000 | Activation=0.230 | ROI=1000-3000 | EvalFrames=100 | SkippedBeforeROI=999
+
+[SEQ] lowFramerate/tunnelExit_0_35fps
+  - Running P3_MOG2 ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : lowFramerate / tunnelExit_0_35fps / P3_MOG2
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 24 / 56 | pending 31 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 25 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 42.86%
+
+⚡ FPS current      : 3.39
+⚡ FPS average      : 3.39
+⏱ Avg latency      : 294.56 ms
+⏱ P95 latency      : 294.56 ms
+🧠 CPU process      : 36.67 %
+💾 RAM process      : 795.46 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:01
+⌛ Runtime session  : 00:09:01
+🕒 ETA current job  : 00:00:29
+🕒 ETA all remain   : 00:10:37
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 24 / 56 | pending 31 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 25 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 42.86%
+
+⚡ FPS current      : 3.83
+⚡ FPS average      : 16.74
+⏱ Avg latency      : 252.13 ms
+⏱ P95 latency      : 367.00 ms
+🧠 CPU process      : 129.95 %
+💾 RAM process      : 802.76 MB
+🔋 Energy/frame     : 5.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:13
+⌛ Runtime session  : 00:09:13
+🕒 ETA current job  : 00:00:04
+🕒 ETA all remain   : 00:10:37
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 24 / 56 | pending 31 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 25 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 42.86%
+
+⚡ FPS current      : 3.03
+⚡ FPS average      : 26.96
+⏱ Avg latency      : 224.95 ms
+⏱ P95 latency      : 351.13 ms
+🧠 CPU process      : 101.30 %
+💾 RAM process      : 802.73 MB
+🔋 Energy/frame     : 5.4000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:23
+⌛ Runtime session  : 00:09:23
+🕒 ETA current job  : 00:00:01
+🕒 ETA all remain   : 00:10:37
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Một pipeline xong là gần bài báo hơn một bước!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 24 / 56 | pending 31 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 25 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 42.86%
+
+⚡ FPS current      : 4.01
+⚡ FPS average      : 27.26
+⏱ Avg latency      : 220.35 ms
+⏱ P95 latency      : 348.54 ms
+🧠 CPU process      : 125.90 %
+💾 RAM process      : 802.80 MB
+🔋 Energy/frame     : 5.3667
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:34
+⌛ Runtime session  : 00:09:34
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:10:37
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Bình tĩnh, video dài nhưng chúng ta bền bỉ!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 24 / 56 | pending 31 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 25 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : P3_MOG2
+🧩 Video progress   : 0 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 42.86%
+
+⚡ FPS current      : 3.33
+⚡ FPS average      : 24.37
+⏱ Avg latency      : 234.80 ms
+⏱ P95 latency      : 372.61 ms
+🧠 CPU process      : 128.00 %
+💾 RAM process      : 803.80 MB
+🔋 Energy/frame     : 5.5000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:47
+⌛ Runtime session  : 00:09:47
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:10:37
+
+✅ Last completed   : lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+
+😄 Fun status line  : Pipeline đang làm việc rất chăm chỉ...
+============================================================
+[JOB PROGRESS] completed=25 | pending=31 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+lowFramerate/tunnelExit_0_35fps/P3_MOG2
+frames_done=100
+runtime_seconds=23.48046040534973
+avg_fps=24.373775014605634
+p95_latency_ms=372.6118326187134
+activation=0.76
+energy_per_frame=5.500000000000003
+simulated_runtime_energy_per_frame=6.3958294952924915
+    EventF1=0.913 | FMeasure=0.153 | Activation=0.760 | ROI=2000-4000 | EvalFrames=100 | SkippedBeforeROI=1999
+  - Running ASMAG_TR_CONTROLLER ...
+============================================================
+🚀 [G2G3 SINGLE-JOB RUN STARTED]
+🎯 Current mission : lowFramerate / tunnelExit_0_35fps / ASMAG_TR_CONTROLLER
+📦 Job type        : 1 video + 1 pipeline
+📍 Output folder   : outputs\guarded_v2_residual_risk_subset_dryrun
+🧠 Mode            : CPU Edge Simulation
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 25 / 56 | pending 30 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 26 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 1 / 100
+📊 Job progress     : 1.00%
+
+Progress bar job:
+[░░░░░░░░░░░░░░░░░░░░] 1.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 44.64%
+
+⚡ FPS current      : 3.52
+⚡ FPS average      : 3.52
+⏱ Avg latency      : 284.25 ms
+⏱ P95 latency      : 284.25 ms
+🧠 CPU process      : 58.55 %
+💾 RAM process      : 803.86 MB
+🔋 Energy/frame     : 6.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:01
+⌛ Runtime session  : 00:09:49
+🕒 ETA current job  : 00:00:28
+🕒 ETA all remain   : 00:10:21
+
+✅ Last completed   : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Edge profiling vẫn đang ổn định!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 25 / 56 | pending 30 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 26 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 25 / 100
+📊 Job progress     : 25.00%
+
+Progress bar job:
+[█████░░░░░░░░░░░░░░░] 25.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 44.64%
+
+⚡ FPS current      : 2.64
+⚡ FPS average      : 17.06
+⏱ Avg latency      : 284.78 ms
+⏱ P95 latency      : 424.17 ms
+🧠 CPU process      : 144.53 %
+💾 RAM process      : 803.88 MB
+🔋 Energy/frame     : 5.7000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:10
+⌛ Runtime session  : 00:09:58
+🕒 ETA current job  : 00:00:04
+🕒 ETA all remain   : 00:10:21
+
+✅ Last completed   : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 25 / 56 | pending 30 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 26 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 50 / 100
+📊 Job progress     : 50.00%
+
+Progress bar job:
+[██████████░░░░░░░░░░] 50.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 44.64%
+
+⚡ FPS current      : 3.61
+⚡ FPS average      : 24.51
+⏱ Avg latency      : 240.35 ms
+⏱ P95 latency      : 393.42 ms
+🧠 CPU process      : 131.30 %
+💾 RAM process      : 803.88 MB
+🔋 Energy/frame     : 5.4000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:18
+⌛ Runtime session  : 00:10:06
+🕒 ETA current job  : 00:00:02
+🕒 ETA all remain   : 00:10:21
+
+✅ Last completed   : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Bình tĩnh, video dài nhưng chúng ta bền bỉ!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 25 / 56 | pending 30 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 26 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 75 / 100
+📊 Job progress     : 75.00%
+
+Progress bar job:
+[███████████████░░░░░] 75.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 44.64%
+
+⚡ FPS current      : 3.03
+⚡ FPS average      : 26.25
+⏱ Avg latency      : 225.10 ms
+⏱ P95 latency      : 391.77 ms
+🧠 CPU process      : 113.25 %
+💾 RAM process      : 803.90 MB
+🔋 Energy/frame     : 5.3667
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:25
+⌛ Runtime session  : 00:10:13
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:10:21
+
+✅ Last completed   : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Sắp xong thêm một chặng nữa!
+============================================================
+============================================================
+📡 [G2G3 LIVE STATUS]
+🗂 Overall jobs     : completed 25 / 56 | pending 30 | failed 0
+📼 Videos done      : 0 / 14
+🧮 Current job index: 26 / 56
+🎬 Current video    : lowFramerate / tunnelExit_0_35fps
+🧪 Current pipeline : ASMAG_TR_CONTROLLER
+🧩 Video progress   : 1 / 6 pipelines
+🖼 Frame progress   : 100 / 100
+📊 Job progress     : 100.00%
+
+Progress bar job:
+[████████████████████] 100.00%
+
+Progress bar overall:
+[█████████░░░░░░░░░░░] 44.64%
+
+⚡ FPS current      : 4.18
+⚡ FPS average      : 25.66
+⏱ Avg latency      : 223.80 ms
+⏱ P95 latency      : 389.20 ms
+🧠 CPU process      : 164.00 %
+💾 RAM process      : 804.00 MB
+🔋 Energy/frame     : 5.5000
+🔋 Sim energy/frame : 0.0000
+
+⌛ Runtime job      : 00:00:32
+⌛ Runtime session  : 00:10:20
+🕒 ETA current job  : 00:00:00
+🕒 ETA all remain   : 00:10:21
+
+✅ Last completed   : lowFramerate/tunnelExit_0_35fps/P3_MOG2
+➡️ Next pending     : lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+
+😄 Fun status line  : Đang tăng tốc, cố lên nào!
+============================================================
+[JOB PROGRESS] completed=26 | pending=30 | running=0 | failed=0 | current_job=-
+[JOB COMPLETED]
+lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+frames_done=100
+runtime_seconds=22.38032579421997
+avg_fps=25.65880039552223
+p95_latency_ms=389.1965866088867
+activation=0.76
+energy_per_frame=5.500000000000003
+simulated_runtime_energy_per_frame=6.588638033522322
+    EventF1=0.913 | FMeasure=0.153 | Activation=0.760 | ROI=2000-4000 | EvalFrames=100 | SkippedBeforeROI=1999
+
+[DONE] Summary files:
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_event_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_pixel_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_cdnet_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_edge_energy_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_object_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_edge_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_pareto_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\summary_research_metrics.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\asmag_tr_final_comparison.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\asmag_ablation_table.csv
+ - outputs\guarded_v2_residual_risk_subset_dryrun\charts
+
+[AUTO CONCLUSION]
+ - Best accuracy: ASMAG_TR_CONTROLLER_ONLINE_GUARDED (FMeasure=0.3694, Event_F1=0.5746)
+ - Best activation saving: ASMAG_TR_CONTROLLER_ONLINE_GUARDED (Activation=0.4583, Avg_FPS=22.61)
+ - Best Research Score: P3_MOG2 (Research_Score=0.5021)
+
+[FINAL PIPELINE SUMMARY]
+                          Pipeline  FMeasure  Event_F1  mAP_50  mAP_50_95_proxy  Activation  Avg_FPS  P95_latency_ms  Estimated_energy_per_frame  Energy_reduction_rate_vs_P1  Reuse_rate  AE_Score  Pareto_Efficient
+                           P3_MOG2    0.3002    0.6670  0.1808           0.0839      0.7157  78.5825        371.3368                      5.2786                       0.0000      0.0000    0.4206              True
+               ASMAG_TR_CONTROLLER    0.2901    0.6704  0.1667           0.0810      0.6186  58.7398        374.6067                      4.8447                       0.0000      0.0900    0.4095              True
+ASMAG_TR_CONTROLLER_ONLINE_GUARDED    0.3929    0.5746  0.1629           0.0726      0.4583  22.6126        400.7305                      4.0862                       0.0000      0.1617    0.3958              True
+                 ONLINE_CALIBRATED    0.3760    0.5945  0.1516           0.0750      0.5500  15.9513        425.9463                      4.5298                       0.0000      0.1550    0.3678              True
+[END PROGRESS] completed=26 | pending=30 | running=0 | failed=0 | current_job=-
+[G2G3 FINAL PROGRESS]
+completed=26 / total=56
+pending=30
+running=0
+failed=0
+completed_videos=0 / 14
+last_completed_job=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER
+next_pending_job=lowFramerate/tunnelExit_0_35fps/ONLINE_CALIBRATED
+resume_command=python src/run_experiment.py --config configs/guarded_v2_residual_risk_subset_dryrun.yaml --max-jobs-per-run 16
+[NEXT_RESUME_COMMAND] python src/run_experiment.py --config configs/guarded_v2_residual_risk_subset_dryrun.yaml --max-jobs-per-run 16

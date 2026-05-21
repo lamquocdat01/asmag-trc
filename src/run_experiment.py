@@ -80,379 +80,6 @@ ONLINE_CONTROLLER_PIPELINES = {
     ONLINE_CONTROLLER_GUARDED_PIPELINE,
 }
 
-Q1_SIC_EVENT_SAFETY_OWNERS = {
-    "intermittentObjectMotion/parking",
-    "badWeather/snowFall",
-    "thermal/lakeSide",
-    "intermittentObjectMotion/sofa",
-    "shadow/copyMachine",
-    "turbulence/turbulence2",
-    "lowFramerate/tunnelExit_0_35fps",
-    "shadow/cubicle",
-    "PTZ/continuousPan",
-    "PTZ/intermittentPan",
-    "dynamicBackground/fountain01",
-    "dynamicBackground/fountain02",
-    "nightVideos/bridgeEntry",
-}
-Q1_SIC_PORT_WATCH_VIDEO = "lowFramerate/port_0_17fps"
-Q1_SIC_PORT_WATCH_FRAMES = {1350, 1355}
-
-
-def _q1_sic_truthy(value):
-    if value in (None, "", "NA"):
-        return False
-    try:
-        return float(value) > 0
-    except (TypeError, ValueError):
-        return str(value).lower() in {"true", "yes", "active"}
-
-
-def _q1_sic_unsafe_action(action):
-    text = str(action or "").upper()
-    return (
-        text.startswith("CLOSED_EMPTY")
-        or text.startswith("REUSE")
-        or "FALLBACK" in text
-    )
-
-
-def _q1_sic_detect_action(action):
-    return str(action or "").upper().startswith("DETECT_")
-
-
-def _q1_sic_quiet_normal(frame_state, active_event_memory, risk_high, guard_active, likely_unprotected_fn):
-    return bool(
-        str(frame_state or "") not in {"FN", "TP"}
-        and not _q1_sic_truthy(active_event_memory)
-        and not _q1_sic_truthy(risk_high)
-        and not _q1_sic_truthy(guard_active)
-        and not _q1_sic_truthy(likely_unprotected_fn)
-    )
-
-
-def build_q1_sic_detector_action_observer_row(immutable_final_row_snapshot, immutable_runtime_signal_snapshot, config):
-    """Build post-decision Q1-SIC detector-action observer telemetry only."""
-    final_row = dict(immutable_final_row_snapshot or {})
-    runtime = dict(immutable_runtime_signal_snapshot or {})
-    guarded_cfg = dict(config or {})
-    enabled = bool(guarded_cfg.get("q1_sic_observer_isolated_enabled", False))
-    pressure_memory_enabled = bool(guarded_cfg.get("q1_sic_observer_pressure_memory_enabled", False))
-
-    category = str(final_row.get("category", "") or runtime.get("category", ""))
-    video = str(final_row.get("video", "") or runtime.get("video", ""))
-    video_key = f"{category}/{video}" if category or video else ""
-    try:
-        frame_idx = int(float(final_row.get("raw_frame_id", final_row.get("frame_id", -1))))
-    except (TypeError, ValueError):
-        frame_idx = -1
-
-    action = str(final_row.get("action_label", "") or final_row.get("ai_intervention_final_action", ""))
-    action_is_detect = int(_q1_sic_detect_action(action))
-    event_owner = int(video_key in Q1_SIC_EVENT_SAFETY_OWNERS)
-    port_watch = int(video_key == Q1_SIC_PORT_WATCH_VIDEO and frame_idx in Q1_SIC_PORT_WATCH_FRAMES)
-
-    active_event = _q1_sic_truthy(final_row.get("active_event_memory"))
-    risk_high = _q1_sic_truthy(final_row.get("ai_intervention_risk_high"))
-    guard_active = _q1_sic_truthy(final_row.get("ai_intervention_guard_active"))
-    detector_needed = _q1_sic_truthy(final_row.get("ai_detector_needed_pred"))
-    detector_blocked = _q1_sic_truthy(final_row.get("ai_detector_request_blocked_no_refresh_model"))
-    cooldown_active = _q1_sic_truthy(final_row.get("forced_refresh_cooldown_active"))
-    detector_requested = _q1_sic_truthy(final_row.get("ai_intervention_detector_requested")) or _q1_sic_truthy(final_row.get("yolo_called"))
-    proposal_applied = _q1_sic_truthy(final_row.get("ai_intervention_applied"))
-
-    def _num(value):
-        try:
-            return float(value)
-        except (TypeError, ValueError):
-            return 0.0
-
-    pred_object_count = _num(final_row.get("pred_object_count"))
-    candidate_area = max(
-        _num(final_row.get("candidate_ACC_area")),
-        _num(final_row.get("candidate_P3_area")),
-        _num(final_row.get("candidate_FAST_area")),
-    )
-    event_risk_pressure = int(bool(active_event and guard_active and risk_high))
-    detector_pressure = int(bool(detector_needed or detector_blocked or cooldown_active))
-    proposal_absent = int(not bool(proposal_applied or detector_requested))
-    runtime_empty_proxy = int(bool(pred_object_count <= 0 and candidate_area <= 0))
-    runtime_quiet_normal = bool(
-        not active_event
-        and not risk_high
-        and not guard_active
-        and not detector_pressure
-        and not action_is_detect
-        and proposal_absent
-    )
-
-    reject_reasons = []
-    if not enabled:
-        reject_reasons.append("observer_disabled")
-    if not event_owner:
-        reject_reasons.append("not_event_safety_owner")
-    if port_watch:
-        reject_reasons.append("port_watch_only")
-    if not action_is_detect:
-        reject_reasons.append("action_not_detect")
-    if not event_risk_pressure:
-        reject_reasons.append("event_risk_pressure_inactive")
-    if not detector_pressure:
-        reject_reasons.append("detector_pressure_inactive")
-    if not proposal_absent:
-        reject_reasons.append("proposal_or_detector_present")
-    if not runtime_empty_proxy:
-        reject_reasons.append("runtime_empty_proxy_inactive")
-    if pressure_memory_enabled:
-        reject_reasons.append("pressure_memory_enabled")
-
-    would_select = int(
-        bool(enabled)
-        and bool(event_owner)
-        and not bool(port_watch)
-        and bool(action_is_detect)
-        and bool(event_risk_pressure)
-        and bool(detector_pressure)
-        and bool(proposal_absent)
-        and bool(runtime_empty_proxy)
-        and not bool(pressure_memory_enabled)
-    )
-
-    return {
-        "q1_sic_observer_isolated_enabled": int(bool(enabled)),
-        "q1_sic_observer_post_decision_only": int(bool(enabled)),
-        "q1_sic_observer_used_immutable_snapshot": int(bool(enabled)),
-        "q1_sic_observer_mutated_control_state": 0,
-        "q1_sic_observer_gt_signal_used": 0,
-        "q1_sic_observer_would_touch_normal_frame": int(bool(would_select and runtime_quiet_normal)),
-        "q1_sic_observer_action_is_detect": action_is_detect,
-        "q1_sic_observer_event_risk_pressure": event_risk_pressure,
-        "q1_sic_observer_detector_pressure": detector_pressure,
-        "q1_sic_observer_proposal_absent": proposal_absent,
-        "q1_sic_observer_runtime_empty_proxy": runtime_empty_proxy,
-        "q1_sic_observer_would_select_shadow": would_select,
-        "q1_sic_observer_reject_reason": "+".join(reject_reasons),
-        "q1_sic_observer_pressure_memory_enabled": int(bool(pressure_memory_enabled)),
-        "q1_sic_observer_pressure_memory_used": 0,
-    }
-
-
-def final_safety_arbitration(
-    video_id,
-    frame_idx,
-    frame_state,
-    selected_action,
-    selected_mode_before_guard,
-    selected_mode_after_guard,
-    detector_request,
-    proposal,
-    active_event_memory,
-    risk_high,
-    guard_active,
-    likely_unprotected_fn,
-    branch_flags,
-    branch_reasons,
-    caps,
-    cooldowns,
-    reference_policy,
-    config,
-    runtime_proxy_signals=None,
-):
-    """Pure Q1-SIC final arbitration. It returns recommendations only."""
-    enabled = bool(config.get("q1_sic_final_arbitration_enabled", False))
-    shadow_only = bool(config.get("q1_sic_shadow_only", True))
-    event_safety_enabled = bool(config.get("q1_sic_event_safety_enabled", False))
-    port_watch_only = bool(config.get("q1_sic_port_watch_only", True))
-    enforce_normal_zero = bool(config.get("q1_sic_enforce_normal_frame_zero", True))
-    require_reference_owner = bool(config.get("q1_sic_require_reference_owner", True))
-    empty_detect_proxy_enabled = bool(config.get("q1_sic_event_risk_empty_detect_proxy_enabled", False))
-    forbid_gt_decision_signals = bool(config.get("q1_sic_forbid_gt_decision_signals", True))
-    runtime_proxy_signals = dict(runtime_proxy_signals or {})
-
-    final_action = str(selected_action or "")
-    final_detector_request = int(_q1_sic_truthy(detector_request))
-    final_proposal = int(_q1_sic_truthy(proposal))
-    pre_protection = "protected_event_fn" if str(frame_state) == "FN" and final_proposal else (
-        "unprotected_fn" if str(frame_state) == "FN" else "not_fn"
-    )
-    result = {
-        "final_action": final_action,
-        "final_detector_request": final_detector_request,
-        "final_proposal": final_proposal,
-        "final_protection_label": pre_protection,
-        "sic_arbitration_active": 0,
-        "sic_arbitration_reason": "",
-        "sic_arbitration_label": "NO_CHANGE",
-        "sic_owner": "",
-        "sic_reference_step": "",
-        "sic_enforcement_class": "telemetry-only",
-        "sic_would_touch_normal_frame": 0,
-        "sic_watch_only": 0,
-        "sic_invariant_ids_triggered": "",
-        "sic_event_risk_empty_detect_proxy": 0,
-        "sic_runtime_detector_empty_proxy": int(_q1_sic_truthy(runtime_proxy_signals.get("detector_empty_proxy"))),
-        "sic_runtime_proposal_absent_proxy": int(_q1_sic_truthy(runtime_proxy_signals.get("proposal_absent_proxy"))),
-        "sic_runtime_detector_pressure_proxy": int(_q1_sic_truthy(runtime_proxy_signals.get("detector_pressure_proxy"))),
-        "sic_runtime_proxy_inputs": str(runtime_proxy_signals.get("runtime_proxy_inputs", "")),
-        "sic_proxy_runtime_safe": int(_q1_sic_truthy(runtime_proxy_signals.get("proxy_runtime_safe", 1))),
-        "sic_gt_signal_used_for_decision": 0,
-        "sic_empty_detect_proxy_reject_reason": "",
-    }
-    if not enabled:
-        return result
-
-    try:
-        frame_number_int = int(float(frame_idx))
-    except (TypeError, ValueError):
-        frame_number_int = -1
-    video_key = str(video_id or "").replace("\\", "/")
-    quiet_normal = _q1_sic_quiet_normal(
-        frame_state, active_event_memory, risk_high, guard_active, likely_unprotected_fn
-    )
-    if quiet_normal and enforce_normal_zero:
-        result["sic_arbitration_reason"] = "I1_normal_frame_no_change"
-        return result
-
-    if video_key == Q1_SIC_PORT_WATCH_VIDEO:
-        if port_watch_only and frame_number_int in Q1_SIC_PORT_WATCH_FRAMES:
-            result.update({
-                "sic_arbitration_active": 1,
-                "sic_arbitration_reason": "I7_split_branch_port_detector_retighten_watch_only",
-                "sic_arbitration_label": "WATCH_ONLY_PORT_RETIGHTEN",
-                "sic_owner": "detector_retighten",
-                "sic_reference_step": "Step4E4",
-                "sic_enforcement_class": "telemetry-only",
-                "sic_watch_only": 1,
-                "sic_invariant_ids_triggered": "I7",
-            })
-        return result
-
-    report_only_lock = bool(
-        _q1_sic_truthy(branch_flags.get("report_only_lock"))
-        or "active_reporting_lock" in str(branch_reasons.get("report_only_lock", ""))
-    )
-    if report_only_lock and str(frame_state) == "FN" and not final_proposal:
-        result.update({
-            "sic_arbitration_active": 1,
-            "sic_arbitration_reason": "I4_report_only_lock_unprotected_fn",
-            "sic_arbitration_label": "TELEMETRY_ONLY_DO_NOT_COUNT_PASS",
-            "sic_owner": "event_safety",
-            "sic_reference_step": "Step4D6",
-            "sic_enforcement_class": "telemetry-only",
-            "sic_invariant_ids_triggered": "I4",
-        })
-        return result
-
-    reference_owner = str(reference_policy.get("owner", "event_safety") or "event_safety")
-    if require_reference_owner and reference_owner != "event_safety":
-        return result
-    if not event_safety_enabled or video_key not in Q1_SIC_EVENT_SAFETY_OWNERS:
-        return result
-
-    event_memory_signal = bool(
-        _q1_sic_truthy(active_event_memory)
-        or _q1_sic_truthy(guard_active)
-        or _q1_sic_truthy(branch_flags.get("expected_event_memory"))
-        or _q1_sic_truthy(branch_flags.get("expected_guard_active"))
-    )
-    risk_signal = bool(
-        _q1_sic_truthy(risk_high)
-        or _q1_sic_truthy(likely_unprotected_fn)
-        or _q1_sic_truthy(branch_flags.get("known_event_risk_window"))
-        or str(frame_state) == "FN"
-    )
-    runtime_risk_signal = bool(
-        _q1_sic_truthy(risk_high)
-        or _q1_sic_truthy(likely_unprotected_fn)
-        or _q1_sic_truthy(runtime_proxy_signals.get("runtime_risk_window"))
-    )
-    proxy_reject_reasons = []
-    if not empty_detect_proxy_enabled:
-        proxy_reject_reasons.append("proxy_disabled")
-    if video_key != "badWeather/snowFall":
-        proxy_reject_reasons.append("not_snowfall_scope")
-    if not _q1_sic_truthy(active_event_memory):
-        proxy_reject_reasons.append("active_event_memory_inactive")
-    if not _q1_sic_truthy(risk_high):
-        proxy_reject_reasons.append("risk_high_inactive")
-    if not _q1_sic_truthy(guard_active):
-        proxy_reject_reasons.append("guard_inactive")
-    if not runtime_risk_signal:
-        proxy_reject_reasons.append("runtime_risk_signal_inactive")
-    if not _q1_sic_truthy(runtime_proxy_signals.get("detector_pressure_proxy")):
-        proxy_reject_reasons.append("detector_pressure_inactive")
-    if not _q1_sic_truthy(runtime_proxy_signals.get("recent_active_event_proxy")):
-        proxy_reject_reasons.append("recent_active_event_inactive")
-    if not _q1_sic_detect_action(selected_action):
-        proxy_reject_reasons.append("action_not_detect")
-    if not _q1_sic_truthy(runtime_proxy_signals.get("proposal_absent_proxy")):
-        proxy_reject_reasons.append("proposal_or_protection_present")
-    if not _q1_sic_truthy(runtime_proxy_signals.get("detector_empty_proxy")):
-        proxy_reject_reasons.append("detector_empty_proxy_inactive")
-    if not _q1_sic_truthy(runtime_proxy_signals.get("proxy_runtime_safe", 1)):
-        proxy_reject_reasons.append("proxy_not_runtime_safe")
-    if forbid_gt_decision_signals and _q1_sic_truthy(runtime_proxy_signals.get("gt_signal_used_for_decision")):
-        proxy_reject_reasons.append("gt_signal_used_for_decision")
-        result["sic_gt_signal_used_for_decision"] = 1
-    empty_detect_proxy = bool(not proxy_reject_reasons)
-    result["sic_empty_detect_proxy_reject_reason"] = "+".join(proxy_reject_reasons)
-    if empty_detect_proxy:
-        result.update({
-            "final_proposal": 1,
-            "final_protection_label": "protected_event_fn",
-            "sic_arbitration_active": 1,
-            "sic_arbitration_reason": "I2_I3_I4_I6_runtime_safe_empty_detect_event_risk_proxy",
-            "sic_arbitration_label": "FORCE_EVENT_RISK_EMPTY_DETECT_PROTECTION",
-            "sic_owner": "event_safety",
-            "sic_reference_step": "Q1-SIC-1B",
-            "sic_enforcement_class": "protection-accounting-enforcing",
-            "sic_invariant_ids_triggered": "I2;I3;I4;I6",
-            "sic_event_risk_empty_detect_proxy": 1,
-            "sic_empty_detect_proxy_reject_reason": "",
-        })
-        if shadow_only:
-            result["final_proposal"] = final_proposal
-            result["final_protection_label"] = pre_protection
-            result["sic_enforcement_class"] = "candidate-only"
-        return result
-
-    unsafe_unprotected_fn = bool(
-        str(frame_state) == "FN"
-        and not final_proposal
-        and _q1_sic_unsafe_action(selected_action)
-    )
-    if unsafe_unprotected_fn and risk_signal:
-        if event_memory_signal:
-            label = "FORCE_PROTECT_EVENT_MEMORY"
-            invariant_ids = "I2;I3;I6"
-            reason = "I2_I3_event_memory_or_guard_trajectory_protects_unprotected_fn"
-        elif _q1_sic_truthy(branch_flags.get("carryover_lock_expected")):
-            label = "FORCE_CARRYOVER_PROTECTION"
-            invariant_ids = "I3;I6"
-            reason = "I3_I6_carryover_protects_unprotected_fn"
-        else:
-            label = "FORCE_RISK_HIGH_RESCUE"
-            invariant_ids = "I3;I6"
-            reason = "I3_risk_high_or_known_fn_safety_protects_unprotected_fn"
-        result.update({
-            "final_proposal": 1,
-            "final_protection_label": "protected_event_fn",
-            "sic_arbitration_active": 1,
-            "sic_arbitration_reason": reason,
-            "sic_arbitration_label": label,
-            "sic_owner": "event_safety",
-            "sic_reference_step": "Step4D6",
-            "sic_enforcement_class": "protection-accounting-enforcing",
-            "sic_invariant_ids_triggered": invariant_ids,
-        })
-        if shadow_only:
-            result["final_proposal"] = final_proposal
-            result["final_protection_label"] = pre_protection
-            result["sic_enforcement_class"] = "candidate-only"
-        return result
-
-    return result
-
 PHASE7C_ABLATION_POLICIES = {
     "CP_ANCHOR_EVERY_1",
     "CP_ANCHOR_EVERY_2",
@@ -1116,41 +743,7 @@ class AIShadowPolicy:
         self.intervention_allow_direct_action_selection = bool(cfg.get("ai_intervention_allow_direct_action_selection", False))
         self.intervention_allow_ptz_action_ranking = bool(cfg.get("ai_intervention_allow_ptz_action_ranking", False))
         self.intervention_dry_run = bool(cfg.get("ai_intervention_dry_run", False))
-        self.q1_sic_final_arbitration_enabled = bool(cfg.get("q1_sic_final_arbitration_enabled", False))
-        self.q1_sic_shadow_only = bool(cfg.get("q1_sic_shadow_only", True))
-        self.q1_sic_event_safety_enabled = bool(cfg.get("q1_sic_event_safety_enabled", False))
-        self.q1_sic_port_watch_only = bool(cfg.get("q1_sic_port_watch_only", True))
-        self.q1_sic_enforce_normal_frame_zero = bool(cfg.get("q1_sic_enforce_normal_frame_zero", True))
-        self.q1_sic_require_reference_owner = bool(cfg.get("q1_sic_require_reference_owner", True))
-        self.q1_sic_event_risk_empty_detect_proxy_enabled = bool(
-            cfg.get("q1_sic_event_risk_empty_detect_proxy_enabled", False)
-        )
-        self.q1_sic_forbid_gt_decision_signals = bool(cfg.get("q1_sic_forbid_gt_decision_signals", True))
-        self.q1_sic_detector_action_probe_enabled = bool(
-            cfg.get("q1_sic_detector_action_probe_enabled", False)
-        )
-        self.q1_sic_detector_action_probe_stable_snapshot_enabled = bool(
-            cfg.get("q1_sic_detector_action_probe_stable_snapshot_enabled", False)
-        )
-        self.q1_sic_detector_action_probe_pressure_memory_max_age = max(
-            1,
-            int(cfg.get("q1_sic_detector_action_probe_pressure_memory_max_age", 8) or 8),
-        )
-        self.q1_sic_detector_action_probe_pressure_memory = {}
-        self.q1_sic_observer_isolated_enabled = bool(cfg.get("q1_sic_observer_isolated_enabled", False))
-        self.q1_sic_observer_pressure_memory_enabled = bool(
-            cfg.get("q1_sic_observer_pressure_memory_enabled", False)
-        )
-        self.q1_sic1c1r_restore_copymachine_enabled = bool(
-            cfg.get("q1_sic1c1r_restore_copymachine_enabled", False)
-        )
-        self.q1_sic1c1r_restore_copymachine_frames = {
-            int(self._float(value, -1))
-            for value in cfg.get("q1_sic1c1r_restore_copymachine_frames", [810, 815, 820, 935, 940, 945])
-        }
-        self.q1_sic1c1r_restore_port_watch_enabled = bool(
-            cfg.get("q1_sic1c1r_restore_port_watch_enabled", False)
-        )
+        self.guarded_event_safety_v2_enabled = bool(cfg.get("guarded_event_safety_v2_enabled", False))
         self.intervention_detector_requires_refresh_model = bool(cfg.get("ai_intervention_detector_requires_refresh_model", True))
         self.intervention_event_foreground_detector_direct = bool(cfg.get("ai_intervention_event_foreground_detector_direct", True))
         self.intervention_action_block_first = bool(cfg.get("ai_intervention_action_block_first", True))
@@ -4204,83 +3797,6 @@ class AIShadowPolicy:
             "ai_intervention_legacy_blocked": 0,
             "ai_intervention_direct_action_selection_used": 0,
             "ai_intervention_dry_run": int(bool(self.intervention_dry_run)),
-            "q1_sic_final_arbitration_enabled": int(bool(self.q1_sic_final_arbitration_enabled)),
-            "q1_sic_shadow_only": int(bool(self.q1_sic_shadow_only)),
-            "q1_sic_arbitration_active": 0,
-            "q1_sic_arbitration_label": "NO_CHANGE",
-            "q1_sic_arbitration_reason": "",
-            "q1_sic_owner": "",
-            "q1_sic_reference_step": "",
-            "q1_sic_enforcement_class": "",
-            "q1_sic_would_touch_normal_frame": 0,
-            "q1_sic_watch_only": 0,
-            "q1_sic_invariants_triggered": "",
-            "q1_sic_pre_action": "",
-            "q1_sic_post_action": "",
-            "q1_sic_pre_detector_request": 0,
-            "q1_sic_post_detector_request": 0,
-            "q1_sic_pre_protection_label": "",
-            "q1_sic_post_protection_label": "",
-            "q1_sic_event_risk_empty_detect_proxy": 0,
-            "q1_sic_runtime_detector_empty_proxy": 0,
-            "q1_sic_runtime_proposal_absent_proxy": 0,
-            "q1_sic_runtime_detector_pressure_proxy": 0,
-            "q1_sic_runtime_proxy_inputs": "",
-            "q1_sic_proxy_runtime_safe": 1,
-            "q1_sic_gt_signal_used_for_decision": 0,
-            "q1_sic_empty_detect_proxy_reject_reason": "",
-            "q1_sic_detector_action_probe_enabled": int(bool(self.q1_sic_detector_action_probe_enabled)),
-            "q1_sic_detector_action_probe_active": 0,
-            "q1_sic_detector_action_probe_video_owner": "",
-            "q1_sic_detector_action_probe_action_is_detect": 0,
-            "q1_sic_detector_action_probe_event_risk_pressure": 0,
-            "q1_sic_detector_action_probe_detector_pressure": 0,
-            "q1_sic_detector_action_probe_detector_blocked": 0,
-            "q1_sic_detector_action_probe_cooldown_active": 0,
-            "q1_sic_detector_action_probe_proposal_absent": 0,
-            "q1_sic_detector_action_probe_runtime_empty_proxy": 0,
-            "q1_sic_detector_action_probe_would_select_shadow": 0,
-            "q1_sic_detector_action_probe_reject_reason": "",
-            "q1_sic_detector_action_probe_gt_signal_used": 0,
-            "q1_sic_detector_action_probe_would_touch_normal_frame": 0,
-            "q1_sic_detector_action_probe_stable_snapshot_enabled": int(
-                bool(self.q1_sic_detector_action_probe_stable_snapshot_enabled)
-            ),
-            "q1_sic_detector_action_probe_snapshot_active": 0,
-            "q1_sic_detector_action_probe_snapshot_frame": "",
-            "q1_sic_detector_action_probe_snapshot_source": "",
-            "q1_sic_detector_action_probe_snapshot_event_risk_pressure": 0,
-            "q1_sic_detector_action_probe_snapshot_detector_pressure": 0,
-            "q1_sic_detector_action_probe_snapshot_detector_blocked": 0,
-            "q1_sic_detector_action_probe_snapshot_cooldown_active": 0,
-            "q1_sic_detector_action_probe_snapshot_proposal_absent": 0,
-            "q1_sic_detector_action_probe_snapshot_runtime_empty_proxy": 0,
-            "q1_sic_detector_action_probe_pressure_memory_active": 0,
-            "q1_sic_detector_action_probe_pressure_memory_age": "",
-            "q1_sic_detector_action_probe_pressure_memory_reason": "",
-            "q1_sic_observer_isolated_enabled": int(bool(self.q1_sic_observer_isolated_enabled)),
-            "q1_sic_observer_post_decision_only": 0,
-            "q1_sic_observer_used_immutable_snapshot": 0,
-            "q1_sic_observer_mutated_control_state": 0,
-            "q1_sic_observer_gt_signal_used": 0,
-            "q1_sic_observer_would_touch_normal_frame": 0,
-            "q1_sic_observer_action_is_detect": 0,
-            "q1_sic_observer_event_risk_pressure": 0,
-            "q1_sic_observer_detector_pressure": 0,
-            "q1_sic_observer_proposal_absent": 0,
-            "q1_sic_observer_runtime_empty_proxy": 0,
-            "q1_sic_observer_would_select_shadow": 0,
-            "q1_sic_observer_reject_reason": "",
-            "q1_sic_observer_pressure_memory_enabled": int(bool(self.q1_sic_observer_pressure_memory_enabled)),
-            "q1_sic_observer_pressure_memory_used": 0,
-            "q1_sic1c1r_restore_copymachine_enabled": int(bool(self.q1_sic1c1r_restore_copymachine_enabled)),
-            "q1_sic1c1r_restore_copymachine_active": 0,
-            "q1_sic1c1r_restore_copymachine_reason": "",
-            "q1_sic1c1r_restore_copymachine_runtime_inputs": "",
-            "q1_sic1c1r_restore_copymachine_gt_signal_used": 0,
-            "q1_sic1c1r_restore_port_watch_enabled": int(bool(self.q1_sic1c1r_restore_port_watch_enabled)),
-            "q1_sic1c1r_restore_port_watch_active": 0,
-            "q1_sic1c1r_restore_port_watch_reason": "",
             "ai_action_block_first_active": int(bool(self.intervention_action_block_first)),
             "ai_block_only_no_detector": 0,
             "ai_safe_replacement_source": "",
@@ -5082,327 +4598,13 @@ class AIShadowPolicy:
             parts.append(label)
         info["ai_intervention_type"] = "+".join(parts)
 
-    def _q1_sic_eval_index(self, telemetry):
-        for key in ("evaluated_index", "frame_id", "raw_frame_id", "frame_idx"):
-            value = telemetry.get(key, "")
-            if value in (None, ""):
-                continue
-            try:
-                return int(float(value))
-            except (TypeError, ValueError):
-                continue
-        return 0
-
-    def _apply_q1_sic1c1r_restore_copy_port(self, info, telemetry):
-        """Restore Q1-SIC-1 copyMachine protection accounting and port watch telemetry."""
-        category = str(telemetry.get("category", ""))
-        video = str(telemetry.get("video", ""))
-        video_key = f"{category}/{video}" if category and video else str(telemetry.get("video_key", ""))
-        frame_candidates = self._frame_id_candidates(telemetry)
-        action_text = str(telemetry.get("action_label", "") or "").upper()
-
-        info["q1_sic1c1r_restore_copymachine_enabled"] = int(
-            bool(self.q1_sic1c1r_restore_copymachine_enabled)
-        )
-        info["q1_sic1c1r_restore_port_watch_enabled"] = int(
-            bool(self.q1_sic1c1r_restore_port_watch_enabled)
-        )
-
-        copy_frame_match = bool(frame_candidates & self.q1_sic1c1r_restore_copymachine_frames)
-        copy_action_match = bool("CLOSED_EMPTY" in action_text and not _q1_sic_detect_action(action_text))
-        copy_context = bool(video_key == self.copymachine_shadow_target_video)
-        copy_detector_absent = int(
-            not _q1_sic_truthy(info.get("ai_intervention_detector_requested", 0))
-            and not _q1_sic_truthy(telemetry.get("yolo_called", 0))
-        )
-        info["q1_sic1c1r_restore_copymachine_runtime_inputs"] = (
-            f"video={video_key}"
-            f";frames={','.join(str(v) for v in sorted(frame_candidates))}"
-            f";action={action_text}"
-            f";copy_frame_match={int(copy_frame_match)}"
-            f";copy_action_match={int(copy_action_match)}"
-            f";detector_absent={copy_detector_absent}"
-        )
-        if (
-            self.q1_sic1c1r_restore_copymachine_enabled
-            and copy_context
-            and copy_frame_match
-            and copy_action_match
-            and copy_detector_absent
-        ):
-            info["q1_sic1c1r_restore_copymachine_active"] = 1
-            info["q1_sic1c1r_restore_copymachine_reason"] = (
-                "restore_q1_sic1_shadow_copyMachine_closed_empty_no_detector_protection"
-            )
-            info["q1_sic1c1r_restore_copymachine_gt_signal_used"] = 0
-            info["ai_intervention_applied"] = 1
-            info["ai_intervention_original_action"] = str(telemetry.get("action_label", ""))
-            info["ai_intervention_final_action"] = str(telemetry.get("action_label", ""))
-            info["ai_intervention_guard_active"] = 1
-            info["ai_intervention_risk_high"] = 1
-            if not info.get("ai_intervention_guard_reason"):
-                info["ai_intervention_guard_reason"] = "q1_sic1c1r_copyMachine_restore"
-            info["ai_block_only_no_detector"] = 1
-            info["ai_safe_replacement_source"] = "q1_sic1c1r_restore_copyMachine_trajectory"
-            self._append_intervention_type(info, "q1_sic1c1r_copymachine_restore_no_detector_fallback")
-            if not info.get("q1_sic_pre_action"):
-                info["q1_sic_pre_action"] = str(telemetry.get("action_label", ""))
-            if not info.get("q1_sic_post_action"):
-                info["q1_sic_post_action"] = str(telemetry.get("action_label", ""))
-            if not info.get("q1_sic_post_protection_label"):
-                info["q1_sic_post_protection_label"] = "protected_event_fn"
-
-        if (
-            self.q1_sic1c1r_restore_port_watch_enabled
-            and video_key == Q1_SIC_PORT_WATCH_VIDEO
-            and bool(frame_candidates & Q1_SIC_PORT_WATCH_FRAMES)
-        ):
-            info["q1_sic1c1r_restore_port_watch_active"] = 1
-            info["q1_sic1c1r_restore_port_watch_reason"] = "restore_q1_sic1_split_branch_port_watch_telemetry"
-            info["q1_sic_arbitration_active"] = 1
-            info["q1_sic_arbitration_label"] = "WATCH_ONLY_PORT_RETIGHTEN"
-            info["q1_sic_arbitration_reason"] = "I7_split_branch_port_detector_retighten_watch_only_restore"
-            info["q1_sic_owner"] = "detector_retighten"
-            info["q1_sic_reference_step"] = "Step4E4"
-            info["q1_sic_enforcement_class"] = "telemetry-only"
-            info["q1_sic_watch_only"] = 1
-            info["q1_sic_invariants_triggered"] = "I7"
-            info["q1_sic_post_detector_request"] = int(bool(info.get("q1_sic_pre_detector_request", 0)))
-        return info
-
-    def _update_q1_sic_detector_action_probe_pressure_memory(
-        self,
-        video_key,
-        telemetry,
-        event_safety_owner,
-        port_watch_owner,
-        active_event_memory,
-        guard_active,
-        risk_high,
-        detector_needed,
-        detector_blocked,
-        cooldown_active,
-        proposal_absent,
-        runtime_empty_proxy,
-    ):
-        eval_index = self._q1_sic_eval_index(telemetry)
-        if (
-            not self.q1_sic_detector_action_probe_stable_snapshot_enabled
-            or not event_safety_owner
-            or port_watch_owner
-        ):
-            return None, "", 0
-
-        current_event_risk_pressure = int(bool(active_event_memory and guard_active and risk_high))
-        current_detector_pressure = int(bool(detector_needed or detector_blocked or cooldown_active))
-        empty_detect_pressure = int(bool(active_event_memory and guard_active and proposal_absent and runtime_empty_proxy))
-        current_pressure = int(bool(current_event_risk_pressure or current_detector_pressure or empty_detect_pressure))
-        previous_memory = self.q1_sic_detector_action_probe_pressure_memory.get(video_key) or {}
-        previous_age = ""
-        previous_active = 0
-        if previous_memory:
-            previous_age_value = max(0, eval_index - int(previous_memory.get("eval_index", eval_index)))
-            previous_age = str(previous_age_value)
-            previous_active = int(previous_age_value <= self.q1_sic_detector_action_probe_pressure_memory_max_age)
-        if current_pressure:
-            reasons = []
-            if current_event_risk_pressure:
-                reasons.append("event_risk_pressure")
-            if detector_needed:
-                reasons.append("detector_needed")
-            if detector_blocked:
-                reasons.append("detector_blocked")
-            if cooldown_active:
-                reasons.append("cooldown")
-            if empty_detect_pressure:
-                reasons.append("empty_detect_pressure")
-            if previous_active and previous_memory.get("event_risk_pressure"):
-                reasons.append("prior_event_risk_pressure")
-            self.q1_sic_detector_action_probe_pressure_memory[video_key] = {
-                "eval_index": eval_index,
-                "event_risk_pressure": int(bool(
-                    current_event_risk_pressure
-                    or (previous_active and previous_memory.get("event_risk_pressure", 0))
-                )),
-                "detector_pressure": int(bool(
-                    current_detector_pressure
-                    or empty_detect_pressure
-                    or (previous_active and previous_memory.get("detector_pressure", 0))
-                )),
-                "detector_blocked": int(bool(
-                    detector_blocked
-                    or (previous_active and previous_memory.get("detector_blocked", 0))
-                )),
-                "cooldown_active": int(bool(
-                    cooldown_active
-                    or (previous_active and previous_memory.get("cooldown_active", 0))
-                )),
-                "proposal_absent": int(bool(proposal_absent)),
-                "runtime_empty_proxy": int(bool(runtime_empty_proxy)),
-                "reason": "+".join(reasons),
-            }
-
-        memory = self.q1_sic_detector_action_probe_pressure_memory.get(video_key)
-        if not memory:
-            return None, previous_age, previous_active
-        age = max(0, eval_index - int(memory.get("eval_index", eval_index)))
-        if age > self.q1_sic_detector_action_probe_pressure_memory_max_age:
-            return None, str(age), 0
-        return memory, str(age), 1
-
-    def _apply_q1_sic_detector_action_probe(self, info, telemetry, ai_info):
-        """Shadow-only runtime probe for DETECT_* event-safety rows."""
-        info = self._apply_q1_sic1c1r_restore_copy_port(info, telemetry)
-        info["q1_sic_detector_action_probe_enabled"] = int(bool(self.q1_sic_detector_action_probe_enabled))
-        info["q1_sic_detector_action_probe_stable_snapshot_enabled"] = int(
-            bool(self.q1_sic_detector_action_probe_stable_snapshot_enabled)
-        )
-        if not self.q1_sic_detector_action_probe_enabled:
-            info["q1_sic_detector_action_probe_reject_reason"] = "probe_disabled"
-            return info
-
-        category = str(telemetry.get("category", ""))
-        video = str(telemetry.get("video", ""))
-        video_key = f"{category}/{video}" if category and video else str(telemetry.get("video_key", ""))
-        action_text = str(telemetry.get("action_label", ""))
-        action_is_detect = int(_q1_sic_detect_action(action_text))
-        event_safety_owner = video_key in Q1_SIC_EVENT_SAFETY_OWNERS
-        port_watch_owner = video_key == Q1_SIC_PORT_WATCH_VIDEO
-        owner = "event_safety" if event_safety_owner else ("detector_retighten_watch" if port_watch_owner else "")
-
-        active_event_memory = int(_q1_sic_truthy(telemetry.get("active_event_memory", 0)))
-        risk_high = int(_q1_sic_truthy(info.get("ai_intervention_risk_high", 0)))
-        guard_active = int(_q1_sic_truthy(info.get("ai_intervention_guard_active", 0)))
-        event_risk_pressure = int(bool(active_event_memory and risk_high and guard_active))
-        detector_needed = int(_q1_sic_truthy(ai_info.get("ai_detector_needed_pred", 0)))
-        detector_blocked = int(
-            _q1_sic_truthy(info.get("ai_detector_request_blocked_no_refresh_model", 0))
-            or _q1_sic_truthy(info.get("ai_detector_request_blocked_interval", 0))
-            or _q1_sic_truthy(info.get("ai_detector_request_blocked_budget", 0))
-        )
-        cooldown_active = int(
-            _q1_sic_truthy(info.get("forced_refresh_cooldown_active", telemetry.get("forced_refresh_cooldown_active", 0)))
-        )
-        detector_pressure = int(bool(detector_needed or detector_blocked or cooldown_active))
-        proposal_absent = int(
-            not _q1_sic_truthy(info.get("ai_intervention_applied", 0))
-            and not _q1_sic_truthy(info.get("ai_intervention_detector_requested", 0))
-        )
-        runtime_empty_proxy = int(
-            self._float(telemetry.get("pred_object_count", 0.0)) <= 0.0
-            and self._float(telemetry.get("candidate_ACC_area", 0.0)) <= 0.0
-            and self._float(telemetry.get("candidate_P3_area", 0.0)) <= 0.0
-            and self._float(telemetry.get("candidate_FAST_area", 0.0)) <= 0.0
-        )
-        memory, memory_age, memory_active = self._update_q1_sic_detector_action_probe_pressure_memory(
-            video_key=video_key,
-            telemetry=telemetry,
-            event_safety_owner=event_safety_owner,
-            port_watch_owner=port_watch_owner,
-            active_event_memory=active_event_memory,
-            guard_active=guard_active,
-            risk_high=risk_high,
-            detector_needed=detector_needed,
-            detector_blocked=detector_blocked,
-            cooldown_active=cooldown_active,
-            proposal_absent=proposal_absent,
-            runtime_empty_proxy=runtime_empty_proxy,
-        )
-        snapshot_active = int(bool(self.q1_sic_detector_action_probe_stable_snapshot_enabled and event_safety_owner))
-        snapshot_source = "current"
-        snapshot_event_risk_pressure = event_risk_pressure
-        snapshot_detector_pressure = detector_pressure
-        snapshot_detector_blocked = detector_blocked
-        snapshot_cooldown_active = cooldown_active
-        snapshot_proposal_absent = proposal_absent
-        snapshot_runtime_empty_proxy = runtime_empty_proxy
-        if (
-            self.q1_sic_detector_action_probe_stable_snapshot_enabled
-            and memory_active
-            and active_event_memory
-            and guard_active
-        ):
-            snapshot_source = "current+memory"
-            snapshot_event_risk_pressure = int(bool(event_risk_pressure or memory.get("event_risk_pressure", 0)))
-            snapshot_detector_pressure = int(bool(
-                detector_pressure
-                or memory.get("detector_pressure", 0)
-                or (proposal_absent and runtime_empty_proxy and action_is_detect)
-            ))
-            snapshot_detector_blocked = int(bool(detector_blocked or memory.get("detector_blocked", 0)))
-            snapshot_cooldown_active = int(bool(cooldown_active or memory.get("cooldown_active", 0)))
-            snapshot_proposal_absent = int(bool(proposal_absent))
-            snapshot_runtime_empty_proxy = int(bool(runtime_empty_proxy))
-        if port_watch_owner:
-            snapshot_source = "port_watch_only"
-            snapshot_event_risk_pressure = event_risk_pressure
-            snapshot_detector_pressure = detector_pressure
-        gt_signal_used = 0
-        would_select = int(bool(
-            event_safety_owner
-            and action_is_detect
-            and snapshot_event_risk_pressure
-            and snapshot_detector_pressure
-            and snapshot_proposal_absent
-            and snapshot_runtime_empty_proxy
-            and not port_watch_owner
-            and not gt_signal_used
-        ))
-        runtime_quiet_normal = int(not bool(active_event_memory or risk_high or guard_active))
-        reject_reasons = []
-        if not event_safety_owner:
-            reject_reasons.append("not_event_safety_owner")
-        if not action_is_detect:
-            reject_reasons.append("action_not_detect")
-        if not snapshot_event_risk_pressure:
-            reject_reasons.append("event_risk_pressure_inactive")
-        if not snapshot_detector_pressure:
-            reject_reasons.append("detector_pressure_inactive")
-        if not snapshot_proposal_absent:
-            reject_reasons.append("proposal_or_detector_present")
-        if not snapshot_runtime_empty_proxy:
-            reject_reasons.append("runtime_empty_proxy_inactive")
-        if port_watch_owner:
-            reject_reasons.append("port_watch_only")
-        if gt_signal_used:
-            reject_reasons.append("gt_signal_used")
-
-        info["q1_sic_detector_action_probe_active"] = int(bool(event_safety_owner and action_is_detect))
-        info["q1_sic_detector_action_probe_video_owner"] = owner
-        info["q1_sic_detector_action_probe_action_is_detect"] = action_is_detect
-        info["q1_sic_detector_action_probe_event_risk_pressure"] = snapshot_event_risk_pressure
-        info["q1_sic_detector_action_probe_detector_pressure"] = snapshot_detector_pressure
-        info["q1_sic_detector_action_probe_detector_blocked"] = snapshot_detector_blocked
-        info["q1_sic_detector_action_probe_cooldown_active"] = snapshot_cooldown_active
-        info["q1_sic_detector_action_probe_proposal_absent"] = snapshot_proposal_absent
-        info["q1_sic_detector_action_probe_runtime_empty_proxy"] = snapshot_runtime_empty_proxy
-        info["q1_sic_detector_action_probe_would_select_shadow"] = would_select
-        info["q1_sic_detector_action_probe_reject_reason"] = "+".join(reject_reasons)
-        info["q1_sic_detector_action_probe_gt_signal_used"] = gt_signal_used
-        info["q1_sic_detector_action_probe_would_touch_normal_frame"] = int(bool(would_select and runtime_quiet_normal))
-        info["q1_sic_detector_action_probe_snapshot_active"] = snapshot_active
-        info["q1_sic_detector_action_probe_snapshot_frame"] = str(telemetry.get("raw_frame_id", telemetry.get("frame_id", "")))
-        info["q1_sic_detector_action_probe_snapshot_source"] = snapshot_source
-        info["q1_sic_detector_action_probe_snapshot_event_risk_pressure"] = snapshot_event_risk_pressure
-        info["q1_sic_detector_action_probe_snapshot_detector_pressure"] = snapshot_detector_pressure
-        info["q1_sic_detector_action_probe_snapshot_detector_blocked"] = snapshot_detector_blocked
-        info["q1_sic_detector_action_probe_snapshot_cooldown_active"] = snapshot_cooldown_active
-        info["q1_sic_detector_action_probe_snapshot_proposal_absent"] = snapshot_proposal_absent
-        info["q1_sic_detector_action_probe_snapshot_runtime_empty_proxy"] = snapshot_runtime_empty_proxy
-        info["q1_sic_detector_action_probe_pressure_memory_active"] = int(bool(memory_active))
-        info["q1_sic_detector_action_probe_pressure_memory_age"] = memory_age
-        info["q1_sic_detector_action_probe_pressure_memory_reason"] = (
-            str(memory.get("reason", "")) if memory and memory_active else ""
-        )
-        return info
-
     def evaluate_intervention(self, telemetry, ai_info):
         info = self._intervention_base()
         action_bucket = self._bucket(telemetry.get("action_label", ""))
         info["ai_intervention_original_action"] = str(telemetry.get("action_label", ""))
         info["ai_intervention_final_action"] = str(telemetry.get("action_label", ""))
         if not self.intervention_enabled or self.intervention_mode != "guard_gated_budgeted":
-            return self._apply_q1_sic_detector_action_probe(info, telemetry, ai_info)
+            return info
         self._reset_budget_if_needed(telemetry)
         guard_active, guard_reason = self._deterministic_guard(telemetry)
         info["ai_intervention_guard_active"] = int(guard_active)
@@ -6564,9 +5766,9 @@ class AIShadowPolicy:
         info["ai_intervention_risk_high"] = int(high)
         if high and self.intervention_require_guard and not guard_active:
             info["ai_intervention_blocked_no_guard"] = 1
-            return self._apply_q1_sic_detector_action_probe(info, telemetry, ai_info)
+            return info
         if not high or (self.intervention_require_guard and not guard_active):
-            return self._apply_q1_sic_detector_action_probe(info, telemetry, ai_info)
+            return info
 
         evaluated_index = int(self._float(telemetry.get("evaluated_index"), 0.0))
         consumed_budgets = []
@@ -6687,10 +5889,10 @@ class AIShadowPolicy:
             and not port_lf_holdout_pre_signal
         ):
             info["ai_intervention_budget_blocked"] = 1
-            return self._apply_q1_sic_detector_action_probe(info, telemetry, ai_info)
+            return info
         if not ptz_budget_available:
             info["ai_intervention_budget_blocked"] = 1
-            return self._apply_q1_sic_detector_action_probe(info, telemetry, ai_info)
+            return info
 
         kinds = []
         foreground_risk_high = self._float(telemetry.get("foreground_risk")) >= 0.55
@@ -6843,7 +6045,7 @@ class AIShadowPolicy:
                     "bypassed_by_exact_cubicle_event_fn_pre_signal"
                 )
             else:
-                return self._apply_q1_sic_detector_action_probe(info, telemetry, ai_info)
+                return info
 
         detector_blocked_for_refresh = False
         if action_bucket == "CLOSED_EMPTY" and (closed or (event_foreground and strong_event_context) or event_fg_block_only_active):
@@ -13072,142 +12274,6 @@ class AIShadowPolicy:
             info["ai_safe_replacement_source"] = ""
             info["ai_block_only_no_detector"] = 0
             info["ai_intervention_budget_blocked"] = 0
-        frame_state_for_sic = current_event_state if current_event_state in {"FN", "TP"} else pre_ai_event_state
-        q1_sic_pre_proposal = int(bool(kinds or info.get("ai_intervention_detector_requested", 0)))
-        q1_sic_pre_protection = (
-            "protected_event_fn"
-            if frame_state_for_sic == "FN" and q1_sic_pre_proposal
-            else ("unprotected_fn" if frame_state_for_sic == "FN" else "not_fn")
-        )
-        q1_sic_report_lock_status = "+".join(
-            p for p in [
-                str(info.get("ai_snowfall_carryover_gate_lock_status", "")),
-                str(info.get("ai_lakeside_carryover_gate_lock_status", "")),
-            ] if p
-        )
-        q1_sic_action_text = str(telemetry.get("action_label", ""))
-        q1_sic_runtime_proposal_absent_proxy = int(not bool(kinds or info.get("ai_intervention_detector_requested", 0)))
-        q1_sic_runtime_detector_pressure_proxy = int(bool(
-            info.get("ai_detector_needed_pred", 0)
-            or info.get("ai_detector_request_blocked_no_refresh_model", 0)
-            or info.get("forced_refresh_cooldown_active", 0)
-        ))
-        q1_sic_recent_active_event_proxy = int(float(telemetry.get("frames_since_active_prediction", 999) or 999) <= 1)
-        q1_sic_pred_object_empty = int(float(telemetry.get("pred_object_count", 0) or 0) <= 0)
-        q1_sic_candidate_empty = int(
-            float(telemetry.get("candidate_ACC_area", 0) or 0) <= 0
-            and float(telemetry.get("candidate_P3_area", 0) or 0) <= 0
-            and float(telemetry.get("candidate_FAST_area", 0) or 0) <= 0
-        )
-        q1_sic_runtime_detector_empty_proxy = int(bool(q1_sic_pred_object_empty and q1_sic_candidate_empty))
-        q1_sic_runtime_risk_window = int(bool(
-            telemetry.get("active_event_memory", 0)
-            and info.get("ai_intervention_risk_high", 0)
-            and info.get("ai_intervention_guard_active", 0)
-        ))
-        q1_sic_runtime_proxy_inputs = (
-            f"active_event_memory={int(bool(telemetry.get('active_event_memory', 0)))}"
-            f";risk_high={int(bool(info.get('ai_intervention_risk_high', 0)))}"
-            f";guard_active={int(bool(info.get('ai_intervention_guard_active', 0)))}"
-            f";detector_needed={int(bool(info.get('ai_detector_needed_pred', 0)))}"
-            f";detector_blocked_no_refresh={int(bool(info.get('ai_detector_request_blocked_no_refresh_model', 0)))}"
-            f";forced_refresh_cooldown={int(bool(info.get('forced_refresh_cooldown_active', 0)))}"
-            f";recent_active_event={q1_sic_recent_active_event_proxy}"
-            f";action_detect={int(_q1_sic_detect_action(q1_sic_action_text))}"
-            f";proposal_absent={q1_sic_runtime_proposal_absent_proxy}"
-            f";pred_object_empty={q1_sic_pred_object_empty}"
-            f";candidate_empty={q1_sic_candidate_empty}"
-        )
-        q1_sic_result = final_safety_arbitration(
-            video_id=current_video_key,
-            frame_idx=telemetry.get("raw_frame_id", telemetry.get("frame_id", "")),
-            frame_state=frame_state_for_sic,
-            selected_action=telemetry.get("action_label", ""),
-            selected_mode_before_guard=telemetry.get("selected_mode_before_guard", ""),
-            selected_mode_after_guard=telemetry.get("selected_mode_after_guard", ""),
-            detector_request=info.get("ai_intervention_detector_requested", 0),
-            proposal=q1_sic_pre_proposal,
-            active_event_memory=telemetry.get("active_event_memory", 0),
-            risk_high=info.get("ai_intervention_risk_high", 0),
-            guard_active=info.get("ai_intervention_guard_active", 0),
-            likely_unprotected_fn=(
-                parking_iom_likely_unprotected_fn
-                or sofa_iom_likely_unprotected_fn
-                or snowfall_weather_likely_unprotected_fn
-                or tunnel_exit_lf_likely_unprotected_fn
-            ),
-            branch_flags={
-                "report_only_lock": int(bool(q1_sic_report_lock_status)),
-                "known_event_risk_window": int(frame_state_for_sic == "FN"),
-                "expected_event_memory": int(active_event),
-                "expected_guard_active": int(guard_active),
-                "carryover_lock_expected": int(
-                    parking_carryover_lock_active
-                    or sofa_iom_carryover_lock_active
-                    or turbulence2_carryover_reserve_active
-                ),
-            },
-            branch_reasons={"report_only_lock": q1_sic_report_lock_status},
-            caps={},
-            cooldowns={},
-            reference_policy={"owner": "event_safety", "reference_step": "Step4D6"},
-            config={
-                "q1_sic_final_arbitration_enabled": self.q1_sic_final_arbitration_enabled,
-                "q1_sic_shadow_only": self.q1_sic_shadow_only,
-                "q1_sic_event_safety_enabled": self.q1_sic_event_safety_enabled,
-                "q1_sic_port_watch_only": self.q1_sic_port_watch_only,
-                "q1_sic_enforce_normal_frame_zero": self.q1_sic_enforce_normal_frame_zero,
-                "q1_sic_require_reference_owner": self.q1_sic_require_reference_owner,
-                "q1_sic_event_risk_empty_detect_proxy_enabled": self.q1_sic_event_risk_empty_detect_proxy_enabled,
-                "q1_sic_forbid_gt_decision_signals": self.q1_sic_forbid_gt_decision_signals,
-            },
-            runtime_proxy_signals={
-                "detector_empty_proxy": q1_sic_runtime_detector_empty_proxy,
-                "proposal_absent_proxy": q1_sic_runtime_proposal_absent_proxy,
-                "detector_pressure_proxy": q1_sic_runtime_detector_pressure_proxy,
-                "recent_active_event_proxy": q1_sic_recent_active_event_proxy,
-                "runtime_risk_window": q1_sic_runtime_risk_window,
-                "runtime_proxy_inputs": q1_sic_runtime_proxy_inputs,
-                "proxy_runtime_safe": 1,
-                "gt_signal_used_for_decision": 0,
-            },
-        )
-        info["q1_sic_final_arbitration_enabled"] = int(bool(self.q1_sic_final_arbitration_enabled))
-        info["q1_sic_shadow_only"] = int(bool(self.q1_sic_shadow_only))
-        info["q1_sic_arbitration_active"] = int(q1_sic_result.get("sic_arbitration_active", 0))
-        info["q1_sic_arbitration_label"] = str(q1_sic_result.get("sic_arbitration_label", "NO_CHANGE"))
-        info["q1_sic_arbitration_reason"] = str(q1_sic_result.get("sic_arbitration_reason", ""))
-        info["q1_sic_owner"] = str(q1_sic_result.get("sic_owner", ""))
-        info["q1_sic_reference_step"] = str(q1_sic_result.get("sic_reference_step", ""))
-        info["q1_sic_enforcement_class"] = str(q1_sic_result.get("sic_enforcement_class", ""))
-        info["q1_sic_would_touch_normal_frame"] = int(q1_sic_result.get("sic_would_touch_normal_frame", 0))
-        info["q1_sic_watch_only"] = int(q1_sic_result.get("sic_watch_only", 0))
-        info["q1_sic_invariants_triggered"] = str(q1_sic_result.get("sic_invariant_ids_triggered", ""))
-        info["q1_sic_pre_action"] = str(telemetry.get("action_label", ""))
-        info["q1_sic_post_action"] = str(q1_sic_result.get("final_action", telemetry.get("action_label", "")))
-        info["q1_sic_pre_detector_request"] = int(bool(info.get("ai_intervention_detector_requested", 0)))
-        info["q1_sic_post_detector_request"] = int(q1_sic_result.get("final_detector_request", info["q1_sic_pre_detector_request"]))
-        info["q1_sic_pre_protection_label"] = q1_sic_pre_protection
-        info["q1_sic_post_protection_label"] = str(q1_sic_result.get("final_protection_label", q1_sic_pre_protection))
-        info["q1_sic_event_risk_empty_detect_proxy"] = int(q1_sic_result.get("sic_event_risk_empty_detect_proxy", 0))
-        info["q1_sic_runtime_detector_empty_proxy"] = int(q1_sic_result.get("sic_runtime_detector_empty_proxy", q1_sic_runtime_detector_empty_proxy))
-        info["q1_sic_runtime_proposal_absent_proxy"] = int(q1_sic_result.get("sic_runtime_proposal_absent_proxy", q1_sic_runtime_proposal_absent_proxy))
-        info["q1_sic_runtime_detector_pressure_proxy"] = int(q1_sic_result.get("sic_runtime_detector_pressure_proxy", q1_sic_runtime_detector_pressure_proxy))
-        info["q1_sic_runtime_proxy_inputs"] = str(q1_sic_result.get("sic_runtime_proxy_inputs", q1_sic_runtime_proxy_inputs))
-        info["q1_sic_proxy_runtime_safe"] = int(q1_sic_result.get("sic_proxy_runtime_safe", 1))
-        info["q1_sic_gt_signal_used_for_decision"] = int(q1_sic_result.get("sic_gt_signal_used_for_decision", 0))
-        info["q1_sic_empty_detect_proxy_reject_reason"] = str(q1_sic_result.get("sic_empty_detect_proxy_reject_reason", ""))
-        if (
-            info["q1_sic_arbitration_active"]
-            and not self.q1_sic_shadow_only
-            and q1_sic_result.get("final_proposal", q1_sic_pre_proposal)
-            and not q1_sic_pre_proposal
-            and not info["q1_sic_watch_only"]
-            and info["q1_sic_arbitration_label"]
-            not in {"NO_CHANGE", "TELEMETRY_ONLY_DO_NOT_COUNT_PASS", "WATCH_ONLY_PORT_RETIGHTEN"}
-        ):
-            kinds.append("q1_sic_event_safety_no_detector_fallback")
-            info["ai_safe_replacement_source"] = "q1_sic_final_safety_arbitration"
         if kinds and not info["ai_intervention_detector_requested"]:
             info["ai_block_only_no_detector"] = 1
             if event_fg_block_only_active:
@@ -13659,7 +12725,7 @@ class AIShadowPolicy:
         info["ai_tunnel_exit_lf_post_trim_final_rate"] = float(
             self.budget_counts.get("tunnel_exit_lf_preserved", 0)
         ) / 100.0
-        return self._apply_q1_sic_detector_action_probe(info, telemetry, ai_info)
+        return info
 
     def _apply_subrisk_flags(self, base, preds, scores, action_bucket):
         closed = str(preds.get("closed_empty_risk", "0")) == "1"
@@ -15429,6 +14495,34 @@ def write_p4_diagnostics(out_root, diagnostics, always_frames=None, top_n=10):
     pd.DataFrame(rows).sort_values(["FP_pixel", "frame_id"], ascending=[False, True]).to_csv(
         diag_dir / "p4_mask_source_diagnostics.csv", index=False
     )
+
+def final_safety_arbitration_v2(
+    action_label,
+    pred_object_count,
+    active_event_memory,
+    risk_high,
+    proposal,
+):
+    result = {
+        "arb_v2_label": "NO_CHANGE",
+        "arb_v2_reason": "",
+        "arb_v2_override": 0,
+    }
+    is_empty_detect = (
+        str(action_label) == "DETECT_ACC"
+        and int(float(pred_object_count or 0)) == 0
+    )
+    if not is_empty_detect:
+        return result
+    event_memory = int(float(active_event_memory or 0))
+    high = int(float(risk_high or 0))
+    has_proposal = int(float(proposal or 0))
+    if event_memory and high and not has_proposal:
+        result["arb_v2_label"] = "FORCE_PROTECT_EVENT_MEMORY"
+        result["arb_v2_reason"] = "I2_empty_detect_active_event_memory_risk_high"
+        result["arb_v2_override"] = 1
+    return result
+
 
 def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_source=None, progress_path=None, session_started_at=None):
     controller_selected_mode = controller_mode_for_category(seq["category"]) if pipeline_name == "ASMAG_TR_CONTROLLER" else ""
@@ -20537,14 +19631,16 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             **gate_info
         }
         if is_guarded_online_controller:
-            observer_snapshot = dict(frame_metrics_row)
-            frame_metrics_row.update(
-                build_q1_sic_detector_action_observer_row(
-                    observer_snapshot,
-                    dict(observer_snapshot),
-                    cfg.get("online_controller_guarded", {}),
-                )
+            _arb_v2 = final_safety_arbitration_v2(
+                action_label=frame_metrics_row.get("action_label", ""),
+                pred_object_count=frame_metrics_row.get("pred_object_count", 0),
+                active_event_memory=frame_metrics_row.get("active_event_memory", 0),
+                risk_high=frame_metrics_row.get("ai_intervention_risk_high", 0),
+                proposal=frame_metrics_row.get("ai_intervention_detector_requested", 0),
             )
+            frame_metrics_row["arb_v2_label"] = _arb_v2["arb_v2_label"]
+            frame_metrics_row["arb_v2_reason"] = _arb_v2["arb_v2_reason"]
+            frame_metrics_row["arb_v2_override"] = _arb_v2["arb_v2_override"]
         rows.append(frame_metrics_row)
 
         if save_masks:
@@ -21028,81 +20124,6 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         "ai_intervention_legacy_blocked",
         "ai_intervention_direct_action_selection_used",
         "ai_intervention_dry_run",
-        "q1_sic_final_arbitration_enabled",
-        "q1_sic_shadow_only",
-        "q1_sic_arbitration_active",
-        "q1_sic_arbitration_label",
-        "q1_sic_arbitration_reason",
-        "q1_sic_owner",
-        "q1_sic_reference_step",
-        "q1_sic_enforcement_class",
-        "q1_sic_would_touch_normal_frame",
-        "q1_sic_watch_only",
-        "q1_sic_invariants_triggered",
-        "q1_sic_pre_action",
-        "q1_sic_post_action",
-        "q1_sic_pre_detector_request",
-        "q1_sic_post_detector_request",
-        "q1_sic_pre_protection_label",
-        "q1_sic_post_protection_label",
-        "q1_sic_event_risk_empty_detect_proxy",
-        "q1_sic_runtime_detector_empty_proxy",
-        "q1_sic_runtime_proposal_absent_proxy",
-        "q1_sic_runtime_detector_pressure_proxy",
-        "q1_sic_runtime_proxy_inputs",
-        "q1_sic_proxy_runtime_safe",
-        "q1_sic_gt_signal_used_for_decision",
-        "q1_sic_empty_detect_proxy_reject_reason",
-        "q1_sic_detector_action_probe_enabled",
-        "q1_sic_detector_action_probe_active",
-        "q1_sic_detector_action_probe_video_owner",
-        "q1_sic_detector_action_probe_action_is_detect",
-        "q1_sic_detector_action_probe_event_risk_pressure",
-        "q1_sic_detector_action_probe_detector_pressure",
-        "q1_sic_detector_action_probe_detector_blocked",
-        "q1_sic_detector_action_probe_cooldown_active",
-        "q1_sic_detector_action_probe_proposal_absent",
-        "q1_sic_detector_action_probe_runtime_empty_proxy",
-        "q1_sic_detector_action_probe_would_select_shadow",
-        "q1_sic_detector_action_probe_reject_reason",
-        "q1_sic_detector_action_probe_gt_signal_used",
-        "q1_sic_detector_action_probe_would_touch_normal_frame",
-        "q1_sic_detector_action_probe_stable_snapshot_enabled",
-        "q1_sic_detector_action_probe_snapshot_active",
-        "q1_sic_detector_action_probe_snapshot_frame",
-        "q1_sic_detector_action_probe_snapshot_source",
-        "q1_sic_detector_action_probe_snapshot_event_risk_pressure",
-        "q1_sic_detector_action_probe_snapshot_detector_pressure",
-        "q1_sic_detector_action_probe_snapshot_detector_blocked",
-        "q1_sic_detector_action_probe_snapshot_cooldown_active",
-        "q1_sic_detector_action_probe_snapshot_proposal_absent",
-        "q1_sic_detector_action_probe_snapshot_runtime_empty_proxy",
-        "q1_sic_detector_action_probe_pressure_memory_active",
-        "q1_sic_detector_action_probe_pressure_memory_age",
-        "q1_sic_detector_action_probe_pressure_memory_reason",
-        "q1_sic_observer_isolated_enabled",
-        "q1_sic_observer_post_decision_only",
-        "q1_sic_observer_used_immutable_snapshot",
-        "q1_sic_observer_mutated_control_state",
-        "q1_sic_observer_gt_signal_used",
-        "q1_sic_observer_would_touch_normal_frame",
-        "q1_sic_observer_action_is_detect",
-        "q1_sic_observer_event_risk_pressure",
-        "q1_sic_observer_detector_pressure",
-        "q1_sic_observer_proposal_absent",
-        "q1_sic_observer_runtime_empty_proxy",
-        "q1_sic_observer_would_select_shadow",
-        "q1_sic_observer_reject_reason",
-        "q1_sic_observer_pressure_memory_enabled",
-        "q1_sic_observer_pressure_memory_used",
-        "q1_sic1c1r_restore_copymachine_enabled",
-        "q1_sic1c1r_restore_copymachine_active",
-        "q1_sic1c1r_restore_copymachine_reason",
-        "q1_sic1c1r_restore_copymachine_runtime_inputs",
-        "q1_sic1c1r_restore_copymachine_gt_signal_used",
-        "q1_sic1c1r_restore_port_watch_enabled",
-        "q1_sic1c1r_restore_port_watch_active",
-        "q1_sic1c1r_restore_port_watch_reason",
         "ai_action_block_first_active",
         "ai_block_only_no_detector",
         "ai_safe_replacement_source",
