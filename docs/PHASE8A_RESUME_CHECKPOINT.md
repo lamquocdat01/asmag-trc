@@ -1,265 +1,124 @@
 # Phase 8A Resume Checkpoint
 
-Created: 2026-05-11
+Updated: 2026-05-11
 
-## 1. Current Phase 8A Status
+## Status
 
-Phase 8A was paused safely after building the research dataset and before completing the model probe.
+Phase 8A status: completed.
 
-Completed:
+This checkpoint was resumed from the previous saved Phase 8A checkpoint. The checkpoint file was read successfully, existing outputs were inspected, the offline dataset builder was rerun, and the research-only model probe was completed.
 
-- Created `tools/build_phase8a_policy_dataset.py`.
-- Created `tools/probe_phase8a_policy_models.py`.
-- Built the Phase 8A research dataset under `outputs/phase8a_policy_dataset/`.
-- Created `docs/ASMAG_TR_CONTROLLER_ONLINE_GUARDED_PHASE8A_DATASET_REPORT.md`.
-- Created a narrow `.gitignore` for Phase 8A generated parquet/model/cache artifacts.
-- Created inventory, action label mapping, frame dataset, window dataset, teacher labels, oracle labels, split files, missing-feature report, and utility sanity CSV.
-- Confirmed no active Python process remained after stopping the interrupted probe process.
+## Safety Confirmation
 
-Incomplete:
+- No production pipeline behavior was modified.
+- Old `ONLINE_CALIBRATED` was not modified.
+- `P1_YOLO_Only`, `P2_FrameDiff`, `P3_MOG2`, `ASMAG_TR_FAST`, and `ASMAG_TR_CONTROLLER` were not modified.
+- Frozen CDnet2014 v1.6 outputs were read as existing sources only and were not overwritten.
+- No smoke, PTZ-targeted, targeted CDnet, full CDnet, LASIESTA, SBI2015, or BMC experiment was launched.
+- No experiment runner was launched.
+- Phase 8A remained dataset-building and research-only.
 
-- `tools/probe_phase8a_policy_models.py` did not complete.
-- These expected probe outputs are not present yet:
-  - `outputs/phase8a_policy_dataset/model_probe_results.csv`
-  - `outputs/phase8a_policy_dataset/policy_feature_importance.csv`
-  - `outputs/phase8a_policy_dataset/policy_rule_candidates.txt`
+## Source And Output Files
 
-Interrupted commands:
-
-- The first full model probe run timed out.
-- The second model probe run was interrupted by the user. One lingering `python` process was detected afterward and stopped with `Stop-Process -Id 18400`.
-
-Still running:
-
-- None observed after stopping PID `18400`; `Get-Process python -ErrorAction SilentlyContinue` returned no rows.
-- A command-line process inspection using `Get-CimInstance Win32_Process` was attempted but failed with access denied, so the process identity could not be confirmed from command line text before stopping it.
-
-## 2. Files Created Or Modified
-
-Phase 8A source files:
+Updated Phase 8A source files:
 
 - `tools/build_phase8a_policy_dataset.py`
 - `tools/probe_phase8a_policy_models.py`
 
-Phase 8A docs:
+Updated Phase 8A docs:
 
 - `docs/ASMAG_TR_CONTROLLER_ONLINE_GUARDED_PHASE8A_DATASET_REPORT.md`
 - `docs/PHASE8A_RESUME_CHECKPOINT.md`
 
-Configs:
-
-- No Phase 8A configs were created or modified.
-
-Small metadata/checkpoint files:
-
-- `.gitignore` with Phase 8A generated artifact exclusions only.
-
-Output folder:
+Verified output folder:
 
 - `outputs/phase8a_policy_dataset/`
 
-Important partial or complete output files:
+Required outputs present:
 
-- `outputs/phase8a_policy_dataset/data_inventory.csv`
-- `outputs/phase8a_policy_dataset/action_label_mapping.csv`
-- `outputs/phase8a_policy_dataset/frame_state_dataset.parquet`
-- `outputs/phase8a_policy_dataset/frame_state_dataset_sample.csv`
-- `outputs/phase8a_policy_dataset/window_state_dataset.parquet`
-- `outputs/phase8a_policy_dataset/window_state_dataset_sample.csv`
-- `outputs/phase8a_policy_dataset/teacher_label_dataset.parquet`
-- `outputs/phase8a_policy_dataset/oracle_action_dataset.parquet`
-- `outputs/phase8a_policy_dataset/missing_feature_report.csv`
-- `outputs/phase8a_policy_dataset/utility_sanity_by_action.csv`
-- `outputs/phase8a_policy_dataset/splits/split_leave_one_video.csv`
-- `outputs/phase8a_policy_dataset/splits/split_leave_one_category.csv`
-- `outputs/phase8a_policy_dataset/splits/split_ptz_holdout.csv`
-- `outputs/phase8a_policy_dataset/splits/split_smoke_vs_targeted.csv`
+- `data_inventory.csv`
+- `action_label_mapping.csv`
+- `frame_state_dataset.parquet`
+- `frame_state_dataset_sample.csv`
+- `window_state_dataset.parquet`
+- `window_state_dataset_sample.csv`
+- `teacher_label_dataset.parquet`
+- `oracle_action_dataset.parquet`
+- `splits/split_leave_one_video.csv`
+- `splits/split_leave_one_category.csv`
+- `splits/split_ptz_holdout.csv`
+- `splits/split_smoke_vs_targeted.csv`
+- `model_probe_results.csv`
+- `policy_feature_importance.csv`
+- `policy_rule_candidates.txt`
 
-Workspace note:
+Additional generated QA outputs:
 
-- `git status --short` shows a broad dirty workspace with many pre-existing modified/untracked project files and outputs from earlier phases. Phase 8A work should be reviewed by file path rather than assuming all dirty files belong to this phase.
+- `missing_feature_report.csv`
+- `utility_sanity_by_action.csv`
 
-## 3. Commands Already Run
-
-Completed lightweight/context commands:
-
-```powershell
-Get-Content docs\ASMAG_TR_CONTROLLER_ONLINE_GUARDED_PHASE7C_ABLATION_RESULTS.md
-Get-Content docs\ASMAG_TR_CONTROLLER_ONLINE_GUARDED_PHASE7A_ORACLE_POLICY_DIAGNOSIS.md
-Get-Content docs\ASMAG_TR_CONTROLLER_ONLINE_GUARDED_PHASE7A_TEACHER_STUDENT_PROPOSAL.md
-Get-Content docs\ASMAG_TR_CONTROLLER_ONLINE_GUARDED_PHASE7B_IMPLEMENTATION_PLAN.md
-Get-ChildItem outputs\logic_outcome_analysis -Recurse -File | Select-Object -First 40 FullName
-Get-ChildItem outputs\policy_diagnosis -Recurse -File | Select-Object -First 60 FullName
-Get-ChildItem outputs\asmag_tr_controller_online_guarded_ablation_phase7c -Depth 2 | Select-Object -First 80 FullName
-Get-ChildItem outputs\asmag_tr_controller_online_guarded_cdnet_smoke -Depth 2 | Select-Object -First 80 FullName
-rg --files outputs\asmag_tr_controller_online_guarded_cdnet_smoke | Select-String -Pattern "frame_metrics.csv$|per_video_summary.csv$|summary_by_video.csv$" | Select-Object -First 40
-rg --files outputs\asmag_tr_controller_online_guarded_cdnet_targeted | Select-String -Pattern "frame_metrics.csv$|per_video_summary.csv$|summary_by_video.csv$" | Select-Object -First 40
-rg --files outputs\full_cdnet2014_official_edge_profile_pc | Select-String -Pattern "frame_metrics.csv$|per_video_summary.csv$|summary_by_video.csv$" | Select-Object -First 40
-Get-Content outputs\asmag_tr_controller_online_guarded_cdnet_smoke\per_video_summary.csv -TotalCount 2
-Get-Content outputs\asmag_tr_controller_online_guarded_cdnet_targeted\per_video_summary.csv -TotalCount 2
-Get-Content outputs\full_cdnet2014_official_edge_profile_pc\per_video_summary.csv -TotalCount 2
-python -c "import importlib.util as u; print('sklearn', bool(u.find_spec('sklearn'))); print('pyarrow', bool(u.find_spec('pyarrow'))); print('fastparquet', bool(u.find_spec('fastparquet')))"
-```
-
-Completed verification/build commands:
+## Verification Commands Run
 
 ```powershell
 python -m py_compile tools\build_phase8a_policy_dataset.py tools\probe_phase8a_policy_models.py
 python tools\build_phase8a_policy_dataset.py
-python -m py_compile tools\build_phase8a_policy_dataset.py tools\probe_phase8a_policy_models.py
-python tools\build_phase8a_policy_dataset.py
-python -m py_compile tools\build_phase8a_policy_dataset.py tools\probe_phase8a_policy_models.py
-python tools\build_phase8a_policy_dataset.py
-python -m py_compile tools\build_phase8a_policy_dataset.py tools\probe_phase8a_policy_models.py
-```
-
-Command outcomes:
-
-- First `python tools\build_phase8a_policy_dataset.py`: failed with a pandas `fillna` TypeError during window dataset construction after loading 543 frame metric files.
-- Second `python tools\build_phase8a_policy_dataset.py`: timed out after 1200 seconds; frame/window/teacher artifacts were present, but oracle/splits/report were not complete.
-- Third `python tools\build_phase8a_policy_dataset.py`: completed successfully and wrote the full Phase 8A dataset.
-- All listed `py_compile` commands completed successfully.
-
-Interrupted or timed-out probe commands:
-
-```powershell
-python tools\probe_phase8a_policy_models.py
 python tools\probe_phase8a_policy_models.py
 ```
 
-Probe outcomes:
+Outcomes:
 
-- First probe command timed out after 1200 seconds.
-- Second probe command was interrupted by the user after about 539 seconds.
-- No completed probe result files were observed afterward.
+- `py_compile` completed successfully.
+- Dataset builder completed successfully with `sources=12` and `frame_metric_files=543`.
+- Model probe completed successfully and wrote the three required probe outputs.
 
-Pause/checkpoint inspection commands:
+Implementation note:
 
-```powershell
-git status --short
-Get-ChildItem outputs\phase8a_policy_dataset -ErrorAction SilentlyContinue | Select-Object Name,Length,LastWriteTime
-Get-ChildItem docs -Filter *PHASE8A* -ErrorAction SilentlyContinue | Select-Object Name,Length,LastWriteTime
-Get-CimInstance Win32_Process | Where-Object { $_.Name -match 'python' -and $_.CommandLine -match 'phase8a|probe_phase8a|build_phase8a' } | Select-Object ProcessId,Name,CommandLine
-Get-Process python -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,CPU,StartTime
-Get-ChildItem outputs\phase8a_policy_dataset\splits -ErrorAction SilentlyContinue | Select-Object Name,Length,LastWriteTime
-Stop-Process -Id 18400
-Get-Process python -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,CPU,StartTime
-```
+- `tools/probe_phase8a_policy_models.py` now defaults to a target-aware 10,000-row research sample. This keeps the required no-argument verification command practical while preserving rare target classes for the probe. It does not affect production behavior.
+- Logistic regression now uses a multiclass-capable solver so the required multiclass probe targets are evaluated instead of reported as solver errors.
 
-Inspection outcomes:
+## Dataset Summary
 
-- `git status --short` completed.
-- Phase 8A output folder listing completed.
-- Phase 8A docs listing completed.
-- `Get-CimInstance Win32_Process` failed with access denied.
-- `Get-Process python` showed one active Python process, PID `18400`, started during the interrupted probe window.
-- `Stop-Process -Id 18400` completed.
-- A final `Get-Process python` returned no rows.
+- frame-level rows: 731,526
+- window-level rows: 2,194,578
+- teacher-label rows: 100
+- oracle-label rows: 122,856
+- inventory rows: 543
+- videos: 53
+- categories: 11
+- pipelines: 15
 
-## 4. Partial Outputs
+Action bucket distribution:
 
-Output folders:
+- `OTHER`: 722,332
+- `DETECT_ACC`: 2,940
+- `REUSE_ACC`: 1,496
+- `CLOSED_EMPTY`: 1,397
+- `LIGHTWEIGHT_MASK_P3_FALLBACK`: 1,020
+- `FALLBACK_P3_GUARD`: 1,015
+- `LIGHTWEIGHT_MASK_ACC`: 928
+- `LEGACY_SAFE_P3_GUARD`: 398
 
-- `outputs/phase8a_policy_dataset/`
-- `outputs/phase8a_policy_dataset/splits/`
+Risk class distribution:
 
-Files observed in `outputs/phase8a_policy_dataset/`:
+- `medium`: 609,827
+- `low`: 119,063
+- `unsafe`: 2,636
 
-| File | Status | Notes |
-|---|---|---|
-| `action_label_mapping.csv` | complete | written by completed builder |
-| `data_inventory.csv` | complete | written by completed builder |
-| `frame_state_dataset.parquet` | complete | 731,526 frame rows observed during inspection |
-| `frame_state_dataset_sample.csv` | complete | sample export |
-| `window_state_dataset.parquet` | complete | rolling windows for sizes 3, 5, 10 |
-| `window_state_dataset_sample.csv` | complete | sample export |
-| `teacher_label_dataset.parquet` | complete | per-video teacher labels |
-| `oracle_action_dataset.parquet` | complete | vectorized oracle labels from completed builder |
-| `missing_feature_report.csv` | complete | generated by report step |
-| `utility_sanity_by_action.csv` | complete | generated by report step |
-| `splits/split_leave_one_video.csv` | complete | video-grouped split file |
-| `splits/split_leave_one_category.csv` | complete | category holdout split file |
-| `splits/split_ptz_holdout.csv` | complete | PTZ holdout split file |
-| `splits/split_smoke_vs_targeted.csv` | complete | video-safe smoke vs targeted split file |
-| `model_probe_results.csv` | missing/incomplete | probe did not complete |
-| `policy_feature_importance.csv` | missing/incomplete | probe did not complete |
-| `policy_rule_candidates.txt` | missing/incomplete | probe did not complete |
+Unsafe action distribution:
 
-Commit guidance:
+- no unsafe reason: 728,890
+- `closed_empty_during_event_or_motion`: 1,268
+- `reuse_under_low_trust`: 917
+- `lightweight_p3_under_ptz`: 429
+- `legacy_safe_without_detector_cadence`: 22
 
-- Do not commit the generated parquet datasets.
-- Do not commit large generated CSV samples or runtime outputs.
-- Regenerate large Phase 8A outputs at home from the committed tools if they are missing, stale, or suspected partial.
-- Keep only source scripts, small docs, and narrow ignore metadata in the Git checkpoint.
+## Split Summary
 
-Observed output sizes at pause:
+- `split_leave_one_video.csv`: 5,300 rows, 53 folds, video-disjoint leakage check passed.
+- `split_leave_one_category.csv`: 1,100 rows, 11 folds.
+- `split_ptz_holdout.csv`: 100 rows, 88 train / 12 test.
+- `split_smoke_vs_targeted.csv`: 100 rows, 20 train / 80 test.
 
-- `frame_state_dataset.parquet`: 21,011,854 bytes
-- `window_state_dataset.parquet`: 19,473,750 bytes
-- `oracle_action_dataset.parquet`: 1,203,615 bytes
-- `teacher_label_dataset.parquet`: 13,404 bytes
+## Phase 8B Readiness
 
-## 5. How To Resume
-
-Do not rerun experiment runners.
-
-Recommended next command:
-
-```powershell
-python tools\probe_phase8a_policy_models.py --max-rows 10000
-```
-
-Resume strategy:
-
-- Resume from existing `outputs/phase8a_policy_dataset/` artifacts.
-- Do not rerun `python tools\build_phase8a_policy_dataset.py` unless the dataset builder source changes or outputs are intentionally refreshed.
-- There is no cache/progress file for the model probe.
-- The model probe writes outputs only after fitting/evaluation completes, so the interrupted probe left no reliable partial probe results to resume from.
-
-If the 10,000-row probe still runs too long, reduce the sample:
-
-```powershell
-python tools\probe_phase8a_policy_models.py --max-rows 5000
-```
-
-Expected completed probe outputs:
-
-- `outputs/phase8a_policy_dataset/model_probe_results.csv`
-- `outputs/phase8a_policy_dataset/policy_feature_importance.csv`
-- `outputs/phase8a_policy_dataset/policy_rule_candidates.txt`
-
-## 6. Safety Notes
-
-- Old `ONLINE_CALIBRATED` production behavior was not modified.
-- P1/P2/P3/FAST/`ASMAG_TR_CONTROLLER` production behavior was not modified.
-- `ASMAG_TR_CONTROLLER_ONLINE_GUARDED` production behavior was not modified during Phase 8A.
-- No configs were created or modified for Phase 8A.
-- Frozen CDnet2014 v1.6 outputs were read only; they were not intentionally overwritten by Phase 8A.
-- No smoke run was launched.
-- No PTZ-targeted run was launched.
-- No targeted CDnet run was launched.
-- No full CDnet run was launched.
-- No cross-dataset validation run was launched.
-- No LASIESTA, SBI2015, or BMC run was launched.
-- Only offline dataset-building and model-probe scripts were run.
-
-## 7. Continue Phase 8A from checkpoint
-
-```text
-You are working on ASMAG-TRC Phase 8A. Resume from docs/PHASE8A_RESUME_CHECKPOINT.md.
-
-Do NOT run experiments. Do NOT modify production behavior. Do NOT rerun smoke, targeted, full CDnet, LASIESTA, SBI2015, or BMC.
-
-The Phase 8A dataset builder completed and outputs exist under outputs/phase8a_policy_dataset/. The model probe was interrupted and produced no final probe outputs.
-
-Please run only:
-python -m py_compile tools\probe_phase8a_policy_models.py
-python tools\probe_phase8a_policy_models.py --max-rows 10000
-
-If that is still too slow, stop and reduce to --max-rows 5000. Then inspect:
-outputs/phase8a_policy_dataset/model_probe_results.csv
-outputs/phase8a_policy_dataset/policy_feature_importance.csv
-outputs/phase8a_policy_dataset/policy_rule_candidates.txt
-
-Update docs/ASMAG_TR_CONTROLLER_ONLINE_GUARDED_PHASE8A_DATASET_REPORT.md with the probe results and give a research-only Phase 8B readiness recommendation. Do not recommend deployment unless data quality is strong and explicitly justified.
-```
+The dataset is good enough for Phase 8B offline research probes and policy-learning experiments. It is not good enough for deployment by itself. The learned-policy target remains imbalanced and derived from observational/oracle labels, so Phase 8B should keep deterministic safety guards as the authority and treat learned models as research candidates until separately validated.

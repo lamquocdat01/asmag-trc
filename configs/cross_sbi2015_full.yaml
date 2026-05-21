@@ -1,0 +1,113 @@
+dataset:
+  name: sbi2015
+  adapter: sbi2015
+dataset_root: "D:/THS Programing/06.6 ASMAG Project/datasets/SBI2015"
+output_dir: "outputs/cross_dataset_full_v1_6/sbi2015_full"
+resume: true
+
+videos: auto
+pipelines:
+  - P1_YOLO_Only
+  - P2_FrameDiff
+  - P3_MOG2
+  - ASMAG_TR_FAST
+  - ASMAG_TR_ACC
+  - ASMAG_TR_CONTROLLER
+  - ASMAG_TR_CONTROLLER_ONLINE
+
+detector_mode: yolo
+model_name: yolo26s-seg
+model_path: "models/yolo/yolo26s-seg.pt"
+
+runtime:
+  device_mode: cpu_edge_sim
+  cuda_enabled: false
+  max_threads: 4
+  opencv_num_threads: 4
+  torch_num_threads: 4
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 10
+  write_progress_every_frames: 25
+
+edge_profile:
+  name: cross_dataset_cpu_edge
+  simulated_cores: 4
+  simulated_ram_gb: 32
+  delay_penalty_sec: 0.0
+  resize_width_for_gating: 320
+
+evaluation:
+  use_temporal_roi: false
+  warmup_frames: 50
+  frame_step: 1
+  max_frames_per_video: null
+  save_binary_masks: false
+  save_qualitative_samples: false
+
+adapter_cache:
+  frame_ext: ".jpg"
+  refresh: false
+
+adapter_config:
+  foreground_values: [255]
+  background_values: [0]
+  ignore_values: []
+
+online_controller:
+  window: 30
+  min_stable_frames: 10
+  max_switch_per_100_frames: 6
+  initial_mode: ACC
+
+energy_proxy:
+  enabled: true
+  mode: "proxy"
+  E_base: 1.0
+  E_gate: 0.2
+  E_yolo: 5.0
+  E_reuse: 0.1
+  E_mog2: 0.5
+  E_framediff: 0.1
+  unit: "relative_energy_unit"
+
+object_level_metrics:
+  enabled: true
+  source: "mask_to_boxes"
+  iou_thresholds: [0.3, 0.5, 0.75]
+  map_50_95: true
+  min_gt_area: 20
+  min_pred_area: 20
+  confidence_mode: "proxy_if_missing"
+
+event_metrics:
+  enabled: true
+
+p4_asmag_plus:
+  min_area_ratio: 0.0008
+  open_threshold: 0.55
+  close_threshold: 0.30
+  watchdog_closed_frames: 12
+  watchdog_interval: 6
+  recent_object_memory: 30
+  entropy_threshold: 8.5
+  use_component_entropy: true
+  use_hysteresis: true
+  use_dual_mask: true
+
+p4_efficient:
+  open_threshold: 0.72
+  close_threshold: 0.45
+  force_close_threshold: 0.78
+  beta: 0.7
+  max_open_streak: 12
+  cooldown_frames: 1
+  sample_interval: 10
+  min_area_ratio: 0.0015
+  use_final_mask_from: "P4_ASMAG_PLUS"
+  reuse_max_age: 5
+  reuse_max_eval_age: 5
+  reuse_max_raw_age: null
+  reuse_decay: false
+  reuse_stop_closed_streak: 8

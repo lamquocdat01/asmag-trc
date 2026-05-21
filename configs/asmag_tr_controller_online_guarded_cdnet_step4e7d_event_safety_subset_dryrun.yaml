@@ -1,0 +1,16 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4d6_parking_final_trim_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4e7d_event_safety_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+edge_profile:
+  name: guarded_step4e7d_event_safety_subset_dryrun_cpu_edge

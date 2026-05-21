@@ -1,0 +1,27 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2l_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2l2_dryrun
+
+online_controller_guarded:
+  ai_copymachine_rescue_first_enabled: true
+  ai_copymachine_rescue_first_target_video: shadow/copyMachine
+  ai_copymachine_rescue_first_protect_before_cap: true
+  ai_copymachine_rescue_first_keep_final_normal_suppressor: true
+  ai_copymachine_rescue_first_allow_detector: false
+  ai_copymachine_rescue_first_extra_cap_per_video: 18
+  ai_copymachine_rescue_first_cooldown: 1
+  ai_copymachine_rescue_first_event_score_threshold: 0.70
+  ai_copymachine_rescue_first_foreground_loss_threshold: 0.50
+  ai_copymachine_rescue_first_requires_localized_risk: true
+  ai_copymachine_rescue_first_protect_likely_unprotected_fn: true
+  ai_copymachine_shadow_max_proposal_rate: 0.40
+  ai_copymachine_shadow_hard_max_proposal_rate: 0.45
+  ai_copymachine_shadow_max_detector_rate: 0.05
+  ai_ptz_intermittent_pan_preserve_2k_rescue_enabled: true
+  ai_ptz_intermittent_pan_preserve_2k_rescue_target_video: PTZ/intermittentPan
+  ai_ptz_intermittent_pan_preserve_2k_rescue_no_detector: true
+  ai_ptz_intermittent_pan_preserve_2k_rescue_protect_before_later_caps: true
+  ai_ptz_intermittent_pan_preserve_2k_rescue_keep_final_normal_suppressor: true
+
+edge_profile:
+  name: guarded_targeted_category_2l2_cpu_edge

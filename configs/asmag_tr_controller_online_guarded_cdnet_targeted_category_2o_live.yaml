@@ -1,0 +1,9 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2o_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2o_live
+
+online_controller_guarded:
+  ai_intervention_dry_run: false
+
+edge_profile:
+  name: guarded_targeted_category_2o_live_cpu_edge

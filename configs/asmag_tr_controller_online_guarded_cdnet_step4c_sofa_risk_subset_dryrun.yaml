@@ -1,0 +1,50 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4b4_lakeside_risk_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4c_sofa_risk_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_sofa_iom_rescue_enabled: true
+  ai_sofa_iom_target_video: intermittentObjectMotion/sofa
+  ai_sofa_iom_rescue_allow_detector: false
+  ai_sofa_iom_rescue_extra_cap_per_video: 12
+  ai_sofa_iom_rescue_cooldown: 1
+  ai_sofa_iom_rescue_requires_not_normal_frame: true
+  ai_sofa_iom_rescue_requires_active_memory: true
+  ai_sofa_iom_rescue_active_memory_min: 1
+  ai_sofa_iom_rescue_event_score_threshold: 0.40
+  ai_sofa_iom_rescue_foreground_loss_threshold: 0.60
+  ai_sofa_iom_rescue_foreground_risk_threshold: 0.20
+  ai_sofa_iom_rescue_recent_age_min: 1
+  ai_sofa_iom_rescue_recent_age_max: 5
+  ai_sofa_iom_rescue_reuse_age_min: 2
+  ai_sofa_iom_rescue_reuse_age_max: 8
+  ai_sofa_iom_rescue_actions:
+    - CLOSED_EMPTY_ACC
+    - CLOSED_EMPTY_P3_FALLBACK
+  ai_sofa_iom_rescue_keep_final_normal_suppressor: true
+
+  ai_sofa_iom_rescue_first_enabled: true
+  ai_sofa_iom_rescue_first_protect_before_cap: true
+  ai_sofa_iom_rescue_first_do_not_trim_rescue_frames: true
+  ai_sofa_iom_rescue_first_do_not_trim_likely_unprotected_fn: true
+
+  ai_sofa_iom_proposal_guard_enabled: true
+  ai_sofa_iom_max_proposal_rate: 0.35
+  ai_sofa_iom_hard_max_proposal_rate: 0.40
+  ai_sofa_iom_max_detector_rate: 0.03
+  ai_sofa_iom_no_detector: true
+  ai_sofa_iom_cap_generic_only: true
+  ai_sofa_iom_do_not_cap_rescue_candidates: true
+  ai_sofa_iom_do_not_cap_likely_unprotected_fn: true
+
+edge_profile:
+  name: guarded_step4c_sofa_subset_dryrun_cpu_edge

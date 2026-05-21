@@ -1,0 +1,21 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2h2_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2i_dryrun
+
+online_controller_guarded:
+  ai_fountain01_quiet_guard_enabled: true
+  ai_fountain01_quiet_guard_no_detector: true
+  ai_fountain01_quiet_guard_suppress_generic_event_fg: true
+  ai_fountain01_quiet_guard_suppress_budget_reclaim: true
+  ai_fountain01_quiet_guard_allow_only_unprotected_fn_risk: true
+  ai_fountain01_quiet_guard_max_proposal_rate: 0.05
+  ai_fountain01_quiet_guard_max_detector_rate: 0.02
+  ai_lowframerate_targeted_retighten_enabled: true
+  ai_lowframerate_targeted_retighten_target_videos:
+    - lowFramerate/tramCrossroad_1fps
+  ai_lowframerate_targeted_retighten_max_proposal_rate: 0.05
+  ai_lowframerate_targeted_retighten_hard_max_proposal_rate: 0.10
+  ai_lowframerate_targeted_retighten_max_detector_rate: 0.02
+  ai_lowframerate_targeted_retighten_require_unprotected_fn_risk: true
+  ai_lowframerate_targeted_retighten_suppress_generic_event_fg: true
+  ai_lowframerate_targeted_retighten_no_detector: true

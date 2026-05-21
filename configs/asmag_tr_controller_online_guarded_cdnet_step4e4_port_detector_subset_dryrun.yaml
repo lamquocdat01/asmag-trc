@@ -1,0 +1,45 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4e_port_detector_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4e4_port_detector_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_port_lf_detector_retighten_v4_enabled: true
+  ai_port_lf_detector_retighten_v4_target_video: lowFramerate/port_0_17fps
+  ai_port_lf_detector_retighten_v4_no_detector: true
+  ai_port_lf_detector_retighten_v4_use_final_event_state: true
+  ai_port_lf_detector_retighten_v4_suppress_final_fp_tn_refresh: true
+  ai_port_lf_detector_retighten_v4_keep_actual_fn_detector: true
+  ai_port_lf_detector_retighten_v4_keep_true_deterministic_emergency: true
+  ai_port_lf_detector_retighten_v4_do_not_treat_generic_refresh_as_emergency: true
+  ai_port_lf_detector_retighten_v4_do_not_treat_generic_event_fg_as_likely_fn: true
+  ai_port_lf_detector_retighten_v4_keep_pre_fn_context: true
+  ai_port_lf_detector_retighten_v4_pre_fn_window_frames: 3
+  ai_port_lf_detector_retighten_v4_post_suppression_holdout_window: 4
+  ai_port_lf_detector_retighten_v4_max_detector_rate: 0.05000
+  ai_port_lf_detector_retighten_v4_preferred_detector_rate: 0.03000
+
+  ai_port_lf_post_suppression_holdout_enabled: true
+  ai_port_lf_post_suppression_holdout_target_video: lowFramerate/port_0_17fps
+  ai_port_lf_post_suppression_holdout_no_detector: true
+  ai_port_lf_post_suppression_holdout_window: 4
+  ai_port_lf_post_suppression_holdout_extra_cap_per_video: 6
+  ai_port_lf_post_suppression_holdout_cooldown: 1
+  ai_port_lf_post_suppression_holdout_requires_not_normal_frame: true
+  ai_port_lf_post_suppression_holdout_event_score_threshold: 0.40
+  ai_port_lf_post_suppression_holdout_foreground_loss_threshold: 0.45
+  ai_port_lf_post_suppression_holdout_foreground_risk_threshold: 0.20
+  ai_port_lf_post_suppression_holdout_actions:
+    - CLOSED_EMPTY_ACC
+    - CLOSED_EMPTY_P3_FALLBACK
+
+edge_profile:
+  name: guarded_step4e4_port_detector_subset_dryrun_cpu_edge

@@ -1,0 +1,12 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2e_dryrun.yaml
+experiment_name: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2f_dryrun
+
+online_controller_guarded:
+  ai_final_normal_frame_suppressor_enabled: true
+  ai_cubicle_micro_bump_enabled: true
+  ai_cubicle_micro_bump_score_threshold: 0.93
+  ai_cubicle_micro_bump_requires_active_memory: true
+  ai_cubicle_micro_bump_requires_not_normal_frame: true
+  ai_cubicle_micro_bump_allow_detector: false
+  ai_cubicle_micro_bump_extra_cap_per_video: 8
+  ai_cubicle_micro_bump_cooldown: 1

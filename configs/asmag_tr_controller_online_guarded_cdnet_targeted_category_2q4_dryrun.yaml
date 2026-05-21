@@ -1,0 +1,22 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2q3_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2q4_dryrun
+
+online_controller_guarded:
+  ai_parking_soft_preserved_trim_enabled: true
+  ai_parking_soft_preserved_trim_target_video: intermittentObjectMotion/parking
+  ai_parking_soft_preserved_trim_max_final_rate: 0.44
+  ai_parking_soft_preserved_trim_hard_max_final_rate: 0.45
+  ai_parking_soft_preserved_trim_no_detector: true
+  ai_parking_soft_preserved_trim_min_trim_frames: 5
+  ai_parking_soft_preserved_trim_max_trim_frames: 8
+  ai_parking_soft_preserved_trim_allow_soft_preserved: true
+  ai_parking_soft_preserved_trim_never_trim_hard_protected: true
+  ai_parking_soft_preserved_trim_event_score_hard_protect: 0.85
+  ai_parking_soft_preserved_trim_foreground_loss_hard_protect: 0.85
+  ai_parking_soft_preserved_trim_reuse_age_hard_protect: 8
+  ai_parking_soft_preserved_trim_active_memory_hard_protect: 1
+  ai_parking_soft_preserved_trim_stop_at_rate: 0.45
+
+edge_profile:
+  name: guarded_targeted_category_2q4_cpu_edge

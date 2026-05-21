@@ -1,0 +1,30 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4d6_parking_final_trim_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4e2_port_detector_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_port_lf_detector_retighten_v2_enabled: true
+  ai_port_lf_detector_retighten_v2_target_video: lowFramerate/port_0_17fps
+  ai_port_lf_detector_retighten_v2_no_detector: true
+  ai_port_lf_detector_retighten_v2_suppress_fp_tn_refresh: true
+  ai_port_lf_detector_retighten_v2_keep_actual_fn_detector: true
+  ai_port_lf_detector_retighten_v2_keep_likely_unprotected_fn_detector: true
+  ai_port_lf_detector_retighten_v2_keep_true_deterministic_emergency: true
+  ai_port_lf_detector_retighten_v2_do_not_treat_generic_refresh_as_emergency: true
+  ai_port_lf_detector_retighten_v2_max_detector_rate: 0.03000
+  ai_port_lf_detector_retighten_v2_preferred_detector_rate: 0.02000
+  ai_port_lf_detector_retighten_v2_use_no_detector_fallback: true
+  ai_port_lf_detector_retighten_v2_fallback_source: existing_lowframerate_fallback_or_sanitizer
+  ai_port_lf_detector_retighten_v2_keep_event_safety: true
+
+edge_profile:
+  name: guarded_step4e2_port_detector_subset_dryrun_cpu_edge

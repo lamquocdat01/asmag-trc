@@ -1,0 +1,29 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2q2_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_full_2q2_dryrun
+dataset_mode: cdnet
+dataset_root: "D:/THS Programing/06.6 ASMAG Project/dataset cdnet2014/archive/dataset"
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+categories:
+  - badWeather
+  - baseline
+  - cameraJitter
+  - dynamicBackground
+  - intermittentObjectMotion
+  - lowFramerate
+  - nightVideos
+  - PTZ
+  - shadow
+  - thermal
+  - turbulence
+
+videos: auto
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+edge_profile:
+  name: guarded_full_2q2_dryrun_cpu_edge

@@ -1,0 +1,27 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_q1_sic1c1_restore_base_probe_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_q1_sic1c1r_restore_copy_port_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  q1_sic_detector_action_probe_enabled: true
+  q1_sic1c1r_restore_copymachine_enabled: true
+  q1_sic1c1r_restore_copymachine_frames:
+    - 810
+    - 815
+    - 820
+    - 935
+    - 940
+    - 945
+  q1_sic1c1r_restore_port_watch_enabled: true
+
+edge_profile:
+  name: guarded_q1_sic1c1r_restore_copy_port_subset_dryrun_cpu_edge

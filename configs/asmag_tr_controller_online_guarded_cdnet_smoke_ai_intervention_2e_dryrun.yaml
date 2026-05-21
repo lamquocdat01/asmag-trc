@@ -1,0 +1,14 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2d_dryrun.yaml
+experiment_name: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2e_dryrun
+
+online_controller_guarded:
+  ai_non_cubicle_budget_reclaim_enabled: true
+  ai_non_cubicle_event_fg_cap_per_video: 45
+  ai_non_cubicle_event_fg_global_reduction_target_frames: 18
+  ai_non_cubicle_event_fg_require_continuity: true
+  ai_non_cubicle_event_fg_require_unprotected_fn_risk: true
+  ai_non_cubicle_event_fg_min_score: 0.97
+  ai_non_cubicle_event_fg_exclude_cubicle: true
+  ai_non_cubicle_event_fg_protect_bridge_entry: true
+  ai_non_cubicle_event_fg_protect_continuous_pan_max_rate: 0.05
+  ai_bridge_entry_detector_budget_max: 8

@@ -1,0 +1,29 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4d5_parking_trim_order_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4d6_parking_final_trim_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_parking_post_lock_trim_4d6_enabled: true
+  ai_parking_post_lock_trim_4d6_target_video: intermittentObjectMotion/parking
+  ai_parking_post_lock_trim_4d6_target_rate: 0.50
+  ai_parking_post_lock_trim_4d6_hard_max_rate: 0.50
+  ai_parking_post_lock_trim_4d6_no_detector: true
+  ai_parking_post_lock_trim_4d6_min_extra_trim_frames: 1
+  ai_parking_post_lock_trim_4d6_max_extra_trim_frames: 2
+  ai_parking_post_lock_trim_4d6_use_same_soft_candidate_pool_as_4d5: true
+  ai_parking_post_lock_trim_4d6_never_trim_fn_protected: true
+  ai_parking_post_lock_trim_4d6_never_trim_rescue_frames: true
+  ai_parking_post_lock_trim_4d6_never_trim_likely_unprotected_fn: true
+  ai_parking_post_lock_trim_4d6_stop_at_rate: 0.50
+
+edge_profile:
+  name: guarded_step4d6_parking_final_trim_subset_dryrun_cpu_edge

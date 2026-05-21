@@ -1,0 +1,31 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2o_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2p_dryrun
+
+online_controller_guarded:
+  ai_cubicle_live_mismatch_reserve_enabled: true
+  ai_cubicle_live_mismatch_reserve_allow_detector: false
+  ai_cubicle_live_mismatch_reserve_extra_cap_per_video: 3
+  ai_cubicle_live_mismatch_reserve_cooldown: 1
+  ai_cubicle_live_mismatch_reserve_event_score_threshold: 0.80
+  ai_cubicle_live_mismatch_reserve_foreground_loss_threshold: 0.60
+  ai_cubicle_live_mismatch_reserve_reuse_age_min: 8
+  ai_cubicle_live_mismatch_reserve_active_memory_min: 1
+  ai_cubicle_live_mismatch_reserve_actions:
+    - CLOSED_EMPTY_P3_FALLBACK
+    - CLOSED_EMPTY_ACC
+
+  ai_ptz_intermittent_pan_live_mismatch_rescue_enabled: true
+  ai_ptz_intermittent_pan_live_mismatch_rescue_allow_detector: false
+  ai_ptz_intermittent_pan_live_mismatch_rescue_extra_cap_per_video: 4
+  ai_ptz_intermittent_pan_live_mismatch_rescue_cooldown: 1
+  ai_ptz_intermittent_pan_live_mismatch_rescue_event_score_threshold: 0.85
+  ai_ptz_intermittent_pan_live_mismatch_rescue_foreground_risk_threshold: 0.80
+  ai_ptz_intermittent_pan_live_mismatch_rescue_reuse_age_min: 8
+  ai_ptz_intermittent_pan_live_mismatch_rescue_active_memory_min: 1
+  ai_ptz_intermittent_pan_live_mismatch_rescue_actions:
+    - CLOSED_EMPTY_ACC
+    - CLOSED_EMPTY_P3_FALLBACK
+
+edge_profile:
+  name: guarded_targeted_category_2p_cpu_edge

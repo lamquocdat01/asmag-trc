@@ -1,0 +1,44 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2p_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2q_dryrun
+
+online_controller_guarded:
+  ai_copymachine_live_cap_reserve_enabled: true
+  ai_copymachine_live_cap_reserve_target_video: shadow/copyMachine
+  ai_copymachine_live_cap_reserve_allow_detector: false
+  ai_copymachine_live_cap_reserve_extra_cap_per_video: 8
+  ai_copymachine_live_cap_reserve_cooldown: 1
+  ai_copymachine_live_cap_reserve_active_memory_min: 1
+  ai_copymachine_live_cap_reserve_reuse_age_min: 8
+  ai_copymachine_live_cap_reserve_event_score_threshold: 0.85
+  ai_copymachine_live_cap_reserve_foreground_loss_threshold: 0.85
+  ai_copymachine_live_cap_reserve_actions:
+    - CLOSED_EMPTY_ACC
+    - CLOSED_EMPTY_P3_FALLBACK
+  ai_copymachine_live_cap_reserve_keep_final_normal_suppressor: true
+
+  ai_parking_live_cap_reserve_enabled: true
+  ai_parking_live_cap_reserve_target_video: intermittentObjectMotion/parking
+  ai_parking_live_cap_reserve_allow_detector: false
+  ai_parking_live_cap_reserve_extra_cap_per_video: 8
+  ai_parking_live_cap_reserve_cooldown: 1
+  ai_parking_live_cap_reserve_active_memory_min: 1
+  ai_parking_live_cap_reserve_reuse_age_min: 8
+  ai_parking_live_cap_reserve_event_score_threshold: 0.85
+  ai_parking_live_cap_reserve_foreground_loss_threshold: 0.85
+  ai_parking_live_cap_reserve_actions:
+    - CLOSED_EMPTY_ACC
+    - CLOSED_EMPTY_P3_FALLBACK
+  ai_parking_live_cap_reserve_keep_final_normal_suppressor: true
+
+  ai_parking_live_burst_bridge_enabled: true
+  ai_parking_live_burst_bridge_allow_detector: false
+  ai_parking_live_burst_bridge_extra_cap_per_video: 5
+  ai_parking_live_burst_bridge_reuse_age_min: 12
+  ai_parking_live_burst_bridge_reuse_age_max: 22
+  ai_parking_live_burst_bridge_foreground_risk_threshold: 0.20
+  ai_parking_live_burst_bridge_requires_recent_preserve_or_rescue: true
+  ai_parking_live_burst_bridge_keep_final_normal_suppressor: true
+
+edge_profile:
+  name: guarded_targeted_category_2q_cpu_edge

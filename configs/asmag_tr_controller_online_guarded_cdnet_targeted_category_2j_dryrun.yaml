@@ -1,0 +1,48 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_mini_2j_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2j_dryrun
+
+categories:
+  - shadow
+  - nightVideos
+  - PTZ
+  - lowFramerate
+  - dynamicBackground
+  - cameraJitter
+  - intermittentObjectMotion
+  - baseline
+  - turbulence
+
+videos:
+  shadow:
+    - cubicle
+    - backdoor
+    - copyMachine
+  nightVideos:
+    - bridgeEntry
+    - tramStation
+    - streetCornerAtNight
+  PTZ:
+    - continuousPan
+    - intermittentPan
+  lowFramerate:
+    - tramCrossroad_1fps
+    - tunnelExit_0_35fps
+    - turnpike_0_5fps
+  dynamicBackground:
+    - fountain01
+    - fountain02
+    - overpass
+    - canoe
+  cameraJitter:
+    - traffic
+  intermittentObjectMotion:
+    - parking
+  baseline:
+    - highway
+    - office
+  turbulence:
+    - turbulence2
+
+edge_profile:
+  name: guarded_targeted_category_2j_cpu_edge

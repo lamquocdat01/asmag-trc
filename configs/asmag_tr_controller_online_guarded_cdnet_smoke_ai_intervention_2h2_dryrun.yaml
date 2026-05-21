@@ -1,0 +1,10 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2h_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2h2_dryrun
+
+online_controller_guarded:
+  ai_exact_cubicle_event_fn_pre_signal_enabled: true
+  ai_exact_cubicle_event_fn_pre_signal_foreground_risk_threshold: 0.95
+  ai_exact_cubicle_event_fn_pre_signal_recent_memory_min: 3
+  ai_exact_cubicle_event_fn_pre_signal_bypass_early_normal_only: true
+  ai_exact_cubicle_event_fn_pre_signal_keep_final_normal_suppressor: true

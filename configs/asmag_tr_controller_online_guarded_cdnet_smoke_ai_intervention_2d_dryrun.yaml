@@ -1,0 +1,18 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2c_dryrun.yaml
+experiment_name: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2d_dryrun
+
+online_controller_guarded:
+  ai_cubicle_like_event_continuity_enabled: true
+  ai_cubicle_like_event_score_threshold: 0.95
+  ai_cubicle_like_foreground_loss_threshold: 0.90
+  ai_cubicle_like_requires_active_memory: true
+  ai_cubicle_like_requires_non_ptz: true
+  ai_cubicle_like_max_camera_motion: 0.10
+  ai_cubicle_like_allow_detector: false
+  ai_cubicle_like_proposal_cap_per_video: 60
+  ai_cubicle_like_proposal_cooldown: 2
+  ai_cubicle_like_exclude_videos:
+    - continuousPan
+    - intermittentPan
+    - twoPositionPTZCam
+    - zoomInZoomOut

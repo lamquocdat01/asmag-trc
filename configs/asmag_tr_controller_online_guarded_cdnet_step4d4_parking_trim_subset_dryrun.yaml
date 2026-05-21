@@ -1,0 +1,36 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4d3_snowfall_carryover_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4d4_parking_trim_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_parking_post_lock_trim_enabled: true
+  ai_parking_post_lock_trim_target_video: intermittentObjectMotion/parking
+  ai_parking_post_lock_trim_target_rate: 0.49
+  ai_parking_post_lock_trim_hard_max_rate: 0.50
+  ai_parking_post_lock_trim_no_detector: true
+  ai_parking_post_lock_trim_min_trim_frames: 4
+  ai_parking_post_lock_trim_max_trim_frames: 8
+  ai_parking_post_lock_trim_never_trim_hard_protected: true
+  ai_parking_post_lock_trim_never_trim_fn_protected: true
+  ai_parking_post_lock_trim_never_trim_likely_unprotected_fn: true
+  ai_parking_post_lock_trim_stop_at_rate: 0.50
+  ai_parking_post_lock_trim_event_score_hard_protect: 0.90
+  ai_parking_post_lock_trim_foreground_loss_hard_protect: 0.90
+  ai_parking_post_lock_trim_active_memory_hard_protect: 1
+
+  ai_parking_post_lock_deduplicate_accounting_enabled: true
+  ai_parking_post_lock_deduplicate_target_video: intermittentObjectMotion/parking
+  ai_parking_post_lock_deduplicate_no_detector: true
+  ai_parking_post_lock_deduplicate_rescue_and_lock_overlap: true
+
+edge_profile:
+  name: guarded_step4d4_parking_trim_subset_dryrun_cpu_edge

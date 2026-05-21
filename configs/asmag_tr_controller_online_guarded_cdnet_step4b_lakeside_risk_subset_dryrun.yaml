@@ -1,0 +1,77 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_full_2q2_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4b_lakeside_risk_subset_dryrun
+dataset_mode: cdnet
+dataset_root: "D:/THS Programing/06.6 ASMAG Project/dataset cdnet2014/archive/dataset"
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+categories:
+  - badWeather
+  - dynamicBackground
+  - intermittentObjectMotion
+  - lowFramerate
+  - nightVideos
+  - PTZ
+  - shadow
+  - thermal
+  - turbulence
+
+videos:
+  badWeather:
+    - snowFall
+  dynamicBackground:
+    - fountain01
+    - fountain02
+  intermittentObjectMotion:
+    - sofa
+    - parking
+  lowFramerate:
+    - port_0_17fps
+    - tunnelExit_0_35fps
+  nightVideos:
+    - bridgeEntry
+  PTZ:
+    - continuousPan
+    - intermittentPan
+  shadow:
+    - copyMachine
+    - cubicle
+  thermal:
+    - lakeSide
+  turbulence:
+    - turbulence2
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_thermal_lakeside_fn_rescue_enabled: true
+  ai_thermal_lakeside_target_video: thermal/lakeSide
+  ai_thermal_lakeside_fn_rescue_allow_detector: false
+  ai_thermal_lakeside_fn_rescue_extra_cap_per_video: 24
+  ai_thermal_lakeside_fn_rescue_cooldown: 1
+  ai_thermal_lakeside_fn_rescue_requires_not_normal_frame: true
+  ai_thermal_lakeside_fn_rescue_requires_active_memory: true
+  ai_thermal_lakeside_fn_rescue_active_memory_min: 1
+  ai_thermal_lakeside_fn_rescue_event_score_threshold: 0.60
+  ai_thermal_lakeside_fn_rescue_foreground_loss_threshold: 0.60
+  ai_thermal_lakeside_fn_rescue_foreground_risk_threshold: 0.20
+  ai_thermal_lakeside_fn_rescue_requires_cap_exhausted_or_closed_empty_budget: true
+  ai_thermal_lakeside_fn_rescue_actions:
+    - CLOSED_EMPTY_ACC
+    - CLOSED_EMPTY_P3_FALLBACK
+  ai_thermal_lakeside_fn_rescue_keep_final_normal_suppressor: true
+
+  ai_thermal_lakeside_early_memory_rescue_enabled: true
+  ai_thermal_lakeside_early_memory_rescue_allow_detector: false
+  ai_thermal_lakeside_early_memory_rescue_extra_cap_per_video: 4
+  ai_thermal_lakeside_early_memory_rescue_recent_age_min: 1
+  ai_thermal_lakeside_early_memory_rescue_recent_age_max: 4
+  ai_thermal_lakeside_early_memory_rescue_requires_not_normal_frame: true
+  ai_thermal_lakeside_early_memory_rescue_actions:
+    - CLOSED_EMPTY_ACC
+    - CLOSED_EMPTY_P3_FALLBACK
+
+edge_profile:
+  name: guarded_step4b_lakeside_subset_dryrun_cpu_edge

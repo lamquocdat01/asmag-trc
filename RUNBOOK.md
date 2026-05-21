@@ -159,6 +159,175 @@ progress:
   stale_running_minutes: 10
 ```
 
+## Manuscript Submission Preparation
+
+Use this workflow for manuscript/package preparation only. It must not rerun full CDnet2014, delete outputs, or overwrite the original Word manuscript without a backup.
+
+Primary manuscript:
+
+```text
+manuscript/ASMAG_2026_submission_draft.docx
+```
+
+Backup created:
+
+```text
+manuscript/backup/ASMAG_2026_submission_draft_backup_20260506_162624.docx
+```
+
+Regenerate paper-ready figures from final CSV values:
+
+```bat
+python src/paper/generate_paper_figures.py
+```
+
+Regenerate submission-prep reports after extraction/package files exist:
+
+```bat
+python src/paper/generate_submission_prep_reports.py
+```
+
+Key outputs:
+
+- `outputs/manuscript_submission_check/task0_file_check.md`
+- `outputs/manuscript_submission_check/manuscript_audit_report.md`
+- `outputs/manuscript_submission_check/formula_fixes.md`
+- `outputs/manuscript_submission_check/ASMAG_formula_corrected_sections.md`
+- `outputs/manuscript_submission_check/table_figure_validation.md`
+- `outputs/manuscript_submission_check/reference_gap_report.md`
+- `outputs/manuscript_submission_check/references_to_add.bib`
+- `outputs/submission_package/Supplementary_Data`
+- `outputs/submission_package/FINAL_SUBMISSION_PREP_REPORT.md`
+
+Current manual manuscript blockers:
+
+- Insert corrected formulas from `ASMAG_formula_corrected_sections.md`.
+- Correct Table 4 simulated runtime energy values from `gain_summary.csv`.
+- Replace `(arXiv)` and `(Microsoft)` placeholders and fill the empty reference section.
+- Replace embedded charts with `outputs/paper_ready_figures`.
+- Apply target journal template and proof final PDF.
+
+### Pass 2 Markdown Master
+
+Pass 2 creates a clean submission-oriented Markdown master while keeping the original Word document unchanged.
+
+```bat
+python src/paper/create_submission_ready_v1.py
+```
+
+Main output:
+
+```text
+manuscript/ASMAG_2026_submission_ready_v1.md
+```
+
+Pass 2 reports:
+
+- `outputs/submission_package/pass2_change_log.md`
+- `outputs/submission_package/pass2_formula_check.md`
+- `outputs/submission_package/pass2_table4_validation.md`
+- `outputs/submission_package/pass2_reference_action_report.md`
+- `outputs/submission_package/pass2_figure_insertion_report.md`
+- `outputs/submission_package/references_section_draft.md`
+- `outputs/submission_package/references_ready.bib`
+- `outputs/submission_package/FINAL_SUBMISSION_PREP_PASS2_REPORT.md`
+
+Current pass 2 status:
+
+- Formula placeholders are fixed in Markdown.
+- Table 4 is corrected from `gain_summary.csv`.
+- Figure paths/captions are inserted for Figures 1-6.
+- Threats to Validity and submission declarations are inserted.
+- Readiness score is `78/100`.
+- Next step is Word conversion or target-journal template migration, followed by `.docx`/PDF proofing.
+
+### Pass 3 Word-Ready Package
+
+Pass 3 prepares a conversion-ready Markdown package and reports conversion blockers.
+
+```bat
+python src/paper/prepare_pass3_word_ready.py
+```
+
+Main output:
+
+```text
+outputs/submission_package/pass3_word_ready/ASMAG_2026_word_ready.md
+```
+
+Pass 3 reports:
+
+- `outputs/submission_package/pass3_word_ready/tool_check_report.md`
+- `outputs/submission_package/pass3_word_ready/todo_reference_report.md`
+- `outputs/submission_package/pass3_word_ready/CONVERSION_BLOCKED.md`
+- `outputs/submission_package/pass3_word_ready/PDF_EXPORT_BLOCKED.md`
+- `outputs/submission_package/pass3_word_ready/word_pdf_proof_report.md`
+- `outputs/submission_package/pass3_word_ready/journal_decision_note.md`
+- `outputs/submission_package/pass3_word_ready/USER_DECISIONS_REQUIRED.md`
+- `outputs/submission_package/pass3_word_ready/FINAL_PASS3_WORD_READY_REPORT.md`
+
+Current pass 3 status:
+
+- Word-ready Markdown created.
+- Automatic DOCX/PDF conversion is blocked in this environment because `pandoc`, `soffice/libreoffice`, `python-docx`, and markdown-to-docx CLIs are unavailable.
+- Markdown structure proof passes for title, abstract, keywords, Sections 1-8, references, declarations, appendix, Figures 1-6, Tables 1-4, equations, and captions.
+- Readiness score is `80/100`.
+
+Manual conversion route on a machine with Pandoc:
+
+```bat
+cd outputs\submission_package\pass3_word_ready
+pandoc ASMAG_2026_word_ready.md --resource-path=.;..\.. -o ASMAG_2026_submission_ready_v1.docx
+```
+
+Then export the generated DOCX to PDF and visually proof equations, figures, captions, tables, references, declarations, and appendix separation.
+
+### Pass 3 DOCX/PDF Proof Update
+
+User-created DOCX now exists:
+
+```text
+outputs/submission_package/pass3_word_ready/ASMAG_2026_submission_ready_v1.docx
+```
+
+DOCX file check:
+
+- Exists: `True`
+- Size: `777970 bytes` (`759.74 KiB`)
+- Modified: `2026-05-06 17:32:55 +07:00`
+
+PDF target:
+
+```text
+outputs/submission_package/pass3_word_ready/ASMAG_2026_submission_ready_v1.pdf
+```
+
+Current PDF status:
+
+- Exists: `False`
+- Manual export is required from Word or LibreOffice.
+
+Manual export steps:
+
+1. Open `ASMAG_2026_submission_ready_v1.docx`.
+2. Export/save as PDF.
+3. Save as `ASMAG_2026_submission_ready_v1.pdf` in the same folder.
+4. Complete `outputs/submission_package/pass3_word_ready/MANUAL_WORD_PROOF_CHECKLIST.md`.
+
+Proof outputs:
+
+- `outputs/submission_package/pass3_word_ready/FINAL_DOCX_PDF_PROOF_REPORT.md`
+- `outputs/submission_package/pass3_word_ready/MANUAL_WORD_PROOF_CHECKLIST.md`
+
+Current proof status:
+
+- DOCX structural proof passes for title, abstract, keywords, Sections 1-8, references, declarations, appendix/supplementary, Tables 1-4, and Figures 1-6.
+- DOCX contains `6` Word drawing objects, `6` Word table objects, and `19` Office Math objects.
+- Raw Markdown image syntax count in DOCX text: `0`.
+- Raw LaTeX equation signal count in DOCX text: `0`.
+- Remaining TODO count in DOCX text: `9`.
+- Readiness score after DOCX proof: `86/100`.
+
 ## Check Progress
 
 ```bat

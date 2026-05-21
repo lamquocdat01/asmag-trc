@@ -82,6 +82,64 @@ python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profi
 python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --show-live-progress
 ```
 
+## Manuscript Submission Prep - 2026-05-06
+
+- Current task: Manuscript and supplementary package standardization for Q1/Q2 journal submission.
+- Main manuscript checked: `manuscript/ASMAG_2026_submission_draft.docx`.
+- Backup created before manuscript processing: `manuscript/backup/ASMAG_2026_submission_draft_backup_20260506_162624.docx`.
+- Extracted audit copies created: `manuscript/ASMAG_2026_submission_draft_extracted.txt`, `manuscript/ASMAG_2026_submission_draft.md`.
+- Audit/report folder: `outputs/manuscript_submission_check`.
+- Submission package folder: `outputs/submission_package`.
+- Supplementary data folder: `outputs/submission_package/Supplementary_Data`.
+- Paper-ready regenerated figures: `outputs/paper_ready_figures` (PNG/PDF, about 320 dpi metadata).
+- Manuscript readiness score: `62/100`.
+- Current status: supplementary package and audit artifacts are prepared; manuscript is **not ready to submit yet**.
+- Main blockers remaining: broken formulas in `.docx`, empty visible reference section, `(arXiv)` / `(Microsoft)` citation placeholders, Table 4 simulated energy mismatch against `gain_summary.csv`, figure replacement/proofing, journal template formatting.
+- Important: original `.docx` was not overwritten; no full CDnet2014 rerun was performed; no commit/push was made.
+
+## Manuscript Submission Prep Pass 2 - 2026-05-06
+
+- Markdown master created: `manuscript/ASMAG_2026_submission_ready_v1.md`.
+- Pass 2 final report: `outputs/submission_package/FINAL_SUBMISSION_PREP_PASS2_REPORT.md`.
+- Formula report: `outputs/submission_package/pass2_formula_check.md`.
+- Table 4 validation: `outputs/submission_package/pass2_table4_validation.md`.
+- Reference report: `outputs/submission_package/pass2_reference_action_report.md`.
+- Figure insertion report: `outputs/submission_package/pass2_figure_insertion_report.md`.
+- Reference drafts: `outputs/submission_package/references_section_draft.md`, `outputs/submission_package/references_ready.bib`.
+- Figure 1 architecture source created: `outputs/paper_ready_figures/asmag_trc_architecture.png` and `.pdf`.
+- Current readiness score: `78/100`.
+- Current status: Markdown master is ready for Word conversion/proofing; original `.docx` remains unchanged.
+- Remaining blockers: target journal template, Word/PDF proof, vendor/hardware reference TODO cleanup, funding/code availability/author contribution decisions.
+
+## Manuscript Submission Prep Pass 3 - 2026-05-06
+
+- Word-ready output folder: `outputs/submission_package/pass3_word_ready`.
+- Word-ready Markdown created: `outputs/submission_package/pass3_word_ready/ASMAG_2026_word_ready.md`.
+- Tool check report: `outputs/submission_package/pass3_word_ready/tool_check_report.md`.
+- Conversion status: DOCX/PDF automatic conversion blocked because `pandoc`, `soffice/libreoffice`, `python-docx`, `pypandoc`, and markdown-to-docx CLIs are unavailable.
+- Blocked reports: `outputs/submission_package/pass3_word_ready/CONVERSION_BLOCKED.md`, `outputs/submission_package/pass3_word_ready/PDF_EXPORT_BLOCKED.md`.
+- Proof report: `outputs/submission_package/pass3_word_ready/word_pdf_proof_report.md`.
+- Journal decision note: `outputs/submission_package/pass3_word_ready/journal_decision_note.md`.
+- User decision checklist: `outputs/submission_package/pass3_word_ready/USER_DECISIONS_REQUIRED.md`.
+- Final pass 3 report: `outputs/submission_package/pass3_word_ready/FINAL_PASS3_WORD_READY_REPORT.md`.
+- Current readiness score: `80/100`.
+- Current status: ready for conversion on a machine with Pandoc or equivalent; original `.docx` remains unchanged.
+- Remaining blockers: install/use converter, export DOCX/PDF, final visual proof, target journal template/reference style, user declarations, and TODO vendor/hardware/power references.
+
+## Manuscript Submission Prep Pass 3 DOCX/PDF Proof - 2026-05-06
+
+- User-created DOCX found: `outputs/submission_package/pass3_word_ready/ASMAG_2026_submission_ready_v1.docx`.
+- DOCX size/time: `777970 bytes` (`759.74 KiB`), modified `2026-05-06 17:32:55 +07:00`.
+- PDF target checked: `outputs/submission_package/pass3_word_ready/ASMAG_2026_submission_ready_v1.pdf`.
+- PDF status: not found; manual Word/LibreOffice PDF export is still required.
+- Final structural proof report created: `outputs/submission_package/pass3_word_ready/FINAL_DOCX_PDF_PROOF_REPORT.md`.
+- Manual proof checklist created: `outputs/submission_package/pass3_word_ready/MANUAL_WORD_PROOF_CHECKLIST.md`.
+- DOCX proof status: title, abstract, keywords, Sections 1-8, references, declarations, appendix/supplementary material, Tables 1-4, and Figures 1-6 are present.
+- Conversion-object check: `6` Word drawing objects, `6` Word table objects, and `19` Office Math objects detected; raw Markdown image syntax and raw LaTeX equation signals were not found in extracted DOCX text.
+- Remaining TODO in DOCX text: `9`, mostly vendor/reference, power-profile, code availability, funding, author contribution, and ethics wording decisions.
+- Current readiness score: `86/100`.
+- Current status: DOCX is structurally proofed; PDF export and final visual proof remain pending. Original manuscript remains unchanged; no CDnet2014 rerun, no commit, and no push.
+
 ## Smoke Test G2G3
 
 Command da chay:
@@ -255,24 +313,23 @@ Con mot so file khong nam trong commit 9D vi la thay doi ngoai scope hoac output
 <!-- G2G3_AUTO_STATUS_START -->
 ## G2G3 Auto Resume Status
 
-- Updated at: `2026-05-03T17:29:45`
+- Updated at: `2026-05-20T17:04:36`
 - Event: run completed or paused after selected batch
-- Completed: `318 / 318`
+- Completed: `56 / 56`
 - Pending: `0`
 - Running: `0`
 - Failed: `0`
 - Overall progress: `100.0000%`
-- Completed videos: `53 / 53`
-- Jobs completed this session: `13`
-- Last completed job: `turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED`
+- Completed videos: `0 / 14`
+- Jobs completed this session: `4`
+- Last completed job: `turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED`
 - Next pending job: `-`
-- Resume command: `python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --run-plan configs/full_cdnet2014_official_edge_video_run_plan.csv --max-jobs-per-run 13`
+- Resume command: `python src/run_experiment.py --config configs\asmag_tr_controller_online_guarded_cdnet_q1_sic1c1r3d_observer_purity_subset_dryrun.yaml`
 
 ### Failed Jobs
 
 - None
 <!-- G2G3_AUTO_STATUS_END -->
-
 <!-- G2G3_FINAL_STATUS_START -->
 ## G2G3 Final Official-like Status
 

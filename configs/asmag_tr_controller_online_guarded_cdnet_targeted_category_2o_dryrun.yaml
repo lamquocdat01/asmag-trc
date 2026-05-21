@@ -1,0 +1,33 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2n_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2o_dryrun
+
+online_controller_guarded:
+  ai_tunnel_exit_lf_preserve_fn_risk_enabled: true
+  ai_tunnel_exit_lf_target_video: lowFramerate/tunnelExit_0_35fps
+  ai_tunnel_exit_lf_preserve_before_trim: true
+  ai_tunnel_exit_lf_allow_detector: false
+  ai_tunnel_exit_lf_requires_not_normal_frame: true
+  ai_tunnel_exit_lf_event_score_threshold: 0.60
+  ai_tunnel_exit_lf_foreground_loss_threshold: 0.45
+  ai_tunnel_exit_lf_persistence_threshold: 0.40
+  ai_tunnel_exit_lf_recent_memory_min: 1
+  ai_tunnel_exit_lf_rescue_enabled: true
+  ai_tunnel_exit_lf_rescue_allow_detector: false
+  ai_tunnel_exit_lf_rescue_extra_cap_per_video: 6
+  ai_tunnel_exit_lf_rescue_cooldown: 1
+  ai_tunnel_exit_lf_rescue_requires_not_normal_frame: true
+  ai_tunnel_exit_lf_rescue_requires_localized_risk: true
+  ai_tunnel_exit_lf_rescue_event_score_threshold: 0.60
+  ai_tunnel_exit_lf_rescue_foreground_loss_threshold: 0.45
+  ai_tunnel_exit_lf_rescue_prioritize_likely_unprotected_fn: true
+  ai_tunnel_exit_lf_post_preservation_trim_enabled: true
+  ai_tunnel_exit_lf_post_preservation_trim_max_proposal_rate: 0.30
+  ai_tunnel_exit_lf_post_preservation_trim_hard_max_proposal_rate: 0.35
+  ai_tunnel_exit_lf_post_preservation_trim_generic_only: true
+  ai_tunnel_exit_lf_post_preservation_trim_do_not_trim_preserved_fn_risk: true
+  ai_tunnel_exit_lf_post_preservation_trim_do_not_trim_rescue_frames: true
+  ai_tunnel_exit_lf_post_preservation_trim_no_detector: true
+
+edge_profile:
+  name: guarded_targeted_category_2o_cpu_edge

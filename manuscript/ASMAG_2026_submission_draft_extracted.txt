@@ -1,0 +1,1719 @@
+Title:  ASMAG-TRC: Adaptive Motion-Gated Inference Control for Real-Time Edge AI Camera Systems
+
+Abstract
+
+Real-time Edge AI camera systems require a careful balance between visual detection accuracy and computational efficiency. Running a deep detector on every video frame can improve object-level perception, but it also increases latency, processor utilization, and energy consumption, especially on resource-constrained edge devices. This paper proposes ASMAG-TRC, an Adaptive Motion-Gated Inference Control framework for real-time Edge AI camera systems. Instead of executing detector inference uniformly on all frames, ASMAG-TRC combines motion-based gating, temporal reuse, and adaptive controller-based mode selection to determine when full inference is necessary and when lightweight motion cues or reused predictions are sufficient.
+
+The proposed framework is evaluated on the full CDnet2014 dataset using an official-like frame_step=1 protocol under CPU-only edge simulation. Six pipelines are compared: YOLO-only inference, FrameDiff gating, MOG2-based motion inference, ASMAG-TR FAST mode, ASMAG-TR category-aware controller, and an online calibrated controller that does not use category labels during inference. The evaluation includes pixel-level change detection metrics, event-level metrics, object-level mAP proxy, detector activation rate, FPS, P95 latency, energy-per-frame proxy, and runtime-aware simulated energy.
+
+Experimental results show that ASMAG_TR_CONTROLLER achieves the best overall accuracy among all evaluated pipelines, obtaining the highest CDnet FMeasure, Event F1, and mAP50 proxy. Compared with the strong MOG2 baseline, ASMAG_TR_CONTROLLER improves FMeasure and Event F1 while also reducing detector activation, estimated energy per frame, and P95 latency. Meanwhile, the online calibrated controller provides a deployable adaptive variant that reduces activation and energy compared with MOG2 without relying on category labels during inference, although it still requires further optimization to match the category-aware controller in runtime efficiency. These results demonstrate that adaptive motion-gated inference control is a promising direction for active Edge AI cameras, complementing detector acceleration by reducing unnecessary detector activation while preserving robust event-level performance.
+
+Keywords: Edge AI Camera; Real-Time Video Analytics; Adaptive Inference Control; Motion Gating; Temporal Reuse; Detector Activation; CDnet2014; Energy-Efficient Inference; Active AI Camera; CPU-Only Edge Profiling
+
+1. Introduction
+
+Real-time Edge AI camera systems are increasingly used in surveillance, traffic monitoring, smart manufacturing, public safety, and intelligent infrastructure. In these applications, cameras are no longer passive sensing devices that merely record video streams. Instead, they are expected to analyze visual scenes locally, detect relevant objects or foreground changes, generate event-level alerts, and support timely decision-making under limited computing resources. This shift from cloud-dependent video analytics to edge-based intelligence is driven by several practical requirements: low latency, reduced bandwidth consumption, improved privacy, and the need to operate in environments where network connectivity or centralized computing resources may be constrained.
+
+Recent advances in deep object detection, particularly YOLO-style detectors, have significantly improved the capability of visual systems to identify objects in real time. However, deploying deep detectors on edge cameras remains challenging. Running a heavy detector on every video frame can provide dense object-level perception, but it also increases processor load, memory usage, inference latency, and energy consumption. These limitations are especially critical for edge devices such as embedded AI boxes, industrial mini-PCs, smart cameras, and low-power camera modules. In continuous video streams, many consecutive frames contain redundant visual information, and not every frame requires full detector inference. Therefore, the key challenge is not only how to make object detectors faster, but also how to decide when full inference is truly necessary.
+
+This paper addresses the problem of adaptive inference control for real-time Edge AI camera systems. In many video surveillance scenarios, motion and scene changes are sparse or temporally structured. A camera may observe long periods of stable background, intermittent foreground motion, dynamic background noise, sudden illumination changes, or complex motion patterns. A fixed inference strategy cannot handle all these cases efficiently. A YOLO-only strategy wastes computation by activating the detector on every evaluated frame. A lightweight frame-difference strategy can be fast and energy-efficient, but it may fail in complex scenes or produce unstable event-level results. Classical background subtraction methods such as MOG2 can provide stronger motion cues, but they are still not designed as adaptive controllers for deciding when a deep detector should be activated, skipped, or temporally reused. Thus, a real-time Edge AI camera requires a more flexible mechanism that can balance accuracy and efficiency according to scene dynamics.
+
+A major research gap exists between three streams of work. First, object detection research has mainly focused on improving model accuracy or accelerating inference through lightweight architectures, pruning, quantization, TensorRT, OpenVINO, or hardware accelerators. These approaches improve the cost of a single inference call, but they do not fully address redundant detector activation across temporally correlated video frames. Second, background subtraction and change detection methods provide efficient motion segmentation, but they are usually evaluated as foreground detection algorithms rather than as decision-making components for active detector scheduling. Third, adaptive video analytics systems and frame-skipping methods reduce computation by selectively processing frames, yet many of them do not jointly evaluate pixel-level foreground accuracy, event-level detection quality, object-level proxy metrics, detector activation, latency, throughput, and energy-aware performance under an edge-oriented setting. This creates an opportunity for a framework that treats motion analysis, temporal reuse, and detector activation control as a unified inference-control problem.
+
+To address this gap, this paper proposes ASMAG-TRC, an Adaptive Motion-Gated Inference Control framework for real-time Edge AI camera systems. The core idea of ASMAG-TRC is to avoid uniform detector execution on every frame. Instead, the system analyzes motion cues, estimates scene activity, reuses recent predictions when appropriate, and selects inference modes according to scene conditions. The framework combines three main mechanisms: adaptive motion gating, temporal reuse, and controller-based mode selection. Motion gating determines whether a frame contains sufficient visual change to justify further processing. Temporal reuse reduces redundant inference by reusing recent predictions when the scene remains stable. Controller-based mode selection chooses among different operating modes, such as efficiency-oriented processing, accuracy-oriented processing, or fallback to a stronger motion baseline.
+
+In the proposed framework, several pipelines are evaluated to understand the accuracy–efficiency trade-off. A YOLO-only pipeline is used as a heavy detector baseline. A FrameDiff-based pipeline represents a lightweight efficiency baseline. A MOG2-based pipeline is used as a strong classical motion baseline. Two ASMAG operating modes are evaluated: a fast mode that emphasizes lower activation and energy, and a controller-based mode that selects processing strategies according to scene characteristics. In addition, an online calibrated controller is developed as a deployable variant. Unlike the category-aware controller, which uses category-level information as an upper-bound adaptive policy, the online calibrated controller does not rely on category labels during inference. Instead, it uses rolling scene features such as motion density, component count, foreground disagreement, illumination variation, active-frame rate, gate behavior, and reuse statistics to select an appropriate inference mode.
+
+The proposed framework is evaluated on the full CDnet2014 dataset using an official-like frame_step=1 evaluation protocol under CPU-only edge simulation. The evaluation is designed to reflect the constraints of a CPU-oriented edge AI box rather than a GPU-accelerated server. The system is tested using six core pipelines: P1_YOLO_Only, P2_FrameDiff, P3_MOG2, ASMAG_TR_FAST, ASMAG_TR_CONTROLLER, and ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED. The evaluation includes multiple complementary metrics: CDnet FMeasure, Event F1, mAP50 proxy, detector activation rate, reuse rate, average FPS, P95 latency, energy-per-frame proxy, simulated runtime-aware energy, AE Score, and Pareto efficiency. This multi-dimensional evaluation is important because a pipeline that is fastest or most energy-efficient may not be the most reliable, while a pipeline that maximizes accuracy may not be suitable for constrained edge deployment.
+
+The experimental results show that ASMAG_TR_CONTROLLER achieves the best overall accuracy among all evaluated pipelines. It obtains the highest CDnet FMeasure, Event F1, and mAP50 proxy while reducing detector activation, estimated energy per frame, and P95 latency compared with the strong MOG2 baseline. This result suggests that adaptive controller-based inference can improve not only efficiency but also accuracy by selecting more appropriate processing behavior across different scene conditions. Meanwhile, P2_FrameDiff achieves the highest FPS and lowest energy consumption, but its accuracy is substantially lower, confirming that lightweight gating alone is insufficient for robust active camera inference. The online calibrated controller provides a practical deployable variant by reducing activation and energy compared with MOG2 without using category labels during inference, although it still requires further optimization to match the category-aware controller in runtime efficiency and accuracy.
+
+The main contributions of this paper are summarized as follows.
+
+First, this paper proposes ASMAG-TRC, an adaptive motion-gated inference control framework for real-time Edge AI camera systems. Instead of focusing only on detector acceleration, ASMAG-TRC addresses the complementary problem of reducing unnecessary detector activation in continuous video streams.
+
+Second, the paper introduces a combined design of motion gating, temporal reuse, and controller-based mode selection. This design allows the system to select between full inference, lightweight motion-based processing, and reused predictions depending on scene dynamics.
+
+Third, the paper develops and evaluates a category-aware controller as an upper-bound scene-aware policy. The results show that this controller achieves the best CDnet FMeasure, Event F1, and mAP50 proxy among the evaluated pipelines while still reducing activation and energy compared with the MOG2 baseline.
+
+Fourth, the paper proposes an online calibrated controller that does not use category labels during inference. This controller approximates the behavior of the category-aware policy using rolling scene features, making it more suitable for practical deployment in real-world Edge AI cameras.
+
+Fifth, the paper provides a comprehensive full CDnet2014 official-like evaluation under CPU-only edge simulation. The evaluation includes not only accuracy metrics but also detector activation, FPS, latency, energy proxy, simulated runtime-aware energy, and Pareto-style accuracy–efficiency analysis. This provides a more complete view of real-time edge deployment behavior than accuracy-only evaluation.
+
+The remainder of this paper is organized as follows. Section 2 reviews related work on change detection, deep object detection, real-time edge video analytics, adaptive inference, and temporal reuse. Section 3 presents the proposed ASMAG-TRC framework, including motion gating, temporal reuse, operating modes, the category-aware controller, and the online calibrated controller. Section 4 describes the experimental setup, dataset, compared pipelines, metrics, and CPU-only edge profiling environment. Section 5 reports the main results and analyzes accuracy, efficiency, runtime behavior, and category-wise performance. Section 6 discusses ablation findings, practical implications, and deployment considerations. Section 7 presents limitations and future work. Section 8 concludes the paper.
+
+2. Related Work
+
+This section reviews four groups of studies that are directly related to ASMAG-TRC: change detection and background subtraction, YOLO-based and edge-oriented object detection, active/adaptive inference for video analytics, and temporal reuse in video processing. The purpose of this review is not to position ASMAG-TRC as a new foreground segmentation model, but to clarify its role as an adaptive inference-control framework for real-time Edge AI camera systems.
+
+2.1. Change Detection and Background Subtraction
+
+Change detection and background subtraction have long been studied as fundamental techniques for video surveillance, moving object detection, and foreground segmentation. Classical approaches such as frame differencing, background modeling, Gaussian mixture models, and motion segmentation methods aim to separate foreground regions from a relatively stable background. These methods are attractive for edge devices because they are usually lighter than deep neural network detectors and can provide fast motion cues for deciding whether a frame contains meaningful scene activity.
+
+The CDnet2014 benchmark is one of the most widely used datasets for evaluating change detection algorithms. It expands earlier change detection benchmarks by covering multiple challenging scenarios such as baseline scenes, dynamic backgrounds, camera jitter, intermittent object motion, low frame rate, night videos, PTZ motion, shadows, thermal imagery, bad weather, and turbulence. The benchmark also provides pixel-level ground-truth annotations and evaluation metrics for assessing foreground detection quality across diverse surveillance conditions. This makes CDnet2014 particularly useful for evaluating whether a method is robust across different scene dynamics rather than only on a small number of simple videos.
+
+Classical change detection techniques are still important in modern Edge AI systems because they can act as lightweight motion proposal mechanisms. For example, frame differencing can detect short-term changes with very low computational cost, while MOG2 can model background dynamics more robustly in many surveillance scenes. However, these approaches also have limitations. Frame differencing can be sensitive to noise, illumination variation, and slow object motion. MOG2 can perform better in many cases, but it may still struggle with complex backgrounds, camera motion, and highly dynamic scenes. More importantly, these methods are usually designed as foreground segmentation algorithms, not as inference-control policies for deciding when a deep detector should run, when predictions can be reused, or when the system should switch to a more conservative processing mode.
+
+This distinction is central to ASMAG-TRC. The proposed framework uses change detection not as the final objective alone, but as part of a control layer for active inference. Motion cues from FrameDiff, MOG2, and related features are used to estimate scene activity, support gating decisions, and guide controller-based mode selection. In this sense, ASMAG-TRC builds on the efficiency of classical motion analysis while addressing a different problem: reducing unnecessary detector activation without sacrificing pixel-level, event-level, and object-level reliability.
+
+2.2. YOLO-Based Object Detection and Edge AI Deployment
+
+Deep object detection has substantially improved visual perception in camera systems. Among modern detectors, the YOLO family has become especially influential because it formulates object detection as a single-stage prediction problem and supports real-time inference. The original YOLO work framed detection as a regression problem from image pixels to bounding boxes and class probabilities, enabling a unified end-to-end pipeline and real-time performance. (arXiv)
+
+For Edge AI cameras, YOLO-style detectors are attractive because they can provide object-level information that classical foreground segmentation methods cannot directly produce. Object detection allows a camera system to detect vehicles, people, objects, or safety-related targets rather than only foreground regions. With acceleration libraries and deployment frameworks such as TensorRT, OpenVINO, Edge TPU, Hailo, or other NPU-based toolchains, deep detectors can be optimized for specific hardware platforms. Lightweight detectors such as MobileNet-SSD, EfficientDet-Lite, and compact YOLO variants also make on-device inference more practical.
+
+However, edge deployment still faces a key challenge: even if a detector is optimized, running it on every frame can remain wasteful. Continuous video streams often contain high temporal redundancy. A static camera may observe long intervals with little change, and many consecutive frames may not require full object detection. In such cases, the cost of repeated detector execution becomes unnecessary overhead. This is particularly problematic for CPU-only edge devices, low-power smart cameras, and embedded systems without strong GPU acceleration.
+
+Therefore, detector acceleration and detector activation control should be treated as complementary problems. Model compression, quantization, and hardware acceleration reduce the cost of each inference call. ASMAG-TRC addresses another question: how many inference calls are truly necessary? Instead of assuming that the detector must process every frame, ASMAG-TRC uses adaptive motion gating and temporal reuse to reduce detector activation. The current implementation is evaluated with YOLO-style inference, but the framework is conceptually detector-agnostic. The same control strategy can be extended to MobileNet-SSD, EfficientDet-Lite, or other edge-compatible detectors.
+
+2.3. Active and Adaptive Inference for Video Analytics
+
+A growing body of research has recognized that video analytics systems should adapt their computation based on scene content, query requirements, and resource constraints. Systems such as NoScope showed that large-scale neural network video analysis can be accelerated by exploiting video-specific redundancy, specialized models, and difference detectors. NoScope demonstrated that, for fixed-camera video queries, a cascade of cheaper models and difference detectors can reduce the cost of neural network video analysis while preserving accuracy within an acceptable margin. (arXiv)
+
+Similarly, adaptive video analytics systems such as Chameleon explored how video processing configurations can be dynamically selected according to changing video characteristics. Chameleon highlighted that there is no single best configuration for all video streams; instead, resolution, frame rate, model choice, and other parameters should be adapted to balance inference accuracy and resource consumption. (Microsoft)
+
+These studies are highly relevant to ASMAG-TRC because they shift attention from static inference pipelines to adaptive control. The main insight is that video analytics should not be executed using one fixed configuration across all frames, videos, or scenes. Instead, a system should adapt to temporal and spatial characteristics of the video stream. This idea is especially important for Edge AI cameras, where latency, throughput, and energy constraints are more severe than in cloud-based video analytics.
+
+ASMAG-TRC follows this line of thinking but focuses on a specific problem: active detector activation control using motion gating and temporal reuse. Unlike systems that mainly adapt model configurations, resolution, or query cascades, ASMAG-TRC explicitly compares multiple inference-control pipelines under a full CDnet2014 official-like setting. The framework evaluates not only detection accuracy but also detector activation, FPS, P95 latency, energy proxy, runtime-aware simulated energy, and accuracy–efficiency trade-off. This makes ASMAG-TRC particularly aligned with real-time Edge AI camera deployment, where a method must be evaluated beyond accuracy alone.
+
+Another difference is that ASMAG-TRC includes both a category-aware controller and an online calibrated controller. The category-aware controller estimates the upper-bound benefit of scene-aware mode selection, while the online calibrated controller provides a more deployable variant that does not rely on category labels during inference. This distinction is important because practical Edge AI cameras cannot assume that every incoming video stream is pre-labeled by scene category.
+
+2.4. Temporal Reuse and Motion-Guided Video Processing
+
+Temporal reuse is based on the observation that consecutive video frames are often highly correlated. In many camera streams, object positions, foreground masks, and scene structures change gradually rather than abruptly. This temporal continuity creates an opportunity to reuse recent predictions when the scene remains stable, thereby reducing redundant detector execution.
+
+In video analytics, temporal reuse appears in several forms. Some systems reuse previous detections for nearby frames, while others use tracking, optical flow, or motion compensation to propagate predictions forward in time. Lightweight difference detectors can also be used to determine whether the current frame differs enough from previous frames to justify running a heavier model. These ideas are closely related to active inference: instead of treating every frame as independent, the system exploits temporal structure to decide when full inference is necessary.
+
+However, temporal reuse also introduces risks. If reuse is applied too aggressively, predictions can become stale. A reused mask or bounding box may drift away from the true object location, fail to capture newly appearing objects, or remain active after an object disappears. These errors are more likely in difficult scenarios such as dynamic background, camera jitter, turbulence, shadow, and night scenes. Therefore, temporal reuse must be controlled by motion consistency, scene difficulty, and fallback logic.
+
+ASMAG-TRC integrates temporal reuse into an adaptive inference-control framework. The framework does not simply skip frames uniformly. Instead, it uses motion gating, reuse logic, and controller-based mode selection to decide whether to run full inference, reuse recent predictions, or rely on motion-based estimates. The online calibrated controller further improves this process by learning when difficult scenes require fallback to stronger processing modes. In the current results, the calibrated online controller reduces activation and energy compared with the MOG2 baseline without using category labels at inference time, although it still requires further optimization to match the category-aware controller in runtime efficiency.
+
+Overall, prior work provides strong foundations for ASMAG-TRC. Change detection methods provide lightweight motion cues; YOLO-style detectors provide object-level perception; adaptive video analytics systems show the importance of dynamic configuration; and temporal reuse exploits redundancy in video streams. ASMAG-TRC connects these ideas into a unified framework for real-time Edge AI cameras, focusing specifically on reducing unnecessary detector activation while preserving pixel-level, event-level, and object-level performance.
+
+3. Proposed Method: ASMAG-TRC
+
+This section presents the proposed ASMAG-TRC framework, which stands for Adaptive Motion-Gated Inference Control with Temporal Reuse and Controller-based mode selection. The main objective of ASMAG-TRC is to reduce unnecessary detector activation in continuous video streams while preserving reliable foreground, event-level, and object-level performance. Instead of treating every video frame as requiring full detector inference, the framework analyzes motion cues, estimates scene activity, reuses recent predictions when appropriate, and selects the most suitable processing mode according to scene conditions.
+
+ASMAG-TRC is designed for real-time Edge AI camera systems, where computing resources, latency, and energy consumption are constrained. The framework is not intended to replace a deep detector such as YOLO. Rather, it acts as an inference-control layer placed before or around the detector. Its purpose is to answer a practical question: Should the system run full detector inference on the current frame, use lightweight motion-based processing, or reuse recent predictions?
+
+This section describes the overall architecture, motion proposal layer, adaptive gating mechanism, temporal reuse strategy, operating modes, category-aware controller, online calibrated controller, and the final inference algorithm.
+
+3.1. Overview of ASMAG-TRC Architecture
+
+The overall architecture of ASMAG-TRC consists of six main components: input video stream, motion proposal layer, adaptive motion gate, detector inference module, temporal reuse module, and controller-based mode selector.
+
+For each incoming frame, the system first extracts lightweight motion cues. These cues are used to estimate whether the current frame contains meaningful foreground change. If the scene is stable, the system may reuse the previous valid prediction instead of running the detector again. If the scene is active or uncertain, the system may activate the detector or fallback to a stronger motion-based baseline. The controller determines which operating mode should be applied under the current scene condition.
+
+The general processing flow is:
+
+Figure 1. Overall architecture of ASMAG-TRC
+
+[Figure/image object]
+
+In this design, the detector is no longer executed uniformly on all frames. Instead, detector calls become conditional and scene-dependent. This is the core difference between ASMAG-TRC and conventional YOLO-only inference.
+
+3.2. Motion Proposal Layer
+
+The motion proposal layer extracts lightweight motion information from the video stream. It provides the basic evidence for deciding whether the current frame deserves full detector inference. The layer may use simple frame differencing, MOG2-based foreground estimation, or additional disagreement features between multiple motion estimators.
+
+Let  denote the current frame at time , and  denote the previous frame. A simple frame difference map can be computed as:
+
+After thresholding and morphological filtering, a binary motion mask  is obtained. In parallel, a background subtraction model such as MOG2 produces another foreground mask . These masks are used to estimate motion density, foreground area, component count, and disagreement between motion estimators.
+
+The key motion features used by ASMAG-TRC include:
+
+[Table with 10 rows]
+
+Feature | Meaning
+
+motion_density | Ratio of foreground pixels to total pixels
+
+component_count | Number of connected foreground components
+
+fd_area | Foreground area estimated by FrameDiff
+
+mog_area | Foreground area estimated by MOG2
+
+fd_mog_disagreement | Difference between FrameDiff and MOG2 motion masks
+
+illumination_variance | Approximate scene brightness variation
+
+active_frame_rate | Ratio of recent frames considered active
+
+gate_closed_rate | Ratio of recent frames where detector was skipped
+
+reuse_success_rate | Ratio of recent frames where temporal reuse was accepted
+
+The disagreement between motion estimators is particularly important. A low disagreement value usually indicates that lightweight motion cues are consistent. A high disagreement value suggests that the scene may be difficult, noisy, unstable, or affected by illumination/background changes. This information is useful for deciding whether the system should stay in a fast mode, use an accuracy-preserving mode, or fallback to a stronger baseline.
+
+3.3. Adaptive Motion Gate
+
+The adaptive motion gate determines whether the detector should be activated for the current evaluated frame. Unlike fixed frame skipping, the gate does not simply activate the detector every  frames. Instead, it considers motion intensity, motion consistency, periodic safety checks, and controller-selected mode.
+
+The gate receives motion features and produces a binary decision:
+
+where () means the current frame is active and should trigger detector inference or stronger motion processing, while () means detector inference can be skipped.
+
+In practice, the gate uses several conditions:
+
+Motion activation condition: if motion density is above a threshold, the gate opens.
+
+Disagreement condition: if motion estimators disagree strongly, the gate opens or falls back.
+
+Periodic sampling condition: even when motion is low, the detector is periodically activated to avoid long-term drift.
+
+Reuse validity condition: if the previous prediction is still reliable, the gate may remain closed.
+
+Controller mode condition: FAST, ACC, P3 fallback, or calibrated online mode adjusts the gate behavior.
+
+A simplified gate score can be represented as:
+
+​
+
+The detector is activated if () exceeds a mode-specific threshold or if the periodic sampling condition is satisfied.
+
+This design allows the gate to behave differently in easy and difficult scenes. In stable scenes, the system can skip more detector calls. In complex scenes, it becomes more conservative and activates stronger inference more frequently.
+
+3.4. Evaluated-Index-Aware Sampling
+
+A practical issue in video evaluation is that the system may not process every raw frame under all experimental settings. For example, in sampled experiments, frame_step may be greater than 1. In the official-like evaluation used in this paper, frame_step=1, but the framework is designed to remain valid under both sampled and full-frame settings.
+
+To avoid distorted periodic sampling, ASMAG-TRC uses an evaluated index rather than the raw frame number. Let () denote the index of the evaluated frame sequence. If only every  raw frame is evaluated, () increases by 1 for each evaluated frame regardless of the raw frame ID.
+
+The periodic detector activation condition is therefore defined as:
+
+where () is the detector refresh period in evaluated-frame units.
+
+This prevents the system from incorrectly triggering or skipping detector calls when the frame sampling rate changes. It also ensures that comparisons across different evaluation configurations remain consistent.
+
+3.5. Temporal Reuse
+
+Temporal reuse is used when the detector is not activated on the current frame. The basic assumption is that, in many surveillance videos, foreground objects and scene structures change gradually. Therefore, the most recent valid prediction may still be useful for the current frame.
+
+Let () be the most recent valid prediction produced by detector inference or a stronger motion baseline at time (). If the current frame is considered stable and the reuse age is acceptable, ASMAG-TRC can use:
+
+instead of running detector inference again.
+
+The reuse decision depends on:
+
+[Table with 6 rows]
+
+Factor | Role
+
+Reuse age | Prevents old predictions from being reused too long
+
+Motion overlap | Checks whether current motion is consistent with previous prediction
+
+Gate confidence | Avoids reuse when the gate is uncertain
+
+Scene difficulty | Reduces reuse in difficult categories or difficult online states
+
+Controller mode | FAST allows more reuse; fallback modes allow less reuse
+
+Temporal reuse helps reduce detector activation and energy consumption. However, it can also introduce errors if reused predictions become stale. For example, an object may move away, a new object may enter the scene, or a dynamic background may be mistaken for stable motion. Therefore, ASMAG-TRC does not use reuse blindly. It combines reuse with motion gating and controller-based mode selection.
+
+The reuse rate is recorded as an evaluation metric:
+
+[Math object without extractable text]
+
+This metric helps quantify how much the framework relies on temporal continuity.
+
+3.6. Operating Modes
+
+ASMAG-TRC is evaluated through six core pipelines. These pipelines represent different levels of inference control, from heavy detector inference to lightweight motion gating and adaptive controller-based decision-making.
+
+[Table with 7 rows]
+
+Pipeline | Description | Role
+
+P1_YOLO_Only | Runs detector inference on every evaluated frame | Heavy detector baseline
+
+P2_FrameDiff | Uses frame differencing as lightweight motion trigger | Efficiency baseline
+
+P3_MOG2 | Uses MOG2-based motion estimation as strong classical baseline | Accuracy-oriented motion baseline
+
+ASMAG_TR_FAST | Aggressive motion gating and temporal reuse | Efficiency-oriented ASMAG mode
+
+ASMAG_TR_CONTROLLER | Category-aware controller that selects modes based on scene category | Upper-bound adaptive controller
+
+ASMAG_TR_CONTROLLER_ ONLINE_CALIBRATED | Online calibrated controller using rolling scene features, without category labels during inference | Deployable adaptive variant
+
+3.6.1. P1: YOLO-Only Baseline
+
+The YOLO-only baseline executes detector inference on every evaluated frame. It represents a common direct deployment strategy where the detector is always active.
+
+This pipeline provides a reference for maximum detector activation:
+
+[Math object without extractable text]
+
+Although this strategy may provide dense object-level predictions, it is computationally expensive and not necessarily optimal for pixel-level or event-level change detection.
+
+3.6.2. P2: FrameDiff Baseline
+
+The FrameDiff baseline uses simple frame differencing to detect motion and trigger lightweight foreground estimation. It is computationally cheap and often provides high FPS and low latency. However, it is sensitive to noise, illumination changes, and slow-moving objects.
+
+This pipeline represents an efficiency-oriented baseline.
+
+3.6.3. P3: MOG2 Baseline
+
+The MOG2 pipeline uses a stronger background subtraction model to estimate foreground regions. It is more robust than simple frame differencing in many surveillance scenarios and serves as the main classical accuracy baseline.
+
+In this paper, P3_MOG2 is treated as the strongest non-ASMAG baseline for accuracy-oriented comparison.
+
+3.6.4. ASMAG_TR_FAST
+
+ASMAG_TR_FAST applies more aggressive gating and reuse to reduce detector activation. It prioritizes efficiency and is useful for resource-constrained settings where energy and throughput are more important than maximizing accuracy.
+
+3.6.5. ASMAG_TR_CONTROLLER
+
+ASMAG_TR_CONTROLLER is a category-aware adaptive controller. It selects the operating behavior according to known scene category information. For example, easy baseline scenes may use a faster policy, while more difficult scenes may use accuracy-preserving or fallback behavior.
+
+This controller is used as an upper-bound policy because it assumes category-level knowledge. It is not presented as the most deployable version of the method. Instead, it estimates the potential benefit of scene-aware mode selection.
+
+3.6.6. ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED
+
+The online calibrated controller is designed for practical deployment. It does not use category labels during inference. Instead, it relies on rolling scene features extracted from recent evaluated frames. These features are used to select the operating mode dynamically.
+
+The online controller approximates the category-aware policy by using features such as motion density, component count, foreground disagreement, illumination variation, gate behavior, and reuse statistics. This makes it more suitable for real-world cameras, where scene labels are not available.
+
+3.7. Category-Aware Controller
+
+The category-aware controller selects an operating mode based on the known CDnet2014 scene category. Its purpose is to evaluate how much performance can be gained if the system has access to high-level scene information.
+
+A simplified category-aware policy is:
+
+[Table with 4 rows]
+
+Scene Type | Selected Mode
+
+Easy/stable scenes | FAST
+
+Moderate scenes | ACC or controller mode
+
+Difficult scenes | P3 fallback or conservative mode
+
+This policy reflects the observation that not all video categories require the same inference behavior. For example, stable baseline scenes can tolerate more gating and reuse. Dynamic background, camera jitter, turbulence, and other difficult categories often require more conservative processing.
+
+The category-aware controller is useful for two reasons. First, it provides a strong adaptive baseline to test whether scene-aware mode selection improves performance. Second, it provides pseudo-labels for calibrating the online controller. However, because it uses category labels, it is not considered the final deployable form of ASMAG-TRC.
+
+3.8. Online Calibrated Controller
+
+The online calibrated controller is designed to remove the dependency on category labels during inference. It uses rolling features computed over a window of recent evaluated frames. These features describe the current scene dynamics and are used to classify the scene into an appropriate operating mode.
+
+Let () denote a rolling window ending at frame (). For this window, ASMAG-TRC computes a feature vector:
+
+=[motion_density_mean,motion_density_std,component_count_mean,component_count_std,fd_mog_disagreement,illumination_variance,reuse_success_rate,active_frame_rate,gate_closed_rate]
+
+The online controller maps this feature vector to a selected mode:
+
+where () is one of the available modes, such as FAST, ACC, or P3 fallback.
+
+The controller is calibrated using pseudo-labels derived from the category-aware controller. During training or calibration, the category-aware policy acts as a teacher. During inference, however, the online controller only uses rolling scene features and does not access category labels.
+
+This design provides a practical compromise. The category-aware controller gives an upper-bound reference, while the online calibrated controller provides a deployable approximation.
+
+3.9. ASMAG-TRC Inference Algorithm
+
+The complete ASMAG-TRC inference process is summarized in Algorithm 1.
+
+Algorithm 1: ASMAG-TRC Adaptive Motion-Gated Inference Control
+
+Input:
+
+Video frames {I_t}
+
+Detector D
+
+Motion estimators FD and MOG2
+
+Controller C
+
+Reuse buffer B
+
+Evaluation frame step s
+
+Detector refresh period T
+
+Output:
+
+Prediction sequence {P_t}
+
+Runtime and activation metrics
+
+Initialize:
+
+previous frame I_prev = None
+
+reuse buffer B = empty
+
+evaluated index k = 0
+
+rolling feature window W = empty
+
+For each frame I_t in video stream:
+
+If I_t is outside temporalROI:
+
+continue
+
+If frame t is not selected by frame_step:
+
+continue
+
+k = k + 1
+
+Step 1: Compute lightweight motion cues
+
+M_FD = FrameDiff(I_t, I_prev)
+
+M_MOG2 = MOG2(I_t)
+
+motion_features = ExtractFeatures(M_FD, M_MOG2)
+
+Step 2: Update rolling scene features
+
+W.update(motion_features)
+
+x_t = ComputeRollingFeatures(W)
+
+Step 3: Select operating mode
+
+mode = C.select_mode(x_t)
+
+Step 4: Evaluate motion gate
+
+gate_open = MotionGate(motion_features, mode, k, T)
+
+Step 5: Decide inference action
+
+If mode == P3_FALLBACK:
+
+P_t = MotionFallback(M_MOG2)
+
+Else if gate_open == True:
+
+P_t = D(I_t)
+
+B.update(P_t)
+
+Else if ReuseIsValid(B, motion_features, mode):
+
+P_t = B.last_valid_prediction
+
+mark reused_prediction = True
+
+Else:
+
+P_t = LightweightMotionEstimate(M_FD or M_MOG2)
+
+Step 6: Log metrics
+
+Record detector activation
+
+Record reuse status
+
+Record latency, FPS, CPU, RAM, energy proxy
+
+Step 7:
+
+I_prev = I_t
+
+Return prediction sequence and metrics
+
+3.10. Evaluation Metrics Produced by the Method
+
+ASMAG-TRC is designed not only to output predictions but also to produce detailed runtime and efficiency logs. For each pipeline, the framework records:
+
+[Table with 7 rows]
+
+Metric Group | Metrics
+
+Accuracy | CDnet FMeasure, Event F1, mAP50 proxy
+
+Detector usage | Activation rate, reuse rate
+
+Runtime | Avg FPS, average latency, P95 latency, P99 latency
+
+Resource usage | CPU usage, RAM usage
+
+Energy proxy | Energy/frame, simulated runtime-aware energy/frame
+
+Trade-off | AE Score, Pareto efficiency
+
+The detector activation rate is defined as:
+
+[Figure/image object]
+
+This metric is central to ASMAG-TRC because the framework aims to reduce unnecessary detector calls.
+
+The energy proxy combines a base processing cost with additional cost for detector activation and runtime behavior. Although this does not replace physical power measurement, it provides a consistent comparative indicator under CPU-only edge simulation.
+
+3.11. Methodological Positioning
+
+ASMAG-TRC should be interpreted as an adaptive inference-control framework, not as a new standalone foreground segmentation model. Its novelty lies in the integration of motion gating, temporal reuse, and controller-based mode selection for active Edge AI camera inference. The framework complements detector acceleration: while model optimization reduces the cost of each detector call, ASMAG-TRC reduces the number of unnecessary detector calls.
+
+The category-aware controller demonstrates the upper-bound potential of scene-aware adaptive inference. The online calibrated controller moves the framework closer to practical deployment by removing the need for category labels during inference. Together, these components provide both an analytical upper-bound and a deployable adaptive variant for real-time Edge AI camera systems.
+
+4. Experimental Setup
+
+This section describes the experimental design used to evaluate ASMAG-TRC. The evaluation is designed to answer three main questions. First, can adaptive motion-gated inference improve or preserve detection quality compared with strong baseline pipelines? Second, can ASMAG-TRC reduce detector activation, estimated energy, and runtime cost under edge-oriented constraints? Third, how does the category-aware controller compare with the online calibrated controller, which does not use category labels during inference?
+
+To answer these questions, the proposed framework is evaluated on the full CDnet2014 dataset using an official-like frame_step=1 protocol and CPU-only edge profiling. Six core pipelines are compared across pixel-level, event-level, object-level proxy, and edge efficiency metrics.
+
+4.1. Dataset
+
+The primary dataset used in this study is CDnet2014, a widely used benchmark for change detection and foreground segmentation in video surveillance scenarios. CDnet2014 contains diverse scene categories designed to test robustness under different environmental and motion conditions. The dataset includes challenging scenarios such as dynamic background, camera jitter, intermittent object motion, low frame rate, night videos, PTZ motion, shadows, thermal imagery, bad weather, turbulence, and baseline surveillance scenes.
+
+In this study, the evaluation covers the full set of videos available in the local CDnet2014 setup. The experiment contains 53 videos from 11 categories, and each video is evaluated across six pipelines, resulting in 318 video–pipeline jobs:
+
+[Math object without extractable text]
+
+The evaluated categories are:
+
+[Table with 12 rows]
+
+Category | Description
+
+badWeather | Snow, fog, or weather-related degradation
+
+baseline | Standard surveillance scenarios
+
+cameraJitter | Scenes affected by camera vibration
+
+dynamicBackground | Background motion such as water or trees
+
+intermittentObjectMotion | Objects that stop and restart motion
+
+lowFramerate | Videos with low temporal sampling
+
+nightVideos | Low-light nighttime conditions
+
+PTZ | Pan-tilt-zoom camera motion
+
+shadow | Strong shadow effects
+
+thermal | Thermal imaging scenes
+
+turbulence | Atmospheric turbulence and severe distortion
+
+Only frames inside the temporal region of interest are evaluated. This avoids scoring frames that are outside the valid evaluation interval defined by the benchmark. The evaluation uses frame_step=1, meaning that every valid evaluated frame inside the temporal ROI is processed. This setting is referred to as official-like because it is closer to the full-frame benchmark protocol than sampled evaluation settings.
+
+4.2. Compared Pipelines
+
+Six core pipelines are evaluated. They are selected to represent different inference strategies: full detector inference, lightweight motion-based triggering, classical background subtraction, ASMAG efficiency mode, category-aware adaptive control, and online calibrated adaptive control.
+
+Table 1. Compared pipelines and their roles
+
+[Table with 7 rows]
+
+Pipeline | Description | Role in Evaluation
+
+P1_YOLO_Only | Runs detector inference on all evaluated frames | Heavy detector baseline
+
+P2_FrameDiff | Uses frame differencing as a lightweight motion trigger | Efficiency baseline
+
+P3_MOG2 | Uses MOG2-based motion estimation | Strong classical baseline
+
+ASMAG_TR_FAST | Uses aggressive gating and temporal reuse | Efficiency-oriented ASMAG mode
+
+ASMAG_TR_CONTROLLER | Uses category-aware adaptive mode selection | Main upper-bound controller
+
+ASMAG_TR_CONTROLLER_ ONLINE_CALIBRATED | Uses rolling scene features to select modes without category labels during inference | Deployable online variant
+
+The P1_YOLO_Only pipeline provides a reference for full detector activation. It represents a direct deployment strategy in which the detector is applied to every evaluated frame. The P2_FrameDiff and P3_MOG2 pipelines represent lightweight and stronger classical motion-based baselines, respectively. ASMAG_TR_FAST evaluates how far detector activation can be reduced through aggressive gating and reuse. ASMAG_TR_CONTROLLER evaluates the potential of category-aware adaptive mode selection and is treated as an upper-bound policy. ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED evaluates the deployable online version of ASMAG-TRC, which does not use category labels during inference.
+
+4.3. CPU-Only Edge Simulation Environment
+
+The experiments are conducted under a CPU-only edge simulation setting. The purpose is to approximate a constrained edge AI camera or industrial mini-PC environment rather than a GPU-accelerated server. This is important because many real-world Edge AI camera deployments operate under limited compute, power, and thermal constraints.
+
+The experimental machine has the following configuration:
+
+[Table with 7 rows]
+
+Component | Configuration
+
+CPU | Intel Core i7-1185G7
+
+CPU cores/threads | 4 cores / 8 threads
+
+RAM | 32 GB
+
+GPU | Intel Iris Xe integrated graphics
+
+CUDA | Not available
+
+Operating mode | CPU-only edge simulation
+
+To emulate edge deployment behavior, the system is configured with sequential frame processing and batch size 1. Parallel video processing is disabled. CPU threading is limited to avoid unrealistic server-like throughput. The main settings are:
+
+device_mode = cpu_edge_sim
+
+cuda_enabled = false
+
+batch_size = 1
+
+parallel_jobs = 1
+
+sequential_video_processing = true
+
+frame_step = 1
+
+use_temporal_roi = true
+
+This configuration allows the study to evaluate how the pipelines behave under CPU-oriented constraints. It also provides runtime measurements such as FPS, latency, CPU usage, RAM usage, and simulated runtime-aware energy. However, since no external power meter is used, the reported energy values should be interpreted as proxy estimates rather than physical Watt or Joule measurements.
+
+4.4. Evaluation Protocol
+
+The evaluation follows a per-video, per-pipeline execution protocol. Each video is processed independently by each of the six pipelines. The runner maintains a progress table and writes intermediate results after each completed job. This design supports long-running experiments, checkpointing, restart recovery, and multi-day execution.
+
+Each job corresponds to: one category / one video / one pipeline
+
+For each job, the system records:
+
+frame-level metrics,
+
+runtime profiling information,
+
+detector activation decisions,
+
+reuse decisions,
+
+latency and FPS,
+
+energy proxy,
+
+final video-level summary.
+
+The complete full run contains: 53 videos × 6 pipelines = 318 jobs
+
+The experiment uses automatic checkpoint and resume. If a run is interrupted because of timeout, system restart, or manual stop, completed jobs are not rerun. If a job remains marked as running after interruption, it is automatically recovered to pending when it is stale. This ensures that long experiments can be continued safely.
+
+The progress system records:
+
+completed jobs
+
+pending jobs
+
+running jobs
+
+failed jobs
+
+completed videos
+
+current category/video/pipeline
+
+current frame progress
+
+runtime
+
+latency
+
+FPS
+
+ETA
+
+These logs are useful for reproducibility and for monitoring long CPU-only edge profiling runs.
+
+4.5. Accuracy Metrics
+
+The evaluation uses multiple accuracy metrics because the task combines change detection, event-level detection, and object-level proxy analysis.
+
+4.5.1. CDnet FMeasure
+
+The primary pixel-level metric is CDnet FMeasure, computed from precision and recall:
+
+[Math object without extractable text]
+
+This metric evaluates how well the predicted foreground mask matches the ground-truth foreground regions. It is the main metric for change detection performance.
+
+4.5.2. Event F1
+
+In active camera systems, event-level reliability is also important. A camera should detect whether meaningful activity occurs in a frame or time interval. Therefore, Event F1 is used to evaluate whether the system correctly identifies event frames, regardless of exact pixel-level mask quality.
+
+This metric is useful because some pipelines may not perfectly segment every foreground pixel but may still detect the occurrence of an event reliably.
+
+4.5.3. mAP50 Proxy
+
+Since CDnet2014 is primarily a foreground segmentation benchmark and not a standard object detection dataset, the study uses an mAP50 proxy derived from predicted foreground/object regions. This proxy provides an approximate object-level comparison across pipelines. It should not be interpreted as a direct COCO-style object detection mAP, but rather as an object-region proxy for comparing the spatial quality of detections.
+
+4.6. Efficiency and Runtime Metrics
+
+In addition to accuracy, the experiments evaluate several efficiency metrics that are central to Edge AI deployment.
+
+4.6.1. Detector Activation
+
+Detector activation measures how often the pipeline activates heavy inference or a detector-like processing step:
+
+[Math object without extractable text]
+
+A lower activation rate generally indicates fewer heavy inference calls and lower expected computation cost. However, activation must be interpreted together with accuracy. A pipeline can reduce activation aggressively but may lose foreground or event detection quality.
+
+4.6.2. Reuse Rate
+
+Reuse rate measures how often a pipeline uses temporally reused predictions rather than new inference:
+
+[Math object without extractable text]
+
+This metric helps quantify the role of temporal continuity in the pipeline.
+
+4.6.3. FPS and Latency
+
+The system records average frames per second and latency statistics. The main latency metric reported is P95 latency, which represents the 95th percentile of per-frame processing latency. P95 latency is more informative than average latency for real-time systems because it captures high-latency tail behavior.
+
+The reported runtime metrics include:
+
+[Table with 6 rows]
+
+Metric | Meaning
+
+Avg FPS | Average throughput
+
+Avg latency | Average per-frame processing time
+
+P50 latency | Median latency
+
+P95 latency | 95th percentile latency
+
+P99 latency | 99th percentile latency
+
+4.6.4. CPU and RAM Usage
+
+The edge profiling system records process CPU usage, system CPU usage, process RAM usage, and system RAM usage. Since CPU usage is measured on a multi-core system, process CPU percentage may exceed 100%. This indicates that the process uses more than one logical CPU core.
+
+These measurements are important for understanding whether a method is practical for constrained edge deployment.
+
+4.7. Energy Proxy and Runtime-Aware Simulated Energy
+
+Because no external power meter is used, this study reports energy estimates as proxy values. Two energy-related metrics are recorded.
+
+The first is Energy/frame, a consistent per-frame proxy used for comparing pipelines according to detector activation and processing mode.
+
+The second is simulated runtime-aware energy, which additionally incorporates runtime behavior such as latency and CPU usage. It is defined as:
+
+[Figure/image object]
+
+where:
+
+[Table with 6 rows]
+
+Symbol | Meaning
+
+() | Whether detector inference is activated
+
+() | Normalized CPU usage
+
+() | Normalized latency
+
+() | Normalized GPU usage; zero in CPU-only experiments
+
+() | Whether prediction reuse is applied
+
+This simulated energy metric does not replace physical energy measurement. Instead, it provides a normalized estimate for comparing runtime behavior across pipelines under the same CPU-only environment.
+
+4.8. Trade-off Metrics
+
+To summarize the balance between accuracy and efficiency, the study also reports AE Score and Pareto efficiency. AE Score is used as a composite indicator that combines accuracy and efficiency-related factors. It should be interpreted together with individual metrics such as FMeasure, Event F1, activation, FPS, latency, and energy.
+
+Pareto efficiency is used to identify pipelines that are not strictly dominated by others across the considered accuracy–efficiency dimensions. A pipeline can be Pareto-efficient even if it is not the best in a single metric, provided that no other pipeline is better in all relevant dimensions.
+
+This is important because Edge AI camera deployment usually requires selecting a pipeline according to operational priorities. For example, a safety-critical application may prefer higher Event F1, while a battery-powered device may prioritize activation and energy savings.
+
+4.9. Output Artifacts and Reproducibility
+
+The experiment produces multiple output artifacts to support analysis and reproducibility. These include:
+
+final_main_comparison.csv
+
+best_by_metric.csv
+
+gain_summary.csv
+
+mode_usage_summary.csv
+
+per_video_summary.csv
+
+per_category_summary.csv
+
+edge_runtime_summary.csv
+
+official_like_results.csv
+
+auto_research_summary.md
+
+charts/*.png
+
+The framework also records raw per-video and per-pipeline results, frame-level metrics, edge profiling logs, and progress logs. The long-running experiment is managed through run_progress.csv, live_progress.json, and live_progress.md, which allow the run to be monitored and resumed safely after interruption.
+
+This logging design is especially useful for CPU-only edge experiments because full official-like evaluation can require long execution time. By storing results incrementally, the evaluation avoids losing completed work and provides transparent progress tracking across multiple days or nights of computation.
+
+4.10. Summary of Experimental Design
+
+The experimental design can be summarized as follows:
+
+[Table with 12 rows]
+
+Component | Setting
+
+Dataset | Full CDnet2014 local setup
+
+Categories | 11
+
+Videos | 53
+
+Pipelines | 6
+
+Total jobs | 318
+
+Frame protocol | frame_step=1
+
+Evaluation region | temporalROI
+
+Runtime mode | CPU-only edge simulation
+
+Hardware | Intel i7-1185G7, 32 GB RAM, Intel Iris Xe
+
+CUDA | Disabled
+
+Metrics | FMeasure, Event F1, mAP50 proxy, activation, reuse, FPS, latency, energy proxy, AE Score
+
+This setup enables a comprehensive evaluation of ASMAG-TRC as a real-time adaptive inference-control framework for Edge AI camera systems.
+
+5. Results and Analysis
+
+This section presents the final experimental results of ASMAG-TRC on the full CDnet2014 official-like evaluation under CPU-only edge simulation. The analysis is based on the final generated reports, including final_main_comparison.csv, gain_summary.csv, best_by_metric.csv, per_category_summary.csv, selected bar charts, Pareto analysis, and per-category heatmaps. The objective is to evaluate whether adaptive motion-gated inference control can provide a better accuracy–efficiency trade-off than fixed inference strategies.
+
+The evaluation compares six core pipelines: P1_YOLO_Only, P2_FrameDiff, P3_MOG2, ASMAG_TR_FAST, ASMAG_TR_CONTROLLER, and ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED. Among them, P1_YOLO_Only represents the heavy detector baseline, P2_FrameDiff represents the lightweight efficiency baseline, P3_MOG2 represents the strong classical motion baseline, ASMAG_TR_FAST represents the efficiency-oriented ASMAG mode, ASMAG_TR_CONTROLLER represents the category-aware adaptive controller, and ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED represents the deployable online adaptive variant.
+
+5.1. Overall Main Results
+
+Table 1 summarizes the full CDnet2014 official-like results. The results include accuracy metrics, event-level reliability, object-level proxy quality, detector activation, runtime behavior, energy proxy, and overall accuracy–efficiency trade-off.
+
+Table 2. Full CDnet2014 official-like main results under CPU-only edge simulation
+
+[Table with 7 rows]
+
+Pipeline | CDnet FMeasure | Event F1 | mAP50 Proxy | Activation | Avg FPS | P95 Latency ms | Energy/frame | AE Score | Pareto
+
+P1_YOLO_Only | 0.5697 | 0.6692 | 0.3085 | 1.0000 | 4.72 | 291.12 | 6.2000 | 0.3727 | False
+
+P2_FrameDiff | 0.4934 | 0.5806 | 0.2261 | 0.5987 | 73.94 | 251.10 | 4.2936 | 0.4915 | True
+
+P3_MOG2 | 0.5866 | 0.6965 | 0.3145 | 0.8088 | 43.77 | 291.33 | 5.7442 | 0.4753 | True
+
+ASMAG_TR_ FAST | 0.5363 | 0.6774 | 0.2884 | 0.6636 | 33.03 | 294.82 | 5.1449 | 0.4644 | True
+
+ASMAG_TR_ CONTROLLER | 0.5939 | 0.7114 | 0.3243 | 0.7710 | 34.22 | 285.92 | 5.6021 | 0.4769 | True
+
+ASMAG_TR_ CONTROLLER_ ONLINE_CALIBRATED | 0.5718 | 0.7053 | 0.3051 | 0.7502 | 13.33 | 328.10 | 5.5126 | 0.4416 | True
+
+The most important result is that ASMAG_TR_CONTROLLER achieves the best overall accuracy among all evaluated pipelines. It obtains the highest CDnet FMeasure, the highest Event F1, and the highest mAP50 proxy. This indicates that the category-aware adaptive controller does not simply reduce computation; it also improves the quality of inference decisions across heterogeneous video scenes.
+
+Compared with the strong P3_MOG2 baseline, ASMAG_TR_CONTROLLER improves CDnet FMeasure from 0.5866 to 0.5939, Event F1 from 0.6965 to 0.7114, and mAP50 proxy from 0.3145 to 0.3243. At the same time, it reduces activation from 0.8088 to 0.7710, energy/frame from 5.7442 to 5.6021, and P95 latency from 291.33 ms to 285.92 ms. This is a meaningful result because it shows that adaptive inference control can improve accuracy and efficiency at the same time, although the efficiency gain is moderate.
+
+P2_FrameDiff is the strongest efficiency pipeline. It achieves the lowest activation, highest FPS, lowest P95 latency, lowest energy/frame, and highest AE Score. However, its CDnet FMeasure and Event F1 are substantially lower than those of P3_MOG2 and ASMAG_TR_CONTROLLER. Therefore, P2_FrameDiff should be interpreted as a lightweight efficiency baseline rather than a reliable main detection pipeline.
+
+P1_YOLO_Only activates the detector on every evaluated frame, but it does not achieve the best accuracy. This is an important insight: more detector activation does not automatically produce better change-detection performance. In CDnet2014, object-level detector outputs and pixel-level foreground masks do not always align perfectly. As a result, running a detector on every frame can be computationally expensive without guaranteeing the best foreground or event-level result.
+
+ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED is also important. Although it does not outperform the category-aware controller, it reduces activation and energy compared with P3_MOG2 and achieves a higher Event F1 than P3_MOG2. Because it does not use category labels during inference, it is the most practical deployable variant of ASMAG-TRC in the current study.
+
+5.2. Best-by-Metric Analysis
+
+Table 2 summarizes the best-performing pipeline for each major metric.
+
+Table 3. Best pipeline by metric
+
+[Table with 10 rows]
+
+Metric | Best Pipeline | Value
+
+Best CDnet FMeasure | ASMAG_TR_CONTROLLER | 0.5939
+
+Best Event F1 | ASMAG_TR_CONTROLLER | 0.7114
+
+Best mAP50 Proxy | ASMAG_TR_CONTROLLER | 0.3243
+
+Lowest Activation | P2_FrameDiff | 0.5987
+
+Highest Avg FPS | P2_FrameDiff | 73.94
+
+Lowest P95 Latency | P2_FrameDiff | 251.10 ms
+
+Lowest Energy/frame | P2_FrameDiff | 4.2936
+
+Lowest Simulated Runtime Energy/frame | P2_FrameDiff | 5.3987
+
+Highest AE Score | P2_FrameDiff | 0.4915
+
+This table reveals a clear separation between accuracy leadership and efficiency leadership. ASMAG_TR_CONTROLLER is the best pipeline for the three main accuracy-oriented metrics: CDnet FMeasure, Event F1, and mAP50 proxy. In contrast, P2_FrameDiff is the best pipeline for efficiency-oriented metrics: activation, FPS, P95 latency, energy/frame, simulated runtime energy, and AE Score.
+
+This result has two implications. First, if the deployment priority is robust detection, especially in surveillance or safety-related scenarios, ASMAG_TR_CONTROLLER is the strongest candidate. Second, if the deployment priority is low-cost motion awareness, P2_FrameDiff may be useful, but its lower accuracy makes it unsuitable as the main proposed method.
+
+The AE Score must therefore be interpreted carefully. P2_FrameDiff obtains the highest AE Score because it is extremely efficient, but this does not mean that it is the most reliable pipeline. For Edge AI camera systems, AE Score should be read together with CDnet FMeasure and Event F1.
+
+5.3. Accuracy-Oriented Results
+
+The accuracy-oriented bar charts show that ASMAG_TR_CONTROLLER is consistently the strongest pipeline across the three main accuracy metrics. In the CDnet FMeasure chart, ASMAG_TR_CONTROLLER slightly exceeds P3_MOG2, while ONLINE_CALIBRATED and P1_YOLO_Only remain close but lower. P2_FrameDiff has the lowest FMeasure, confirming that simple frame differencing is not sufficient for robust foreground detection across the full benchmark.
+
+Figure 2. CDnet FMeasure comparison across pipelines
+
+[Figure/image object]
+
+For Event F1, the difference is also meaningful. ASMAG_TR_CONTROLLER achieves the highest Event F1, followed closely by ONLINE_CALIBRATED and P3_MOG2. This indicates that adaptive inference control is useful not only for pixel-level foreground accuracy but also for event-level reliability. Event-level reliability is particularly important for active camera systems because many real deployments are more concerned with detecting whether an event occurs than with segmenting every foreground pixel perfectly.
+
+Figure 3. Event F1 comparison across pipelines
+
+[Figure/image object]
+
+The mAP50 proxy follows the same general trend. ASMAG_TR_CONTROLLER achieves the best mAP50 proxy, followed by P3_MOG2, P1_YOLO_Only, and ONLINE_CALIBRATED. Although CDnet2014 is not a standard object detection benchmark, the mAP50 proxy provides additional evidence that the controller improves the spatial quality of detected foreground/object regions.
+
+The main insight from the accuracy analysis is:
+
+ASMAG_TR_CONTROLLER improves the quality of inference decisions by adapting processing behavior to scene conditions. It is not simply skipping frames; it is selecting more suitable processing modes for different video categories.
+
+5.4. Efficiency-Oriented Results
+
+The activation chart shows that P1_YOLO_Only has activation equal to 1.0000, as expected, because it activates the detector on all evaluated frames. P3_MOG2 has activation 0.8088, while ASMAG_TR_CONTROLLER reduces this to 0.7710 and ONLINE_CALIBRATED reduces it further to 0.7502. ASMAG_TR_FAST has lower activation at 0.6636, and P2_FrameDiff has the lowest activation at 0.5987.
+
+Figure 4. Detector activation rate across pipelines
+
+[Figure/image object]
+
+These results confirm that the ASMAG variants reduce detector or heavy inference activation compared with the strong MOG2 baseline. The reduction is largest for ASMAG_TR_FAST and ONLINE_CALIBRATED, while ASMAG_TR_CONTROLLER produces a smaller but more accuracy-preserving activation reduction.
+
+The P95 latency chart shows that P2_FrameDiff has the lowest latency, which is expected because it uses lightweight frame-difference processing. ASMAG_TR_CONTROLLER achieves a slightly lower P95 latency than P3_MOG2, while ONLINE_CALIBRATED has the highest P95 latency among the adaptive methods. This suggests that the current implementation of the online calibrated controller introduces additional overhead, likely due to rolling feature computation, controller inference, mode switching, and detailed runtime logging.
+
+The FPS result also supports this interpretation. P2_FrameDiff is the fastest pipeline, while ONLINE_CALIBRATED is slower than expected despite having lower activation. This indicates that reducing activation alone does not guarantee higher FPS if the controller itself introduces computational overhead. For practical deployment, the online controller should be optimized, for example by reducing feature computation cost, caching rolling statistics, simplifying decision logic, or implementing the controller in a more efficient runtime environment.
+
+The efficiency analysis leads to two important insights:
+
+ASMAG-TRC can reduce activation and energy compared with MOG2, especially through FAST and online calibrated modes.
+
+Online adaptivity has implementation overhead, and the current online controller should be optimized before deployment on real hardware.
+
+5.5. Gain Analysis against P3_MOG2
+
+Because P3_MOG2 is the strongest classical accuracy baseline, gain analysis against P3_MOG2 provides the clearest view of the value added by ASMAG-TRC.
+
+Table 4. Gain summary against P3_MOG2
+
+[Table with 6 rows]
+
+Comparison | FMeasure Gain | Event F1 Gain | Activation Saving | Energy Saving | Simulated Energy Saving | FPS Gain | P95 Latency Gain | AE Score Gain
+
+ASMAG_TR_CONTROLLER vs P3_MOG2 | +0.0073 | +0.0149 | +0.0378 | +0.1421 | +0.0852 | -9.55 | +5.41 | +0.0016
+
+ONLINE_CALIBRATED vs P3_MOG2 | -0.0148 | +0.0088 | +0.0586 | +0.2316 | +0.1635 | -30.44 | -36.77 | -0.0337
+
+ASMAG_TR_FAST vs P3_MOG2 | -0.0503 | -0.0191 | +0.1452 | +0.5993 | +0.4592 | -10.74 | -3.49 | -0.0108
+
+P2_FrameDiff vs P3_MOG2 | -0.0932 | -0.1159 | +0.2101 | +1.4505 | +1.3463 | +30.16 | +40.22 | +0.0163
+
+P1_YOLO_Only vs P3_MOG2 | -0.0168 | -0.0273 | -0.1912 | -0.4558 | -1.1816 | -39.05 | +0.21 | -0.1026
+
+Positive activation and energy savings indicate that the first pipeline uses less activation or energy than P3_MOG2. For P95 latency gain, a positive value means lower latency.
+
+The strongest scientific result is the comparison between ASMAG_TR_CONTROLLER and P3_MOG2. ASMAG_TR_CONTROLLER improves FMeasure by 0.0073, Event F1 by 0.0149, and AE Score by 0.0016, while also saving activation and energy. Although the activation and energy savings are modest, the important point is that they are achieved together with accuracy improvement.
+
+ONLINE_CALIBRATED provides a different trade-off. It improves Event F1 and reduces activation and energy, but its FMeasure is lower than P3_MOG2. This makes it a useful deployable adaptive variant, but not yet the strongest accuracy pipeline.
+
+ASMAG_TR_FAST offers a larger activation and energy saving than the controller, but it sacrifices FMeasure and Event F1. This confirms its role as an efficiency-oriented mode.
+
+P2_FrameDiff provides the largest activation, energy, FPS, and latency improvements, but its FMeasure and Event F1 drop substantially. Therefore, it is not a robust main solution despite its strong efficiency.
+
+P1_YOLO_Only performs worse than P3_MOG2 in FMeasure, Event F1, activation, energy, FPS, and AE Score. This confirms that always-on heavy inference is not optimal for this benchmark.
+
+5.6. Pareto Analysis
+
+The Pareto plot of CDnet FMeasure versus energy/frame provides a visual summary of the accuracy–energy trade-off. In this plot, a desirable pipeline is located toward the upper-left region, where FMeasure is high and energy/frame is low.
+
+Figure 5. Accuracy–energy Pareto trade-off
+
+[Figure/image object]
+
+P2_FrameDiff appears in the low-energy but low-accuracy region. It is useful as an efficiency reference but does not provide sufficient accuracy. P1_YOLO_Only appears in a high-energy region without achieving the best FMeasure, which explains why it is not Pareto-efficient.
+
+P3_MOG2 is located in the high-accuracy region but with higher energy than the ASMAG controller. ASMAG_TR_CONTROLLER occupies the most attractive accuracy-oriented position because it achieves the highest FMeasure while using slightly less energy than P3_MOG2. This indicates that category-aware adaptive mode selection shifts the trade-off boundary in a favorable direction.
+
+ONLINE_CALIBRATED is positioned between ASMAG_TR_CONTROLLER and ASMAG_TR_FAST. It consumes less energy than P3_MOG2 and P1_YOLO_Only, but its FMeasure remains lower than ASMAG_TR_CONTROLLER. This confirms its role as a practical deployable adaptive variant rather than the upper-bound result.
+
+The key insight from the Pareto plot is:
+
+ASMAG-TRC provides a family of operating points. ASMAG_TR_CONTROLLER is the best accuracy-oriented trade-off, ASMAG_TR_FAST is the efficiency-oriented ASMAG mode, and ONLINE_CALIBRATED is the deployable online compromise.
+
+5.7. Category-Wise FMeasure Analysis
+
+The per-category FMeasure heatmap provides deeper insight into why adaptive inference is useful. CDnet2014 contains highly diverse scene categories, and no fixed pipeline performs best in every category.
+
+Figure 6. Per-category CDnet FMeasure heatmap
+
+[Figure/image object]
+
+From the category-wise summary, ASMAG_TR_CONTROLLER achieves the best or tied-best FMeasure in several important categories, including:
+
+dynamicBackground,
+
+intermittentObjectMotion,
+
+lowFramerate,
+
+shadow,
+
+thermal,
+
+turbulence.
+
+This pattern is important because these categories are precisely where fixed inference strategies can struggle. For example, dynamic backgrounds and turbulence can cause false motion responses, while intermittent object motion can confuse simple temporal assumptions. The controller is able to adapt its behavior and preserve stronger foreground performance.
+
+P3_MOG2 remains highly competitive in several categories and is best or tied-best in cameraJitter and nightVideos. This confirms that MOG2 remains a strong classical baseline. However, the controller matches or improves upon it in many categories, which explains the overall FMeasure advantage of ASMAG_TR_CONTROLLER.
+
+P1_YOLO_Only performs strongly in some categories such as PTZ, badWeather, and baseline, but it is not consistently strong across all categories and has full activation. This again shows that always-on detector inference is not an efficient universal strategy.
+
+P2_FrameDiff is weaker in most FMeasure categories, especially in more complex scenes, although it is efficient. This confirms that simple frame differencing lacks sufficient robustness for heterogeneous surveillance conditions.
+
+The main category-wise insight is:
+
+Scene variability is the core reason why adaptive control is beneficial. The controller improves overall performance because it can better handle categories that require different inference behavior.
+
+5.8. Category-Wise Activation Analysis
+
+The activation heatmap shows how often each pipeline activates heavy or stronger processing in each category. P1_YOLO_Only is uniformly at 1.0, confirming that it performs full activation in all categories.
+
+P2_FrameDiff generally has the lowest activation, especially in categories such as thermal, shadow, badWeather, intermittentObjectMotion, and nightVideos. This explains its efficiency advantage. However, the FMeasure heatmap shows that this low activation often comes at the cost of accuracy.
+
+ASMAG_TR_FAST also reduces activation relative to P3_MOG2 and the controller in several categories. This is expected because FAST mode is designed to be more aggressive in gating and reuse. It is especially useful when the application prioritizes energy savings over maximum accuracy.
+
+ASMAG_TR_CONTROLLER shows category-dependent activation behavior. It activates more in difficult categories where stronger processing is needed and reduces activation where the scene allows more efficient processing. This behavior supports the design principle of ASMAG-TRC: the system should not use the same activation policy in all scene types.
+
+ONLINE_CALIBRATED has lower activation than P3_MOG2 overall. This is important because it achieves this without using category labels during inference. The heatmap suggests that the online controller can approximate some aspects of the category-aware policy, although it does not yet match the controller’s accuracy.
+
+5.9. Category-Wise Latency Analysis
+
+The per-category P95 latency heatmap provides another perspective on real-time edge behavior. P2_FrameDiff generally has the lowest P95 latency in many categories, which is consistent with its lightweight design. However, low latency alone does not guarantee usable detection quality.
+
+ASMAG_TR_CONTROLLER shows competitive latency across many categories and has lower overall P95 latency than P3_MOG2 in the final main results. This is a useful outcome because the controller improves accuracy while slightly reducing tail latency compared with the strong baseline.
+
+ONLINE_CALIBRATED shows higher latency in several categories. This confirms that the deployable online controller currently has additional runtime overhead. The cause is likely not detector activation alone, since its activation is lower than P3_MOG2. Instead, the overhead may come from rolling feature computation, online mode decision logic, mode switching, and detailed logging.
+
+This suggests an important future optimization direction:
+
+The online controller should be optimized as a lightweight runtime module, possibly by caching rolling statistics, simplifying feature computation, or using a more efficient implementation.
+
+5.10. Analysis of the Online Calibrated Controller
+
+ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED is one of the most important pipelines from a practical deployment perspective. Unlike ASMAG_TR_CONTROLLER, it does not use category labels during inference. Instead, it selects modes based on rolling scene features.
+
+The final results show that ONLINE_CALIBRATED achieves:
+
+CDnet FMeasure: 0.5718,
+
+Event F1: 0.7053,
+
+Activation: 0.7502,
+
+Energy/frame: 5.5126,
+
+P95 latency: 328.10 ms.
+
+Compared with P3_MOG2, it reduces activation and energy while improving Event F1. This means that the online controller is relatively effective at preserving event-level detection while reducing heavy inference frequency. However, its FMeasure remains lower than P3_MOG2, and its runtime performance is weaker.
+
+Therefore, ONLINE_CALIBRATED should be positioned as:
+
+A deployable adaptive variant that demonstrates the feasibility of label-free online inference control, but still requires optimization to match the category-aware controller.
+
+5.11. Key Insights
+
+The final results provide several important insights.
+
+First, adaptive control can improve accuracy and efficiency simultaneously. ASMAG_TR_CONTROLLER improves CDnet FMeasure, Event F1, and mAP50 proxy compared with P3_MOG2, while also reducing activation, energy/frame, and P95 latency.
+
+Second, always-on detector inference is not optimal. P1_YOLO_Only has full activation but does not achieve the best accuracy and is not Pareto-efficient. This supports the motivation for active inference control.
+
+Third, lightweight motion triggering alone is insufficient. P2_FrameDiff is the fastest and most energy-efficient pipeline, but its accuracy is substantially lower. It is useful as an efficiency baseline, not as a robust final solution.
+
+Fourth, scene variability matters. The per-category heatmaps show that different categories require different inference behavior. This supports the need for category-aware or online adaptive control instead of a fixed pipeline.
+
+Fifth, online adaptive control is feasible but not yet optimal. ONLINE_CALIBRATED reduces activation and energy without using category labels, but it has lower FMeasure and higher latency than the category-aware controller. This motivates future work on confidence-aware reuse, tracking-assisted reuse, and more efficient online controller implementation.
+
+5.12. Summary
+
+The full CDnet2014 official-like evaluation demonstrates that ASMAG-TRC is effective as an adaptive inference-control framework for real-time Edge AI camera systems. The category-aware ASMAG_TR_CONTROLLER achieves the best overall accuracy and improves upon the strong MOG2 baseline while reducing activation and energy. P2_FrameDiff establishes the efficiency limit but sacrifices accuracy. ASMAG_TR_FAST provides an efficiency-oriented ASMAG operating mode. ONLINE_CALIBRATED provides a practical online variant that does not require category labels during inference.
+
+Overall, the results support the central claim of this paper:
+
+ASMAG-TRC complements detector acceleration by reducing unnecessary detector activation and selecting scene-appropriate inference behavior, thereby improving the accuracy–efficiency trade-off for active Edge AI camera systems.
+
+6. Discussion and Ablation Analysis
+
+This section discusses the meaning of the experimental results, the role of each ASMAG-TRC component, the behavior of the online calibrated controller, and the technical limitations observed in the current implementation. The goal is to clarify what the results demonstrate, what they do not yet prove, and how the proposed framework should be positioned for real-time Edge AI camera systems.
+
+6.1. Interpretation of the Main Findings
+
+The full CDnet2014 official-like evaluation shows that adaptive inference control can be more effective than fixed inference strategies. The most important finding is that ASMAG_TR_CONTROLLER achieves the best CDnet FMeasure, Event F1, and mAP50 proxy while also reducing activation and estimated energy compared with P3_MOG2. This result supports the central hypothesis of the paper: scene-aware motion-gated inference control can improve the accuracy–efficiency trade-off in real-time Edge AI camera systems.
+
+The improvement over P3_MOG2 is not extremely large in absolute value, but it is meaningful because it occurs across multiple dimensions simultaneously. ASMAG_TR_CONTROLLER improves FMeasure and Event F1 while also reducing activation, energy/frame, simulated runtime energy, and P95 latency. In edge AI deployment, such multi-objective improvements are important. A method that only improves accuracy but greatly increases runtime may not be practical, while a method that only reduces computation but loses too much accuracy may not be reliable. The controller-based ASMAG-TRC approach occupies a more balanced region.
+
+Another important finding is that P1_YOLO_Only is not Pareto-efficient. This means that running the detector on every evaluated frame is not the best strategy for this benchmark. Although always-on inference may appear intuitive, the results show that dense detector activation does not guarantee the highest foreground or event-level performance. This is likely because CDnet2014 is primarily a change detection benchmark, where foreground segmentation quality and event detection are not always improved by object-level detector activation alone. Therefore, active inference control is not merely a cost-saving technique; it can also improve decision quality by selecting more suitable processing behavior.
+
+The results also confirm that lightweight processing alone is insufficient. P2_FrameDiff achieves the best FPS, activation, latency, energy/frame, and AE Score, but its FMeasure and Event F1 are significantly lower. This shows that simple frame differencing is useful as an efficiency baseline, but not robust enough to serve as the main pipeline for diverse surveillance environments. The role of ASMAG-TRC is to bridge this gap: it exploits lightweight motion cues while retaining stronger fallback or detector-based processing when necessary.
+
+6.2. Ablation Perspective: From Fixed Pipelines to Adaptive Control
+
+The evaluated pipelines can be interpreted as an ablation sequence. P1_YOLO_Only represents the simplest heavy-inference strategy: always run the detector. P2_FrameDiff represents the opposite extreme: use a very lightweight motion trigger. P3_MOG2 represents a stronger classical motion baseline. ASMAG_TR_FAST introduces aggressive gating and temporal reuse. ASMAG_TR_CONTROLLER adds category-aware adaptive mode selection. ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED replaces explicit category labels with online scene features.
+
+This sequence reveals how each design choice affects performance.
+
+First, comparing P1_YOLO_Only with P3_MOG2 and ASMAG_TR_CONTROLLER shows that full detector activation is not necessarily optimal. Despite its activation rate of 1.0, P1_YOLO_Only does not achieve the best FMeasure or Event F1. This supports the need for inference control rather than uniform detector execution.
+
+Second, comparing P2_FrameDiff with P3_MOG2 shows that lightweight motion cues are extremely efficient but not sufficiently reliable. P2_FrameDiff reduces energy and latency significantly, but the accuracy drop is too large. Therefore, simple motion triggering must be combined with stronger correction, fallback, or controller logic.
+
+Third, comparing ASMAG_TR_FAST with P3_MOG2 shows the effect of aggressive gating and temporal reuse. ASMAG_TR_FAST reduces activation and energy but sacrifices FMeasure. This confirms that temporal reuse and gating can save computation, but if used too aggressively, they may lose foreground accuracy in difficult categories.
+
+Fourth, comparing ASMAG_TR_CONTROLLER with ASMAG_TR_FAST shows the benefit of adaptive mode selection. The controller improves FMeasure and Event F1 relative to FAST while still maintaining lower activation than P3_MOG2. This suggests that the controller successfully avoids over-pruning in difficult scenes while still taking advantage of efficient processing in easier scenes.
+
+Finally, comparing ONLINE_CALIBRATED with ASMAG_TR_CONTROLLER reveals the gap between an upper-bound category-aware policy and a deployable online policy. The online controller reduces activation and energy without using category labels, but it does not yet match the category-aware controller in FMeasure or runtime efficiency. This gap defines the main future optimization direction.
+
+6.3. Role of the Category-Aware Controller
+
+The category-aware controller is the strongest result in the current study. It achieves the best overall accuracy and improves over P3_MOG2 while reducing activation and energy. However, it is important to interpret this result correctly.
+
+The category-aware controller uses scene category information. In CDnet2014, categories such as baseline, dynamicBackground, cameraJitter, thermal, and turbulence are known. This allows the controller to select more suitable processing behavior for each group of videos. For example, stable scenes can tolerate more aggressive gating, while difficult scenes require more conservative fallback. This makes the category-aware controller an upper-bound policy for scene-aware inference control.
+
+In practical deployment, a real camera stream will not always arrive with a known category label. Therefore, the category-aware controller should not be presented as the final fully deployable controller. Instead, it serves two important purposes. First, it demonstrates the potential of scene-aware adaptive inference. Second, it provides a reference policy that can be approximated by an online controller.
+
+This distinction strengthens the scientific interpretation of the study. The category-aware controller answers the question:
+
+How much can scene-aware adaptive inference improve the accuracy–efficiency trade-off if high-level scene context is available?
+
+The online calibrated controller answers a different question:
+
+Can a deployable controller approximate this behavior using only features observed during inference?
+
+Together, these two controllers provide both an upper-bound result and a practical deployment direction.
+
+6.4. Behavior and Significance of the Online Calibrated Controller
+
+The online calibrated controller is one of the most important components from a deployment perspective. Unlike the category-aware controller, it does not use category labels during inference. Instead, it uses rolling scene features, such as motion density, component count, disagreement between motion estimators, illumination variation, gate behavior, and reuse statistics.
+
+The results show that ONLINE_CALIBRATED reduces activation and energy compared with P3_MOG2, while achieving higher Event F1. This indicates that the online controller is capable of identifying event-relevant frames and reducing unnecessary heavy processing. This is valuable for active Edge AI camera systems, where event-level responsiveness may be more important than perfect pixel-level foreground segmentation.
+
+However, the online controller has two weaknesses in the current implementation. First, its CDnet FMeasure remains below P3_MOG2 and ASMAG_TR_CONTROLLER. This suggests that the controller still sometimes chooses an efficient mode when a stronger fallback would be more appropriate, or it reuses predictions in scenes where foreground changes are too complex. Second, its FPS is lower and P95 latency is higher than expected. Since its activation is lower than P3_MOG2, this runtime behavior is likely due to implementation overhead rather than heavy detector calls alone.
+
+The overhead may come from several sources:
+
+[Table with 6 rows]
+
+Source of overhead | Explanation
+
+Rolling feature computation | Motion statistics are recomputed or updated for each evaluated frame
+
+Controller decision logic | Mode selection adds per-frame processing
+
+Feature logging | Detailed frame-level logs increase I/O and CPU cost
+
+Mode switching | Managing multiple modes introduces control overhead
+
+Non-optimized Python implementation | Experimental code prioritizes transparency over speed
+
+Therefore, ONLINE_CALIBRATED should be presented as a deployable adaptive variant, not yet as the final optimized runtime implementation. Its current value is that it proves label-free online adaptive control is feasible. Its next development step is runtime optimization and stronger confidence-aware fallback.
+
+6.5. Technical Limitations of the Current Implementation
+
+Although the final results are promising, several technical limitations must be acknowledged.
+
+First, the energy results are proxy estimates rather than direct physical power measurements. The experiments report Energy/frame and simulated runtime-aware energy under a consistent CPU-only setting. These metrics are useful for comparing pipelines under the same experimental environment, but they are not equivalent to measured Joules or Watts from an external power meter. Future work should evaluate ASMAG-TRC on real edge devices such as NVIDIA Jetson, Intel OpenVINO-based mini-PCs, Coral Edge TPU, Hailo, or similar platforms with direct power measurement.
+
+Second, the experiments are conducted under CPU-only edge simulation. This setting is valuable because it reflects constrained devices without CUDA acceleration. However, it does not fully represent hardware-specific acceleration platforms. On a Jetson or Hailo device, detector inference may become much faster, while controller overhead may become relatively more visible. Therefore, the balance between detector activation savings and controller overhead may change on real hardware.
+
+Third, the mAP50 metric is used as a proxy rather than a standard object detection benchmark metric. CDnet2014 provides foreground segmentation annotations, not COCO-style object detection labels. Therefore, mAP50 proxy should be interpreted as an object-region quality indicator, not as a direct replacement for standard object detection mAP.
+
+Fourth, the category-aware controller depends on category labels and should be treated as an upper-bound policy. While it achieves the best accuracy, it is not directly deployable unless a scene classifier or metadata source is available. The online calibrated controller is more deployable, but it still has a performance gap relative to the category-aware controller.
+
+Fifth, temporal reuse may introduce stale predictions. If the scene changes quickly or if objects move unpredictably, reused masks or predictions may become inaccurate. This is particularly relevant in categories such as dynamic background, camera jitter, turbulence, and intermittent object motion. The current reuse logic reduces activation but does not yet include full confidence-aware reuse or tracking-assisted correction.
+
+Sixth, the online controller currently has runtime overhead. Although it reduces activation, its FPS is lower than expected. This means that optimization is necessary before claiming production-level real-time deployment. A future implementation should reduce feature computation cost, minimize I/O logging during deployment, and move controller logic into a lightweight compiled or vectorized module.
+
+6.6. Implications for Active Edge AI Cameras
+
+The results suggest that ASMAG-TRC should be viewed as a complementary layer to detector acceleration. Many Edge AI platforms focus on making inference faster through optimized models, quantization, hardware accelerators, or deployment toolchains. These approaches reduce the cost of each inference call. ASMAG-TRC addresses a different but complementary problem: reducing the number of unnecessary inference calls.
+
+This distinction is important for active camera systems. An active Edge AI camera should not simply process every frame with the same level of computation. Instead, it should adapt computation to scene activity. Stable frames can be handled with reuse or lightweight motion cues. Difficult frames can trigger stronger inference or fallback. This behavior is closer to event-driven visual processing, even though it is implemented on conventional frame-based video.
+
+The final results show that this direction is promising. ASMAG_TR_CONTROLLER demonstrates that adaptive mode selection can improve accuracy and reduce resource usage compared with a strong motion baseline. ONLINE_CALIBRATED shows that a deployable approximation is possible without category labels. Together, these results support the broader claim that active inference control is an important design dimension for future Edge AI cameras.
+
+6.7. Future Ablation Directions
+
+Several additional ablation studies should be conducted in future work to strengthen the framework.
+
+First, confidence-aware temporal reuse should be added. Instead of reusing predictions based mainly on age and gate status, the system should compute a reuse confidence score based on detector confidence, motion overlap, mask stability, and temporal consistency. This would reduce false reuse in difficult scenes.
+
+Second, tracking-assisted reuse should be evaluated. When the detector is skipped, object masks or boxes should not remain static. Lightweight tracking, optical flow, Kalman filtering, or IoU-based track propagation can help update reused predictions across frames.
+
+Third, online controller features should be ablated. The current controller uses multiple rolling features. Future analysis should identify which features contribute most to mode selection and which can be removed to reduce overhead.
+
+Fourth, the system should be evaluated on additional datasets beyond CDnet2014. Cross-dataset evaluation would help determine whether the learned or calibrated online behavior generalizes to other camera environments.
+
+Fifth, real hardware profiling should be performed. CPU-only simulation is useful, but deployment claims will be stronger if ASMAG-TRC is evaluated on actual edge hardware with real power measurement.
+
+6.8. Summary of Discussion
+
+The discussion leads to four main conclusions.
+
+First, the category-aware ASMAG-TRC controller demonstrates that scene-aware adaptive inference can improve accuracy and efficiency simultaneously. Second, the online calibrated controller shows that label-free deployable adaptive control is feasible, although it still requires optimization. Third, lightweight motion processing and always-on detector inference represent two extremes, neither of which is optimal across the full CDnet2014 benchmark. Fourth, the most promising direction is to develop ASMAG-TRC as a detector-agnostic active inference controller that can operate above different edge detectors and hardware platforms.
+
+Overall, the current results provide strong evidence that adaptive motion-gated inference control is a viable approach for real-time Edge AI camera systems, while also identifying clear technical improvements needed for future deployment.
+
+7. Limitations and Future Work
+
+Although the experimental results demonstrate the potential of ASMAG-TRC for adaptive inference control in real-time Edge AI camera systems, several limitations must be acknowledged.
+
+First, the strongest result in this study is obtained by ASMAG_TR_CONTROLLER, which is a category-aware controller. This controller uses scene category information from CDnet2014 to select an appropriate operating mode. Therefore, it should be interpreted as an upper-bound scene-aware policy, not as a fully deployable controller for real-world camera streams where category labels are usually unavailable. The ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED pipeline addresses this issue by using rolling scene features instead of category labels, but its FMeasure and runtime efficiency still remain below the category-aware controller. Future work should focus on improving the online controller so that it can more closely approximate the upper-bound policy without relying on predefined category labels.
+
+Second, the current energy evaluation is based on energy proxy and simulated runtime-aware energy, not direct physical power measurement. These metrics are useful for comparing pipelines under the same CPU-only experimental environment, but they cannot replace real measurements in Watts or Joules per frame. To strengthen deployment claims, future experiments should use real edge devices such as NVIDIA Jetson, Intel OpenVINO-based mini-PCs, Coral Edge TPU, Hailo, or other AI camera platforms, together with external power measurement tools.
+
+Third, the experiments are conducted under a CPU-only edge simulation using a PC-based environment. This setting is useful because it represents constrained edge deployment without CUDA acceleration, but it is not equivalent to testing on real embedded AI hardware. On hardware accelerators, the relative cost of detector inference, motion gating, and online controller logic may change. Therefore, the current runtime and latency results should be interpreted as CPU-oriented evidence rather than universal hardware performance.
+
+Fourth, the object-level mAP50 value used in this study is a proxy metric derived from foreground regions, because CDnet2014 is primarily a change detection dataset and does not provide standard COCO-style object detection annotations. Therefore, the mAP50 proxy should be interpreted as an additional spatial-quality indicator, not as a direct replacement for standard object detection mAP.
+
+Fifth, temporal reuse in the current implementation is still relatively simple. Reusing previous predictions can reduce detector activation, but it may also introduce stale masks or missed changes in difficult scenes such as dynamic background, camera jitter, turbulence, or intermittent object motion. Future versions should include confidence-aware reuse, where reuse decisions are based on detector confidence, motion overlap, mask stability, and reuse age. In addition, tracking-assisted reuse using lightweight object tracking, optical flow, or Kalman-based prediction could help propagate masks or boxes more accurately when detector inference is skipped.
+
+Finally, this study is evaluated mainly on CDnet2014. Although CDnet2014 is a strong and diverse benchmark for change detection, additional datasets are needed to test generalization. Future work should evaluate ASMAG-TRC on other video surveillance, traffic, industrial monitoring, or edge-camera datasets. Cross-dataset evaluation would provide stronger evidence that the proposed framework is not overfitted to CDnet2014 scene characteristics.
+
+In summary, ASMAG-TRC currently provides strong evidence for adaptive motion-gated inference control, but several steps are needed before production deployment: optimizing the online controller, validating on real edge hardware, measuring physical energy consumption, improving reuse reliability, and testing on additional datasets. These directions will help transform ASMAG-TRC from an experimentally validated framework into a deployable active inference controller for practical Edge AI camera systems.
+
+8. Conclusion
+
+This paper proposed ASMAG-TRC, an adaptive motion-gated inference control framework for real-time Edge AI camera systems. Instead of executing heavy detector inference on every evaluated frame, ASMAG-TRC combines motion analysis, temporal reuse, and controller-based mode selection to determine when full inference is necessary and when lightweight motion cues or reused predictions are sufficient. The framework is designed to complement detector acceleration by reducing unnecessary detector activation in continuous video streams.
+
+The full CDnet2014 official-like evaluation under CPU-only edge simulation demonstrates that adaptive inference control can improve the accuracy–efficiency trade-off. Among the evaluated pipelines, ASMAG_TR_CONTROLLER achieves the best CDnet FMeasure, Event F1, and mAP50 proxy, while also reducing activation, estimated energy per frame, and P95 latency compared with the strong P3_MOG2 baseline. This result confirms that scene-aware adaptive mode selection can improve not only efficiency but also detection reliability.
+
+The study also shows that always-on detector inference is not necessarily optimal. P1_YOLO_Only activates the detector on every evaluated frame but does not achieve the best accuracy or Pareto efficiency. Meanwhile, P2_FrameDiff is the fastest and most energy-efficient pipeline, but its accuracy is substantially lower. These findings confirm that real-time Edge AI cameras require a balanced inference-control strategy rather than relying solely on either heavy detection or lightweight motion triggering.
+
+In addition, the online calibrated controller provides a practical deployable direction because it reduces activation and energy without using category labels during inference. Although it still trails the category-aware controller in FMeasure and runtime efficiency, it demonstrates that label-free online adaptive inference control is feasible.
+
+Overall, the results support the central claim that active motion-gated inference control is a promising direction for Edge AI camera systems. Future work will focus on optimizing the online controller, adding confidence-aware and tracking-assisted reuse, validating the framework on real edge hardware, measuring physical power consumption, and extending evaluation to additional datasets and detector architectures.
+
+Reference
+
+Appendix
+
+Appendix Overview
+
+This appendix provides supplementary evidence for the full CDnet2014 official-like evaluation of ASMAG-TRC. While the main manuscript reports the key methodology, main results, gain analysis, and representative figures, the appendix provides additional category-wise, video-wise, runtime, configuration, and reproducibility details.
+
+The full experiment contains 53 videos, 11 CDnet2014 categories, 6 evaluated pipelines, and 318 video–pipeline jobs under the frame_step=1 official-like protocol and CPU-only edge simulation setting. The experiment generates multiple output artifacts, including final comparison tables, gain summaries, category-wise summaries, video-wise summaries, runtime profiling tables, charts, and progress logs. These artifacts support the transparency and reproducibility of the reported results.
+
+The appendix is organized as follows. Appendix A summarizes the supplementary files and their roles. Appendix B provides category-wise analysis. Appendix C provides per-video analysis. Appendix D reports extended runtime and edge profiling evidence. Appendix E describes configuration and reproducibility details. Appendix F provides additional charts and figure captions.
+
+Appendix A. Supplementary Data Files and Their Roles
+
+The full experiment produces several CSV, Markdown, and chart files. The complete CSV files should be submitted as supplementary electronic files rather than inserted fully into the main manuscript. This is because files such as per_video_summary.csv and per_category_summary.csv contain detailed results that are too large for the main paper but are important for transparency and reproducibility.
+
+Appendix Table A1. Supplementary files generated by the ASMAG-TRC full evaluation
+
+[Table with 13 rows]
+
+File name | File type | Main content | Recommended use in paper
+
+final_main_comparison.csv | CSV | Overall comparison of the six evaluated pipelines | Used to create the main results table in the manuscript
+
+best_by_metric.csv | CSV | Best-performing pipeline for each major metric | Used for the best-by-metric table
+
+gain_summary.csv | CSV | Gain/loss of each pipeline compared with P3_MOG2 | Used for gain analysis against the main baseline
+
+per_category_summary.csv | CSV | Category-wise results for each pipeline and CDnet2014 category | Appendix/Supplementary Table B1
+
+per_video_summary.csv | CSV | Video-level results for all 53 videos and six pipelines | Appendix/Supplementary Table C1
+
+edge_runtime_summary.csv | CSV | CPU-only edge profiling, latency, FPS, CPU/RAM, and energy proxy | Appendix/Supplementary Table D1
+
+official_like_results.csv | CSV | Detailed official-like frame_step=1 result summary | Supplementary data
+
+mode_usage_summary.csv | CSV | Mode usage statistics for adaptive ASMAG variants | Appendix/Supplementary Table E1
+
+auto_research_summary.md | Markdown | Automatically generated research summary | Supplementary note
+
+charts/*.png | PNG | Main and supplementary charts | Used in main manuscript and appendix figures
+
+run_progress.csv | CSV | Checkpoint and job progress tracking | Reproducibility material only
+
+live_progress.json / live_progress.md | JSON/ Markdown | Live run monitoring information | Reproducibility material only
+
+Appendix B. Category-Wise Analysis
+
+B.1. Purpose of Category-Wise Analysis
+
+CDnet2014 contains visually diverse scene categories, including baseline scenes, dynamic background, camera jitter, intermittent object motion, low frame rate, night videos, PTZ camera motion, shadow, thermal scenes, bad weather, and turbulence. These categories differ substantially in motion pattern, illumination, foreground complexity, and background stability. Therefore, a fixed inference pipeline is unlikely to perform optimally across all categories.
+
+The category-wise analysis is included to answer four questions:
+
+Does the proposed controller perform consistently across different CDnet2014 categories?
+
+Which categories benefit most from adaptive inference control?
+
+Which categories remain difficult for the online calibrated controller?
+
+How do FMeasure, activation, and latency vary across scene types?
+
+The complete category-wise numerical results are provided in per_category_summary.csv. The appendix reports this file as Supplementary Table B1, while selected heatmaps are included as supplementary figures.
+
+Supplementary Table B1. Full Per-Category Summary Across All Pipelines
+
+Source file: per_category_summary.csv
+
+This supplementary table contains category-level results for all six pipelines across the 11 CDnet2014 categories. The table is too large for the main manuscript and should be attached as a separate supplementary CSV file.
+
+Recommended columns in Supplementary Table B1
+
+[Table with 13 rows]
+
+Column | Meaning
+
+Category | CDnet2014 category name
+
+Pipeline | Evaluated pipeline
+
+CDnet_FMeasure | Pixel-level foreground segmentation FMeasure
+
+Event_F1 | Event-level detection reliability
+
+mAP_50 | Object-region proxy quality
+
+Activation | Detector or heavy-inference activation rate
+
+Reuse_rate | Ratio of frames using reused predictions
+
+Avg_FPS | Average processing throughput
+
+P95_latency_ms | 95th percentile latency
+
+Energy/frame | Estimated energy proxy per frame
+
+Simulated_runtime_energy/frame | Runtime-aware simulated energy proxy
+
+AE_Score | Accuracy–efficiency composite score
+
+Supplementary Table B1 provides the complete per-category summary for all evaluated pipelines. This table supports the category-wise interpretation of the main results and shows that pipeline performance varies substantially across CDnet2014 scene types. The category-wise results support the use of adaptive inference control because different categories require different trade-offs between foreground accuracy, event reliability, detector activation, and runtime cost.
+
+Figure B1. Per-Category CDnet FMeasure Heatmap
+
+Source file: per_category_fmeasure_heatmap.png
+Recommended placement: Main paper as Figure 6, or Appendix Figure B1 if the main paper has limited space.
+
+Caption:
+
+Figure B1. Per-category CDnet FMeasure heatmap. The heatmap reports CDnet FMeasure for each pipeline across the 11 CDnet2014 categories. The results show that no single fixed pipeline dominates all categories. ASMAG_TR_CONTROLLER provides strong category-wise balance and achieves the best overall FMeasure, supporting the need for adaptive scene-aware inference control.
+
+Explanation:
+
+The FMeasure heatmap shows that scene variability strongly affects pipeline performance. Categories such as dynamic background, intermittent object motion, low frame rate, shadow, thermal, and turbulence require different inference behaviors. The category-aware ASMAG_TR_CONTROLLER performs strongly across several difficult categories because it can select a more suitable operating mode according to scene type. In contrast, P2_FrameDiff is generally weaker in FMeasure despite its low activation and high efficiency. This confirms that lightweight motion triggering alone is not sufficient for robust foreground detection.
+
+P3_MOG2 remains a strong classical baseline in several categories. However, it does not dominate the full category set. The superior overall FMeasure of ASMAG_TR_CONTROLLER indicates that adaptive scene-aware mode selection improves the aggregate accuracy–efficiency balance.
+
+Figure B2. Per-Category Activation Heatmap
+
+Source file: per_category_activation_heatmap.png
+Recommended placement: Appendix.
+
+Caption:
+
+Figure B2. Per-category activation heatmap. The heatmap shows detector or heavy-inference activation rates across categories and pipelines. P1_YOLO_Only activates inference on all frames, while P2_FrameDiff and ASMAG variants reduce activation to different degrees. The results show that selective activation is more informative than uniform detector execution.
+
+Explanation:
+
+The activation heatmap confirms that P1_YOLO_Only has full activation across all categories. This is expected because it applies detector inference to every evaluated frame. However, the main results show that full activation does not produce the best FMeasure or Event F1. This supports the central motivation of ASMAG-TRC: detector inference should be activated selectively rather than uniformly.
+
+P2_FrameDiff generally has the lowest activation, which explains its strong efficiency. However, its low FMeasure and Event F1 indicate that reducing activation too aggressively can harm reliability. ASMAG_TR_FAST also reduces activation substantially but sacrifices some accuracy. ASMAG_TR_CONTROLLER uses more selective category-dependent activation and therefore achieves a stronger balance between accuracy and efficiency. ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED reduces activation without using category labels, making it a promising deployable variant.
+
+Figure B3. Per-Category P95 Latency Heatmap
+
+Source file: per_category_latency_heatmap.png
+Recommended placement: Appendix.
+
+Caption:
+
+Figure B3. Per-category P95 latency heatmap. The heatmap reports tail latency behavior across CDnet2014 categories. P2_FrameDiff generally provides the lowest latency, while ASMAG_TR_CONTROLLER remains competitive with P3_MOG2. The online calibrated controller shows higher latency in several categories, indicating runtime overhead from online feature extraction and mode selection.
+
+Explanation:
+
+The per-category latency heatmap provides additional evidence for edge deployment analysis. P2_FrameDiff is generally the fastest method because of its lightweight processing. However, its accuracy is insufficient for robust deployment. ASMAG_TR_CONTROLLER remains competitive with P3_MOG2 in P95 latency while achieving higher FMeasure and Event F1. This suggests that the category-aware controller improves the accuracy–efficiency trade-off without introducing excessive tail latency.
+
+The online calibrated controller shows higher latency in some categories. This is an important technical limitation. Since its activation is lower than P3_MOG2, the latency overhead is likely caused by rolling feature computation, online mode decision logic, mode switching, and detailed logging. Future implementations should optimize these components.
+
+Appendix C. Per-Video Analysis
+
+C.1. Purpose of Per-Video Analysis
+
+The main manuscript reports aggregated results across all videos and categories. However, aggregate metrics can hide video-specific behavior. Some videos may be easy for all pipelines, while others may expose failure cases such as dynamic background noise, camera jitter, low-light instability, or temporal reuse drift.
+
+The per-video analysis is included to support reproducibility and to help identify success and failure cases for future development.
+
+Supplementary Table C1. Full Per-Video Summary Across All Videos and Pipelines
+
+Source file: per_video_summary.csv
+
+This file contains the complete video-level results for all 53 CDnet2014 videos and six evaluated pipelines. It should be submitted as a supplementary CSV file rather than inserted fully into the manuscript.
+
+Recommended columns in Supplementary Table C1
+
+[Table with 14 rows]
+
+Column | Meaning
+
+Category | CDnet2014 category
+
+Video | Video name
+
+Pipeline | Evaluated pipeline
+
+CDnet_FMeasure | Video-level foreground FMeasure
+
+Event_F1 | Video-level event detection reliability
+
+mAP_50 | Video-level object-region proxy
+
+Activation | Video-level activation rate
+
+Reuse_rate | Video-level reuse rate
+
+Avg_FPS | Video-level average FPS
+
+P95_latency_ms | Video-level P95 latency
+
+Energy/frame | Video-level energy proxy
+
+Simulated_runtime_energy/frame | Runtime-aware energy proxy
+
+AE_Score | Video-level accuracy–efficiency score
+
+Supplementary Table C1 reports the full video-level results for all 53 CDnet2014 videos and all six evaluated pipelines. This table is provided as supplementary material because it is too large for the main manuscript. It allows reviewers to inspect whether the aggregate results are consistent across videos and to identify specific videos where each pipeline succeeds or fails.
+
+C.2. Suggested Per-Video Summary Table for the Appendix
+
+Instead of inserting the full per_video_summary.csv, the report may include a compact summary table describing how the file should be interpreted.
+
+Appendix Table C2. Guide for interpreting the per-video supplementary file
+
+[Table with 6 rows]
+
+Analysis goal | Use columns from per_video_summary.csv | Interpretation
+
+Identify videos where ASMAG improves over P3 | Category, Video, Pipeline, CDnet_FMeasure | Compare ASMAG_TR_CONTROLLER with P3_MOG2 video by video
+
+Detect failure cases of online controller | CDnet_FMeasure, Event_F1, P95_latency_ms | Find videos where ONLINE_CALIBRATED has lower accuracy or higher latency
+
+Analyze efficiency gain | Activation, Energy/frame, Avg_FPS | Identify videos where ASMAG reduces activation and energy
+
+Examine event reliability | Event_F1 | Determine whether a pipeline detects event occurrence reliably
+
+Study runtime behavior | Avg_FPS, P95_latency_ms | Identify videos that cause high latency or low throughput
+
+Additional explanatory text:
+
+The per-video table is especially useful for diagnosing the limitations of temporal reuse and online mode selection. If a video contains fast changes, unstable illumination, camera jitter, or dynamic background motion, aggressive reuse may cause stale predictions. Conversely, in stable videos, temporal reuse and motion gating can reduce activation while preserving accuracy. These video-level details are essential for future improvements such as confidence-aware reuse and tracking-assisted reuse.
+
+Appendix D. Extended Runtime and Edge Profiling
+
+D.1. Purpose of Runtime Appendix
+
+The main paper reports key runtime metrics such as FPS, activation, P95 latency, energy/frame, and simulated runtime-aware energy. The appendix provides additional details for CPU-only edge profiling, including latency distribution, CPU usage, RAM usage, and runtime behavior.
+
+This is important because ASMAG-TRC is designed for Edge AI camera systems, where deployment performance depends not only on accuracy but also on latency, throughput, CPU usage, memory usage, and energy behavior.
+
+Supplementary Table D1. Extended CPU-Only Edge Runtime Profiling Summary
+
+Source file: edge_runtime_summary.csv
+
+This table should be provided as a supplementary CSV file. A compact version can be included in the appendix if space allows.
+
+Recommended columns in Supplementary Table D1
+
+[Table with 13 rows]
+
+Column | Meaning
+
+Pipeline | Evaluated pipeline
+
+Avg_FPS | Average throughput
+
+Avg_latency_ms | Mean per-frame latency
+
+P50_latency_ms | Median latency
+
+P95_latency_ms | 95th percentile latency
+
+P99_latency_ms | 99th percentile latency
+
+Avg_process_CPU_percent | Average CPU usage of the process
+
+Max_process_CPU_percent | Maximum process CPU usage
+
+Avg_RAM_MB | Average memory usage
+
+Max_RAM_MB | Maximum memory usage
+
+Energy/frame | Energy proxy per frame
+
+Simulated_runtime_energy/frame | Runtime-aware simulated energy
+
+Text to include in the report:
+
+Supplementary Table D1 provides extended CPU-only edge profiling results. These data support the runtime interpretation of the main results and help explain why some pipelines achieve lower activation but not necessarily higher FPS. In particular, the online calibrated controller reduces activation but shows higher latency, suggesting that online feature computation and controller logic introduce non-trivial runtime overhead.
+
+Figure D1. P95 Latency Comparison Across Pipelines
+
+Source file: latency_p95_by_pipeline.png
+Recommended placement: Appendix, unless the journal strongly emphasizes real-time performance.
+
+Caption:
+
+Figure D1. P95 latency comparison across pipelines. The figure compares tail latency across the six evaluated pipelines under CPU-only edge simulation. P2_FrameDiff achieves the lowest P95 latency, while ASMAG_TR_CONTROLLER remains competitive with P3_MOG2. The online calibrated controller shows higher P95 latency, indicating that online controller overhead should be optimized.
+
+Explanation:
+
+P95 latency is more informative than average latency for real-time systems because it reflects tail behavior. P2_FrameDiff achieves the lowest P95 latency due to its lightweight design. However, its low accuracy prevents it from serving as a reliable main pipeline. ASMAG_TR_CONTROLLER slightly improves P95 latency compared with P3_MOG2 while improving FMeasure and Event F1. This supports the claim that adaptive inference control can improve both reliability and edge efficiency.
+
+Figure D2. Additional Runtime or Energy Charts
+
+If the following charts are available, they should be included as supplementary figures:
+
+[Table with 4 rows]
+
+Figure | Source file | Recommended caption
+
+Figure D2 | fps_by_pipeline.png | Average FPS comparison across pipelines
+
+Figure D3 | energy_by_pipeline.png | Energy/frame comparison across pipelines
+
+Figure D4 | simulated_energy_by_pipeline.png | Simulated runtime-aware energy comparison
+
+Text to include if these figures are available:
+
+Additional runtime and energy charts are provided to complement the main Pareto analysis. These figures show that the most efficient pipeline is P2_FrameDiff, while ASMAG_TR_CONTROLLER provides a more balanced accuracy–efficiency result. The energy values are proxy estimates and should be interpreted comparatively under the same CPU-only environment, not as direct physical power measurements.
+
+Appendix E. Experimental Configuration and Reproducibility
+
+E.1. Purpose of Configuration Appendix
+
+The full ASMAG-TRC evaluation is a long-running experiment. It processes 53 videos, six pipelines, and 318 video–pipeline jobs. The experiment is designed with checkpoint/resume capability, progress tracking, and automatic stale-job recovery. These features are important because CPU-only official-like evaluation may require multiple sessions or overnight runs.
+
+The manuscript states that the experiment produces output artifacts such as final_main_comparison.csv, best_by_metric.csv, gain_summary.csv, mode_usage_summary.csv, per_video_summary.csv, per_category_summary.csv, edge_runtime_summary.csv, official_like_results.csv, auto_research_summary.md, and charts; it also records raw per-video/per-pipeline results and progress logs for reproducibility.
+
+Appendix Table E1. Experimental Configuration Summary
+
+[Table with 17 rows]
+
+Configuration item | Setting
+
+Dataset | CDnet2014
+
+Number of categories | 11
+
+Number of videos | 53
+
+Number of evaluated pipelines | 6
+
+Total video–pipeline jobs | 318
+
+Evaluation protocol | Official-like frame_step=1
+
+Evaluation region | temporalROI
+
+Runtime environment | CPU-only edge simulation
+
+Hardware | Intel Core i7-1185G7, 32 GB RAM, Intel Iris Xe
+
+CUDA | Disabled
+
+Batch size | 1
+
+Parallel jobs | 1
+
+Processing mode | Sequential job processing
+
+Main output folder | outputs/full_cdnet2014_official_edge_profile_pc
+
+Run progress file | run_progress.csv
+
+Live progress files | live_progress.json, live_progress.md
+
+E.2. Main Run Command
+
+The full evaluation can be resumed using the following command:
+
+python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --run-plan configs/full_cdnet2014_official_edge_video_run_plan.csv --max-jobs-per-run N
+
+where N specifies the maximum number of pending video–pipeline jobs to run in one session.
+
+To check progress only:
+
+python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --progress-only
+
+To run a small batch safely:
+
+python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --run-plan configs/full_cdnet2014_official_edge_video_run_plan.csv --max-jobs-per-run 10
+
+E.3. Checkpoint and Resume Mechanism
+
+Each job corresponds to one category, one video, and one pipeline. The progress file records the status of each job.
+
+Appendix Table E2. Job status definition
+
+[Table with 5 rows]
+
+Status | Meaning
+
+pending | The job has not been completed yet
+
+running | The job is currently being processed
+
+completed | The job completed successfully
+
+failed | The job failed and contains an error message
+
+If a session is interrupted, completed jobs are preserved. If a job remains in running status after timeout or system shutdown, it is treated as a stale job and can be reset to pending. This prevents data loss and allows safe multi-day evaluation.
+
+Text to include in the report:
+
+The checkpoint/resume mechanism is important for reproducibility because it ensures that completed jobs are not rerun unnecessarily and that interrupted runs can continue safely. This design made it possible to complete the full 318-job CPU-only official-like evaluation across multiple sessions.
+
+Appendix F. Additional Controller Analysis
+
+F.1. Purpose of Controller Appendix
+
+The main manuscript reports the overall performance of the category-aware controller and the online calibrated controller. The appendix provides additional interpretation of how adaptive control should be understood.
+
+ASMAG_TR_CONTROLLER uses category-level information and should be interpreted as an upper-bound scene-aware policy. It demonstrates the potential of adaptive mode selection when high-level scene context is available. In contrast, ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED does not use category labels during inference. It uses rolling scene features and therefore represents a more deployable adaptive variant.
+
+Supplementary Table F1. Mode Usage Summary for Adaptive ASMAG Variants
+
+Source file: mode_usage_summary.csv
+
+If available, this file should be submitted as supplementary data.
+
+Recommended columns in Supplementary Table F1
+
+[Table with 8 rows]
+
+Column | Meaning
+
+Pipeline | Adaptive ASMAG pipeline
+
+Category | CDnet2014 category
+
+Selected_mode | FAST, ACC, P3 fallback, or other controller mode
+
+Frame_count | Number of frames assigned to this mode
+
+Mode_ratio | Ratio of frames assigned to this mode
+
+Activation | Activation rate under the selected mode
+
+FMeasure | Associated FMeasure, if available
+
+Text to include in the report:
+
+Supplementary Table F1 reports the mode usage behavior of adaptive ASMAG variants. It helps explain how the controller distributes frames across efficient and conservative modes. This information is especially useful for understanding the difference between the category-aware controller and the online calibrated controller.
+
+F.2. Interpretation of the Online Calibrated Controller
+
+The online calibrated controller uses rolling scene features such as motion density, component count, foreground disagreement, illumination variation, active-frame rate, gate-closed rate, and reuse success rate. These features allow the system to select an inference mode without using CDnet2014 category labels during inference.
+
+The final results show that the online calibrated controller reduces activation and energy compared with P3_MOG2 while improving Event F1. However, it still trails the category-aware controller in FMeasure and has higher P95 latency. This indicates that label-free adaptive inference control is feasible, but further optimization is needed.
+
+Key future improvements:
+
+[Table with 6 rows]
+
+Improvement direction | Expected benefit
+
+Confidence-aware reuse | Reduce stale prediction errors
+
+Tracking-assisted reuse | Improve prediction propagation when detector is skipped
+
+Faster rolling-feature computation | Reduce online controller overhead
+
+Simplified mode decision logic | Improve FPS and P95 latency
+
+Real hardware profiling | Validate deployment performance on actual edge devices
+
+Appendix G. Additional Charts and Captions
+
+This appendix lists the additional charts that can be included either in the main manuscript or supplementary materials.
+
+Appendix Table G1. Recommended placement of figures
+
+[Table with 10 rows]
+
+Figure | Source file | Recommended placement | Reason
+
+Figure 1 | ASMAG-TRC process flow diagram | Main manuscript, Section 3.1 | Explains the proposed framework architecture
+
+Figure 2 | fmeasure_by_pipeline.png | Main manuscript, Section 5.3 | Shows the main pixel-level accuracy comparison
+
+Figure 3 | event_f1_by_pipeline.png | Main manuscript, Section 5.3 | Shows event-level reliability
+
+Figure 4 | pareto_fmeasure_energy.png | Main manuscript, Section 5.6 | Summarizes accuracy–energy trade-off
+
+Figure 5 | activation_by_pipeline.png | Main manuscript, Section 5.4 | Shows detector activation reduction
+
+Figure 6 | per_category_fmeasure_heatmap.png | Main manuscript or Appendix B | Shows scene variability and category-wise performance
+
+Figure B2 | per_category_activation_heatmap.png | Appendix B | Provides detailed category-wise activation evidence
+
+Figure B3 | per_category_latency_heatmap.png | Appendix B | Provides detailed category-wise latency evidence
+
+Figure D1 | latency_p95_by_pipeline.png | Appendix D | Provides additional real-time profiling evidence
+
+Appendix H. Supplementary Evidence Summary
+
+The supplementary materials support the main findings in four ways.
+
+First, the category-wise results show that performance varies substantially across CDnet2014 scene types. This supports the need for adaptive inference control rather than a fixed inference pipeline.
+
+Second, the per-video results allow detailed inspection of success and failure cases across all 53 videos. This helps identify where temporal reuse, motion gating, or online mode selection should be improved.
+
+Third, the runtime profiling results show that edge performance depends on activation, FPS, P95 latency, CPU usage, RAM usage, and energy proxy. This supports the claim that Edge AI camera systems should be evaluated beyond accuracy alone.
+
+Fourth, the configuration and progress files document the official-like frame_step=1 protocol, CPU-only edge simulation, checkpoint/resume mechanism, and long-running execution process. This improves reproducibility and allows other researchers to understand how the full 318-job evaluation was completed.
+
+Overall, the supplementary materials reinforce the central conclusion of the paper: ASMAG-TRC provides a practical adaptive inference-control framework for real-time Edge AI camera systems by reducing unnecessary detector activation and selecting scene-appropriate processing behavior while preserving event-level and foreground reliability.
+
+Short Note for Submission
+
+When submitting the paper, the supplementary files should be organized as follows:
+
+Supplementary_Data/
+
+│
+
+├── Supplementary_Table_B1_per_category_summary.csv
+
+├── Supplementary_Table_C1_per_video_summary.csv
+
+├── Supplementary_Table_D1_edge_runtime_summary.csv
+
+├── Supplementary_Table_F1_mode_usage_summary.csv
+
+├── Supplementary_Config_E1_full_cdnet2014_official_edge_profile_pc.yaml
+
+├── Supplementary_RunPlan_E2_full_cdnet2014_official_edge_video_run_plan.csv
+
+├── Supplementary_Progress_E3_run_progress.csv
+
+│
+
+└── Supplementary_Figures/
+
+├── Figure_B1_per_category_fmeasure_heatmap.png
+
+├── Figure_B2_per_category_activation_heatmap.png
+
+├── Figure_B3_per_category_latency_heatmap.png
+
+├── Figure_D1_latency_p95_by_pipeline.png
+
+├── Figure_D2_fps_by_pipeline.png
+
+├── Figure_D3_energy_by_pipeline.png
+
+└── Figure_D4_simulated_energy_by_pipeline.png

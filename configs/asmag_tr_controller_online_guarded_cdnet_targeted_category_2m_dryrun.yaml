@@ -1,0 +1,28 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2l2_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2m_dryrun
+
+online_controller_guarded:
+  ai_parking_iom_rescue_enabled: true
+  ai_parking_iom_target_video: intermittentObjectMotion/parking
+  ai_parking_iom_rescue_allow_detector: false
+  ai_parking_iom_rescue_first_enabled: true
+  ai_parking_iom_rescue_first_protect_before_cap: true
+  ai_parking_iom_rescue_extra_cap_per_video: 20
+  ai_parking_iom_rescue_cooldown: 1
+  ai_parking_iom_rescue_requires_not_normal_frame: true
+  ai_parking_iom_rescue_requires_intermit_memory: true
+  ai_parking_iom_rescue_event_score_threshold: 0.70
+  ai_parking_iom_rescue_foreground_loss_threshold: 0.50
+  ai_parking_iom_rescue_persistence_threshold: 0.50
+  ai_parking_iom_cap_enabled: true
+  ai_parking_iom_max_proposal_rate: 0.40
+  ai_parking_iom_hard_max_proposal_rate: 0.45
+  ai_parking_iom_max_detector_rate: 0.02
+  ai_parking_iom_suppress_generic_event_fg: true
+  ai_parking_iom_cap_generic_only: true
+  ai_parking_iom_do_not_cap_rescue_candidates: true
+  ai_parking_iom_no_detector: true
+
+edge_profile:
+  name: guarded_targeted_category_2m_cpu_edge

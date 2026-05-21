@@ -137,8 +137,39 @@ CLOSED_EMPTY,89
 LEGACY_SAFE_P3_GUARD,47
 ```
 
+## Baseline Model Probe
+
+The probe is research-only and uses a target-aware 10,000-row sample from `frame_state_dataset.parquet` joined with `oracle_action_dataset.parquet`. It evaluates majority baseline, logistic regression, decision tree, random forest, and gradient boosting on video-grouped and category-holdout splits.
+
+Outputs:
+
+- `outputs/phase8a_policy_dataset/model_probe_results.csv`
+- `outputs/phase8a_policy_dataset/policy_feature_importance.csv`
+- `outputs/phase8a_policy_dataset/policy_rule_candidates.txt`
+
+Best observed probe results by target:
+
+```csv
+target,split_name,best_model,accuracy,balanced_accuracy,f1_macro
+best_action_by_utility,video_grouped,gradient_boosting,0.7407407407407407,0.5249024751143395,0.429010989010989
+best_action_by_utility,category_holdout,gradient_boosting,0.5848670756646217,0.4924817777932245,0.4296198828418556
+risk_class,video_grouped,decision_tree/logistic_regression/gradient_boosting,0.9629629629629629,0.6563573883161512,0.6597222222222222
+risk_class,category_holdout,gradient_boosting,0.9488752556237219,0.9045225677676904,0.8795198360415751
+unsafe_action,video_grouped,decision_tree/random_forest/gradient_boosting,0.8425925925925926,0.6851851851851851,0.7227842367507172
+unsafe_action,category_holdout,logistic_regression,0.7842535787321063,0.6806758461215052,0.696915220331963
+detector_needed,video_grouped,decision_tree/logistic_regression/random_forest/gradient_boosting,1.0,1.0,1.0
+detector_needed,category_holdout,random_forest,0.9887525562372188,0.9828660436137071,0.9871327333074187
+```
+
+Interpretation:
+
+- `detector_needed` is easy to recover from logged controller state features.
+- `risk_class` is learnable in this offline probe, including under PTZ/category holdout.
+- `unsafe_action` is learnable but remains imperfect, so deterministic safety guards should remain primary.
+- `best_action_by_utility` is harder and imbalanced toward `OTHER`; Phase 8B should treat this as a ranking/reweighting problem, not a deployable direct classifier.
+
 ## Phase 8B Readiness
 
-The dataset is sufficient for Phase 8B research probes and offline policy learning experiments, but not for deployment. Labels mix observational baselines, ablation outputs, and derived utilities, so any learned model must remain behind deterministic safety guards and smoke validation.
+The dataset is good enough for Phase 8B research probes and offline policy learning experiments. It is not good enough for deployment. Labels mix observational baselines, ablation outputs, and derived utilities, and the strongest probe target (`detector_needed`) is not the same as a complete action policy. Any Phase 8B learned model must remain behind deterministic safety guards and be validated separately before runtime integration.
 
 Deployment recommendation: do not deploy a learned policy from Phase 8A artifacts alone.

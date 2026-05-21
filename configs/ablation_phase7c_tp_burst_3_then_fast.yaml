@@ -1,0 +1,20 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke.yaml
+experiment_name: TP_BURST_3_THEN_FAST
+output_root: outputs/asmag_tr_controller_online_guarded_ablation_phase7c
+pipelines:
+  - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+categories: [PTZ, nightVideos, shadow, dynamicBackground, turbulence]
+videos:
+  PTZ: [continuousPan, twoPositionPTZCam]
+  nightVideos: [bridgeEntry]
+  shadow: [cubicle]
+  dynamicBackground: [fountain02]
+  turbulence: [turbulence2]
+online_controller_guarded:
+  ablation_mode_enabled: true
+  ablation_policy_name: TP_BURST_3_THEN_FAST
+  teacher_ranker_enabled: false
+  teacher_ranker_behavior_enabled: false
+  geometry_position_switch_detector_burst_frames: 3
+  position_switch_reset_detector_frames: 3
+

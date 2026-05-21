@@ -1,0 +1,23 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2j_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2k_dryrun
+
+online_controller_guarded:
+  ai_ptz_intermittent_pan_cap_enabled: true
+  ai_ptz_intermittent_pan_target_video: PTZ/intermittentPan
+  ai_ptz_intermittent_pan_max_proposal_rate: 0.12
+  ai_ptz_intermittent_pan_hard_max_proposal_rate: 0.15
+  ai_ptz_intermittent_pan_max_detector_rate: 0.02
+  ai_ptz_intermittent_pan_suppress_generic_event_fg: true
+  ai_ptz_intermittent_pan_suppress_global_motion_pressure: true
+  ai_ptz_intermittent_pan_require_localized_fn_risk: true
+  ai_ptz_intermittent_pan_no_detector: true
+  ai_ptz_intermittent_pan_fn_rescue_enabled: true
+  ai_ptz_intermittent_pan_fn_rescue_allow_detector: false
+  ai_ptz_intermittent_pan_fn_rescue_extra_cap_per_video: 4
+  ai_ptz_intermittent_pan_fn_rescue_cooldown: 1
+  ai_ptz_intermittent_pan_fn_rescue_requires_not_normal_frame: true
+  ai_ptz_intermittent_pan_fn_rescue_requires_localized_risk: true
+
+edge_profile:
+  name: guarded_targeted_category_2k_cpu_edge

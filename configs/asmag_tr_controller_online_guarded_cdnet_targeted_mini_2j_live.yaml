@@ -1,0 +1,17 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_mini_2j_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_mini_2j_live
+
+online_controller_guarded:
+  ai_intervention_dry_run: false
+  ai_exact_cubicle_late_event_rescue_enabled: true
+  ai_exact_cubicle_late_event_rescue_allow_detector: false
+  ai_exact_cubicle_late_event_rescue_requires_active_memory: true
+  ai_exact_cubicle_late_event_rescue_active_memory_min: 1
+  ai_exact_cubicle_late_event_rescue_event_score_threshold: 0.85
+  ai_exact_cubicle_late_event_rescue_foreground_loss_threshold: 0.65
+  ai_exact_cubicle_late_event_rescue_extra_cap_per_video: 4
+  ai_exact_cubicle_late_event_rescue_cooldown: 1
+  ai_exact_cubicle_late_event_rescue_actions:
+    - CLOSED_EMPTY_P3_FALLBACK
+    - CLOSED_EMPTY_ACC

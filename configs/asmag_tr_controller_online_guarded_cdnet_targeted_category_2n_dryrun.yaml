@@ -1,0 +1,26 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2m3_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2n_dryrun
+
+online_controller_guarded:
+  ai_turbulence2_pressure_guard_enabled: true
+  ai_turbulence2_target_video: turbulence/turbulence2
+  ai_turbulence2_pressure_guard_no_detector: true
+  ai_turbulence2_pressure_guard_suppress_generic_event_fg: true
+  ai_turbulence2_pressure_guard_suppress_detector_refresh: true
+  ai_turbulence2_pressure_guard_require_localized_fn_risk: true
+  ai_turbulence2_pressure_guard_max_proposal_rate: 0.30
+  ai_turbulence2_pressure_guard_hard_max_proposal_rate: 0.35
+  ai_turbulence2_pressure_guard_max_detector_rate: 0.02
+  ai_turbulence2_fn_rescue_enabled: true
+  ai_turbulence2_fn_rescue_allow_detector: false
+  ai_turbulence2_fn_rescue_extra_cap_per_video: 6
+  ai_turbulence2_fn_rescue_cooldown: 1
+  ai_turbulence2_fn_rescue_requires_not_normal_frame: true
+  ai_turbulence2_fn_rescue_requires_localized_risk: true
+  ai_turbulence2_fn_rescue_event_score_threshold: 0.70
+  ai_turbulence2_fn_rescue_foreground_loss_threshold: 0.50
+  ai_turbulence2_fn_rescue_protect_likely_unprotected_fn: true
+
+edge_profile:
+  name: guarded_targeted_category_2n_cpu_edge

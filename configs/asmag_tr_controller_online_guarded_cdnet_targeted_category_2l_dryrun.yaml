@@ -1,0 +1,24 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2k_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2l_dryrun
+
+online_controller_guarded:
+  ai_copymachine_shadow_guard_enabled: true
+  ai_copymachine_shadow_target_video: shadow/copyMachine
+  ai_copymachine_shadow_max_proposal_rate: 0.25
+  ai_copymachine_shadow_hard_max_proposal_rate: 0.35
+  ai_copymachine_shadow_max_detector_rate: 0.05
+  ai_copymachine_shadow_suppress_generic_event_fg: true
+  ai_copymachine_shadow_require_localized_fn_risk: true
+  ai_copymachine_shadow_no_detector: true
+  ai_copymachine_fn_rescue_enabled: true
+  ai_copymachine_fn_rescue_allow_detector: false
+  ai_copymachine_fn_rescue_extra_cap_per_video: 12
+  ai_copymachine_fn_rescue_cooldown: 1
+  ai_copymachine_fn_rescue_requires_not_normal_frame: true
+  ai_copymachine_fn_rescue_requires_localized_risk: true
+  ai_copymachine_fn_rescue_event_score_threshold: 0.80
+  ai_copymachine_fn_rescue_foreground_loss_threshold: 0.60
+
+edge_profile:
+  name: guarded_targeted_category_2l_cpu_edge

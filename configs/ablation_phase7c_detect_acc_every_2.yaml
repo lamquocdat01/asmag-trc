@@ -1,0 +1,17 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke.yaml
+experiment_name: CP_DETECT_ACC_EVERY_2
+output_root: outputs/asmag_tr_controller_online_guarded_ablation_phase7c
+pipelines:
+  - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+categories: [PTZ, nightVideos, shadow, dynamicBackground, turbulence]
+videos:
+  PTZ: [continuousPan, twoPositionPTZCam]
+  nightVideos: [bridgeEntry]
+  shadow: [cubicle]
+  dynamicBackground: [fountain02]
+  turbulence: [turbulence2]
+online_controller_guarded:
+  ablation_mode_enabled: true
+  ablation_policy_name: CP_DETECT_ACC_EVERY_2
+  ablation_acc_quality_min: 0.15
+

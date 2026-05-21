@@ -1,0 +1,42 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4e4_port_detector_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4e5_port_parking_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_port_lf_detector_retighten_v4_preserve_enabled: true
+  ai_port_lf_detector_retighten_v4_preserve_target_video: lowFramerate/port_0_17fps
+  ai_port_lf_detector_retighten_v4_preserve_max_detector_rate: 0.05000
+  ai_port_lf_detector_retighten_v4_preserve_require_unprotected_fn_zero: true
+  ai_port_lf_detector_retighten_v4_preserve_no_detector_for_suppressed: true
+
+  ai_parking_restore_4d6_trim_stack_enabled: true
+  ai_parking_restore_4d6_trim_target_video: intermittentObjectMotion/parking
+  ai_parking_restore_4d6_trim_no_detector: true
+  ai_parking_restore_4d6_trim_apply_4d3_trim: true
+  ai_parking_restore_4d6_trim_apply_4d5_trim: true
+  ai_parking_restore_4d6_trim_apply_4d6_final_trim: true
+  ai_parking_restore_4d6_trim_expected_total_trim_frames: 9
+  ai_parking_restore_4d6_trim_target_rate: 0.50000
+  ai_parking_restore_4d6_trim_hard_max_rate: 0.50000
+  ai_parking_restore_4d6_trim_never_trim_fn_protected: true
+  ai_parking_restore_4d6_trim_never_trim_rescue_frames: true
+  ai_parking_restore_4d6_trim_never_trim_likely_unprotected_fn: true
+  ai_parking_restore_4d6_trim_stop_at_rate: 0.50000
+
+  ai_parking_restore_4d6_fn_fallback_enabled: true
+  ai_parking_restore_4d6_fn_fallback_target_video: intermittentObjectMotion/parking
+  ai_parking_restore_4d6_fn_fallback_allow_detector: false
+  ai_parking_restore_4d6_fn_fallback_extra_cap_per_video: 4
+  ai_parking_restore_4d6_fn_fallback_keep_final_normal_suppressor: true
+
+edge_profile:
+  name: guarded_step4e5_port_parking_subset_dryrun_cpu_edge

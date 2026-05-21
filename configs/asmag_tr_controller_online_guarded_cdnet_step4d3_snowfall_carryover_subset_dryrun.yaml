@@ -1,0 +1,52 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4d2_snowfall_risk_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4d3_snowfall_carryover_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_snowfall_actual_fn_rescue_extra_cap_per_video: 20
+  ai_snowfall_actual_fn_rescue_cooldown: 1
+  ai_snowfall_actual_fn_rescue_allow_detector: false
+  ai_snowfall_actual_fn_rescue_keep_final_normal_suppressor: true
+  ai_snowfall_actual_fn_rescue_hard_max_activations: 20
+  ai_snowfall_actual_fn_rescue_do_not_rescue_detect_acc_mask_quality_rows: true
+
+  ai_thermal_lakeside_carryover_lock_enabled: true
+  ai_thermal_lakeside_carryover_lock_target_video: thermal/lakeSide
+  ai_thermal_lakeside_carryover_lock_max_proposal_rate: 0.50
+  ai_thermal_lakeside_carryover_lock_no_detector: true
+  ai_thermal_lakeside_carryover_lock_two_pass_recap: true
+  ai_thermal_lakeside_carryover_lock_never_trim_hard_protected: true
+  ai_thermal_lakeside_carryover_lock_never_trim_rescue_frames: true
+  ai_thermal_lakeside_carryover_lock_never_trim_likely_unprotected_fn: true
+  ai_thermal_lakeside_carryover_lock_max_extra_trim_frames: 4
+
+  ai_sofa_iom_carryover_lock_enabled: true
+  ai_sofa_iom_carryover_lock_target_video: intermittentObjectMotion/sofa
+  ai_sofa_iom_carryover_lock_allow_detector: false
+  ai_sofa_iom_carryover_lock_extra_cap_per_video: 6
+  ai_sofa_iom_carryover_lock_event_score_threshold: 0.35
+  ai_sofa_iom_carryover_lock_foreground_loss_threshold: 0.60
+  ai_sofa_iom_carryover_lock_active_memory_min: 1
+  ai_sofa_iom_carryover_lock_keep_final_normal_suppressor: true
+
+  ai_parking_carryover_lock_enabled: true
+  ai_parking_carryover_lock_target_video: intermittentObjectMotion/parking
+  ai_parking_carryover_lock_allow_detector: false
+  ai_parking_carryover_lock_extra_cap_per_video: 12
+  ai_parking_carryover_lock_requires_cap_exhausted_or_missing_candidate: true
+  ai_parking_carryover_lock_event_score_threshold: 0.35
+  ai_parking_carryover_lock_foreground_loss_threshold: 0.60
+  ai_parking_carryover_lock_keep_final_normal_suppressor: true
+  ai_parking_carryover_lock_max_proposal_rate: 0.50
+
+edge_profile:
+  name: guarded_step4d3_snowfall_carryover_subset_dryrun_cpu_edge

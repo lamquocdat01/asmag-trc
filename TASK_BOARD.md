@@ -20,27 +20,31 @@
 | G7 | Qualitative examples | Pending | Medium | Selected videos/frames | Figures and overlays | TBD | 2-4 hrs | Show success/failure cases for paper. |
 | G8 | Paper manuscript | Pending | High | Final metrics/figures | Manuscript draft | TBD | Multi-day | Position as adaptive inference-control, not SOTA segmentation. |
 | G9 | Journal submission preparation | Pending | Medium | Manuscript + artifacts | Submission package | TBD | Multi-day | Format, cover letter, reproducibility checklist. |
+| G9-SubmissionPrep | Manuscript audit and supplementary package prep | Completed | High | `manuscript/ASMAG_2026_submission_draft.docx`, official-like output CSV/charts | `outputs/manuscript_submission_check`, `outputs/submission_package`, `outputs/paper_ready_figures` | `python src/paper/generate_paper_figures.py`; `python src/paper/generate_submission_prep_reports.py` | Done | Backup created; reports/checklist/statements/cover letter/supplementary package created; manuscript readiness `62/100`; `.docx` not overwritten. |
+| G9-SubmissionPrep-Pass2 | Clean Markdown master and fix formula/table/reference/figure blockers | Completed | High | `manuscript/ASMAG_2026_submission_draft.md`, pass1 reports, `gain_summary.csv`, paper-ready figures | `manuscript/ASMAG_2026_submission_ready_v1.md`, pass2 reports, references draft/BibTeX | `python src/paper/create_submission_ready_v1.py` | Done | Formulas fixed in Markdown; Table 4 corrected from CSV; references draft has 39 complete entries + 5 TODO entries; Figures 1-6 have Markdown paths/captions; readiness `78/100`. |
+| G9-SubmissionPrep-Pass3 | Prepare Word-ready Markdown and conversion/proof reports | Completed | High | `manuscript/ASMAG_2026_submission_ready_v1.md`, references draft/BibTeX, paper-ready figures | `outputs/submission_package/pass3_word_ready` | `python src/paper/prepare_pass3_word_ready.py` | Done | Word-ready Markdown created; DOCX/PDF conversion blocked due missing Pandoc/LibreOffice/python-docx; structure proof passed on Markdown; readiness `80/100`. |
+| G9-DOCX-PDF-Proof | Check user-created DOCX and prepare final Word/PDF proof package | Completed / PDF pending | High | `outputs/submission_package/pass3_word_ready/ASMAG_2026_submission_ready_v1.docx` | `FINAL_DOCX_PDF_PROOF_REPORT.md`, `MANUAL_WORD_PROOF_CHECKLIST.md`, updated readiness report | Manual DOCX XML/text proof; no experiment rerun | Done | DOCX exists (`777970` bytes); PDF missing; DOCX structure proof passes; 9 TODO remain; readiness `86/100`; next step is manual PDF export and visual proof. |
+| G9-ManuscriptFix | Insert formula/table/reference fixes into manuscript | Pending | High | `outputs/manuscript_submission_check/*`, `references_to_add.bib`, `outputs/paper_ready_figures` | Updated Word or journal-template manuscript | Manual Word edit or future docx-capable tool | TBD | Fix broken equations, Table 4 mismatches, citation placeholders, references, and final figure placement before submission. |
 <!-- G2G3_AUTO_STATUS_START -->
 ## G2G3 Auto Resume Status
 
-- Updated at: `2026-05-03T17:29:45`
+- Updated at: `2026-05-20T17:04:36`
 - Event: run completed or paused after selected batch
-- Completed: `318 / 318`
+- Completed: `56 / 56`
 - Pending: `0`
 - Running: `0`
 - Failed: `0`
 - Overall progress: `100.0000%`
-- Completed videos: `53 / 53`
-- Jobs completed this session: `13`
-- Last completed job: `turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED`
+- Completed videos: `0 / 14`
+- Jobs completed this session: `4`
+- Last completed job: `turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED`
 - Next pending job: `-`
-- Resume command: `python src/run_experiment.py --config configs/full_cdnet2014_official_edge_profile_pc.yaml --run-plan configs/full_cdnet2014_official_edge_video_run_plan.csv --max-jobs-per-run 13`
+- Resume command: `python src/run_experiment.py --config configs\asmag_tr_controller_online_guarded_cdnet_q1_sic1c1r3d_observer_purity_subset_dryrun.yaml`
 
 ### Failed Jobs
 
 - None
 <!-- G2G3_AUTO_STATUS_END -->
-
 <!-- G2G3_FINAL_STATUS_START -->
 ## G2G3 Final Official-like Status
 

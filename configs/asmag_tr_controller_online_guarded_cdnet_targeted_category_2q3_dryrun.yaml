@@ -1,0 +1,21 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_targeted_category_2q2_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_category_2q3_dryrun
+
+online_controller_guarded:
+  ai_parking_live_post_trim_2q3_enabled: true
+  ai_parking_live_post_trim_2q3_target_video: intermittentObjectMotion/parking
+  ai_parking_live_post_trim_2q3_max_final_rate: 0.44
+  ai_parking_live_post_trim_2q3_hard_max_final_rate: 0.45
+  ai_parking_live_post_trim_2q3_generic_only: true
+  ai_parking_live_post_trim_2q3_no_detector: true
+  ai_parking_live_post_trim_2q3_do_not_trim_rescue_frames: true
+  ai_parking_live_post_trim_2q3_do_not_trim_live_reserve_frames: true
+  ai_parking_live_post_trim_2q3_do_not_trim_preserved_fn_risk: true
+  ai_parking_live_post_trim_2q3_do_not_trim_likely_unprotected_fn: true
+  ai_parking_live_post_trim_2q3_min_trim_frames: 5
+  ai_parking_live_post_trim_2q3_max_trim_frames: 8
+  ai_parking_live_post_trim_2q3_priority: after_preserve_rescue_before_final_summary
+
+edge_profile:
+  name: guarded_targeted_category_2q3_cpu_edge

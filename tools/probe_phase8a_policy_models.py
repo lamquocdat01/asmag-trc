@@ -20,6 +20,7 @@ except Exception:  # pragma: no cover
 
 
 OUTPUT_ROOT = Path("outputs/phase8a_policy_dataset")
+DEFAULT_MAX_ROWS = 10000
 TARGETS = ["best_action_by_utility", "risk_class", "unsafe_action", "detector_needed"]
 METRIC_LEAK_COLUMNS = {
     "FMeasure",
@@ -130,7 +131,7 @@ def build_preprocessor(x):
 def models():
     out = {"decision_tree": DecisionTreeClassifier(max_depth=5, min_samples_leaf=20, random_state=8)}
     if LogisticRegression is not None:
-        out["logistic_regression"] = LogisticRegression(max_iter=150, class_weight="balanced", solver="liblinear")
+        out["logistic_regression"] = LogisticRegression(max_iter=300, class_weight="balanced", solver="lbfgs")
     out["random_forest"] = RandomForestClassifier(n_estimators=40, max_depth=7, min_samples_leaf=10, random_state=8, n_jobs=-1)
     out["gradient_boosting"] = GradientBoostingClassifier(n_estimators=40, max_depth=3, random_state=8)
     return out
@@ -186,9 +187,37 @@ def collect_importances(pipe, model_name, target, split_name, original_features)
     return pd.DataFrame(rows)
 
 
+def model_sample(df, max_rows):
+    if max_rows <= 0 or len(df) <= max_rows:
+        return df.reset_index(drop=True)
+
+    protected = []
+    per_class_cap = max(25, min(250, max_rows // 40))
+    for target in TARGETS:
+        if target not in df.columns:
+            continue
+        y = df[target].fillna("").astype(str)
+        for label in y.value_counts().index:
+            label_idx = y[y.eq(label)].index
+            if len(label_idx) == 0:
+                continue
+            protected.extend(
+                df.loc[label_idx]
+                .sample(min(per_class_cap, len(label_idx)), random_state=8)
+                .index.tolist()
+            )
+
+    protected_idx = pd.Index(protected).drop_duplicates()
+    if len(protected_idx) >= max_rows:
+        return df.loc[protected_idx].sample(max_rows, random_state=8).reset_index(drop=True)
+
+    remaining = df.drop(index=protected_idx, errors="ignore")
+    fill = remaining.sample(max_rows - len(protected_idx), random_state=8) if len(remaining) > max_rows - len(protected_idx) else remaining
+    return pd.concat([df.loc[protected_idx], fill], axis=0).sample(frac=1.0, random_state=8).reset_index(drop=True)
+
+
 def fit_and_eval(df, max_rows):
-    if len(df) > max_rows:
-        df = df.sample(max_rows, random_state=8).reset_index(drop=True)
+    df = model_sample(df, max_rows)
     features = candidate_features(df)
     x = df[features].copy()
     for col in x.columns:
@@ -277,7 +306,7 @@ def fit_and_eval(df, max_rows):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=str(OUTPUT_ROOT))
-    parser.add_argument("--max-rows", type=int, default=30000)
+    parser.add_argument("--max-rows", type=int, default=DEFAULT_MAX_ROWS)
     args = parser.parse_args()
     root = Path(args.root)
     df = load_data(root)

@@ -1,0 +1,14 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2g_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2h_dryrun
+
+online_controller_guarded:
+  ai_exact_cubicle_event_fn_stabilizer_enabled: true
+  ai_exact_cubicle_event_fn_stabilizer_allow_detector: false
+  ai_exact_cubicle_event_fn_stabilizer_requires_not_normal_frame: true
+  ai_exact_cubicle_event_fn_stabilizer_requires_active_memory: true
+  ai_exact_cubicle_event_fn_stabilizer_requires_non_ptz: true
+  ai_exact_cubicle_event_fn_stabilizer_event_score_threshold: 0.90
+  ai_exact_cubicle_event_fn_stabilizer_foreground_loss_threshold: 0.85
+  ai_exact_cubicle_event_fn_stabilizer_extra_cap_per_video: 10
+  ai_exact_cubicle_event_fn_stabilizer_cooldown: 1

@@ -159,6 +159,9 @@ class ASMAGPlusGate:
         gate_mask = cv2.bitwise_or(fd_mask, cv2.bitwise_or(mog_mask, knn_mask))
         gate_mask = morph(gate_mask)
         gate_mask_before_filter = gate_mask.copy()
+        fd_area = int(np.sum(fd_mask > 0))
+        mog_area = int(np.sum(mog_mask > 0))
+        knn_area = int(np.sum(knn_mask > 0))
 
         # filter mask prioritizes precision
         filter_mask, kept_components, comp_entropy = component_filter(
@@ -218,6 +221,10 @@ class ASMAGPlusGate:
             "illumination_diff": illum_diff,
             "component_entropy_mean": comp_entropy,
             "kept_components": kept_components,
+            "fd_area": fd_area,
+            "mog_area": mog_area,
+            "knn_area": knn_area,
+            "image_area": h * w,
             "watchdog_triggered": int(watchdog)
         }
         return gate_open, filter_mask, info

@@ -1,0 +1,25 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2g_dryrun.yaml
+experiment_name: asmag_tr_controller_online_guarded_cdnet_targeted_mini_2g_dryrun
+
+categories:
+  - dynamicBackground
+  - shadow
+  - nightVideos
+  - PTZ
+  - lowFramerate
+
+videos:
+  dynamicBackground:
+    - fountain02
+    - fountain01
+  shadow:
+    - cubicle
+  nightVideos:
+    - bridgeEntry
+  PTZ:
+    - continuousPan
+  lowFramerate:
+    - tramCrossroad_1fps
+
+edge_profile:
+  name: guarded_targeted_mini_2g_cpu_edge

@@ -1,0 +1,58 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_step4e4_port_detector_subset_dryrun.yaml
+
+experiment_name: asmag_tr_controller_online_guarded_cdnet_step4e6_port_parking_rebase_subset_dryrun
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 1
+
+online_controller_guarded:
+  ai_intervention_dry_run: true
+
+  ai_port_lf_v4_hard_lock_enabled: true
+  ai_port_lf_v4_hard_lock_target_video: lowFramerate/port_0_17fps
+  ai_port_lf_v4_hard_lock_max_detector_rate: 0.05000
+  ai_port_lf_v4_hard_lock_require_unprotected_fn_zero: true
+  ai_port_lf_v4_hard_lock_keep_pre_fn_context_detectors: true
+  ai_port_lf_v4_hard_lock_keep_downstream_holdout: true
+  ai_port_lf_v4_hard_lock_frames_must_be_protected:
+    - 1350
+    - 1355
+  ai_port_lf_v4_hard_lock_no_detector_for_suppressed: true
+
+  ai_parking_4d6_hard_restore_enabled: true
+  ai_parking_4d6_hard_restore_target_video: intermittentObjectMotion/parking
+  ai_parking_4d6_hard_restore_no_detector: true
+  ai_parking_4d6_hard_restore_target_rate: 0.50000
+  ai_parking_4d6_hard_restore_hard_max_rate: 0.50000
+  ai_parking_4d6_hard_restore_apply_4d3_trim: true
+  ai_parking_4d6_hard_restore_apply_4d5_trim: true
+  ai_parking_4d6_hard_restore_apply_4d6_final_trim: true
+  ai_parking_4d6_hard_restore_expected_trim_stack:
+    restored_4d3_trim: 4
+    post_lock_4d5_trim: 4
+    final_4d6_trim: 1
+  ai_parking_4d6_hard_restore_never_trim_fn_protected: true
+  ai_parking_4d6_hard_restore_never_trim_rescue_frames: true
+  ai_parking_4d6_hard_restore_never_trim_likely_unprotected_fn: true
+  ai_parking_4d6_hard_restore_keep_fn_safety: true
+  ai_parking_4d6_hard_restore_extra_safe_trim_cap: 4
+  ai_parking_4d6_hard_restore_fn_fallback_cap: 4
+
+  ai_snowfall_carryover_gate_lock_enabled: true
+  ai_snowfall_carryover_gate_lock_target_video: badWeather/snowFall
+  ai_snowfall_carryover_gate_lock_max_proposal_rate: 0.45
+  ai_snowfall_carryover_gate_lock_max_detector_rate: 0.03
+  ai_snowfall_carryover_gate_lock_max_unprotected_fn: 6
+
+  ai_lakeside_carryover_gate_lock_enabled: true
+  ai_lakeside_carryover_gate_lock_target_video: thermal/lakeSide
+  ai_lakeside_carryover_gate_lock_max_proposal_rate: 0.50
+  ai_lakeside_carryover_gate_lock_max_detector_rate: 0.02
+  ai_lakeside_carryover_gate_lock_max_unprotected_fn: 12
+
+edge_profile:
+  name: guarded_step4e6_port_parking_rebase_subset_dryrun_cpu_edge

@@ -1,0 +1,14 @@
+base_config: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2f_dryrun.yaml
+experiment_name: asmag_tr_controller_online_guarded_cdnet_smoke_ai_intervention_2g_dryrun
+
+online_controller_guarded:
+  ai_lowframerate_trim_enabled: true
+  ai_lowframerate_trim_target_videos:
+    - lowFramerate/tramCrossroad_1fps
+  ai_lowframerate_trim_max_proposal_rate: 0.15
+  ai_lowframerate_trim_require_event_memory: true
+  ai_lowframerate_trim_require_not_normal_frame: true
+  ai_lowframerate_trim_require_unprotected_fn_risk: true
+  ai_lowframerate_trim_min_score: 0.98
+  ai_lowframerate_trim_no_detector: true
+  ai_lowframerate_trim_preserve_existing_deterministic_emergency: true
