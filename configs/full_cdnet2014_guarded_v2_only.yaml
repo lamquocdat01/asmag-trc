@@ -1,0 +1,379 @@
+experiment_name: full_cdnet2014_guarded_v2_only
+dataset_mode: cdnet
+dataset_root: "D:/THS Programing/06.6 ASMAG Project/dataset cdnet2014/archive/dataset"
+output_root: "outputs"
+resume_existing_results: true
+checkpoint_resume: true
+ai_intervention_dry_run: true
+
+runtime:
+  device_mode: cpu_edge_sim
+  cuda_enabled: false
+  batch_size: 1
+  max_threads: 4
+  opencv_num_threads: 4
+  torch_num_threads: 4
+  process_priority: normal
+  sequential_video_processing: true
+  parallel_jobs: 1
+
+progress:
+  auto_recover_stale_jobs: true
+  stale_running_minutes: 10
+  print_progress_every_frames: 25
+  write_progress_every_frames: 25
+  progress_heartbeat_seconds: 30
+  show_eta: true
+  show_current_frame: true
+  show_overall_percent: true
+
+categories:
+  - badWeather
+  - baseline
+  - cameraJitter
+  - dynamicBackground
+  - intermittentObjectMotion
+  - lowFramerate
+  - nightVideos
+  - PTZ
+  - shadow
+  - thermal
+  - turbulence
+
+videos: auto
+
+pipelines:
+  - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+detector_mode: yolo
+model_name: yolo26s-seg
+model_path: "models/yolo/yolo26s-seg.pt"
+
+edge_profile:
+  name: full_cdnet2014_guarded_v2_dryrun_cpu_edge
+  simulated_cores: 4
+  simulated_ram_gb: 32
+  delay_penalty_sec: 0.0
+  resize_width_for_gating: 320
+
+evaluation:
+  use_temporal_roi: true
+  warmup_frames: 50
+  frame_step: 1
+  max_frames_per_video: null
+  save_binary_masks: false
+  save_qualitative_samples: false
+
+online_controller_calibrated:
+  window: 30
+  initial_mode: ACC
+  use_hysteresis: false
+  mode_policy_path: "outputs/q2_core_extended_online_controller_calibrated/online_mode_policy.pkl"
+
+online_controller_guarded:
+  guarded_event_safety_v2_enabled: true
+  window: 30
+  initial_mode: ACC
+  use_hysteresis: true
+  min_stable_frames: 8
+  max_switch_per_100_frames: 4
+  mode_policy_path: "outputs/q2_core_extended_online_controller_calibrated/online_mode_policy.pkl"
+  resize_width_for_gating: 320
+  motion_disagreement_threshold: 0.06
+  scene_uncertainty_threshold: 0.52
+  gate_instability_threshold: 0.55
+  min_motion_density_for_guard: 0.001
+  foreground_risk_threshold: 0.55
+  forced_refresh_interval: 15
+  low_activation_refresh_threshold: 0.45
+  max_reuse_age: 4
+  reuse_confidence_min: 0.25
+  guard_min_interval_frames: 12
+  max_consecutive_p3_guard_frames: 3
+  guard_exit_disagreement_threshold: 0.035
+  overload_latency_threshold_ms: 500
+  overload_cooldown_frames: 20
+  critical_reuse_confidence_threshold: 0.08
+  p3_refresh_gate_score_threshold: 0.45
+  global_motion_escape_enabled: true
+  global_motion_area_threshold: 0.08
+  global_motion_disagreement_threshold: 0.10
+  global_motion_min_activation_floor: 0.25
+  global_motion_refresh_interval_frames: 4
+  max_consecutive_closed_empty_global_motion: 2
+  ptz_safe_fallback_interval_frames: 4
+  max_ptz_safe_fallback_burst: 3
+  low_light_guard_enabled: true
+  low_light_threshold: 125
+  night_refresh_interval_frames: 4
+  gmq_guard_enabled: true
+  gmq_quality_enabled: true
+  gmq_behavior_enabled: true
+  gmq_quality_behavior_enabled: true
+  gmq_logging_only: false
+  gmq_lazy_eval_enabled: true
+  gmq_lazy_global_motion_threshold: 0.70
+  gmq_lazy_candidate_disagreement_threshold: 0.35
+  gmq_lazy_low_light_event_risk_threshold: 0.40
+  gmq_lazy_recent_low_trust_threshold: 0.30
+  gmq_min_mask_quality_for_lightweight: 0.45
+  gmq_min_mask_quality_for_p3_trust: 0.50
+  gmq_max_spatial_spread_for_p3_trust: 0.70
+  gmq_candidate_disagreement_threshold: 0.45
+  gmq_whole_frame_motion_penalty_threshold: 0.35
+  gmq_global_motion_persistence_frames: 3
+  gmq_background_reliability_min: 0.40
+  gmq_legacy_safe_branch_enabled: true
+  gmq_legacy_safe_min_interval_frames: 2
+  gmq_legacy_safe_max_burst_frames: 8
+  gmq_legacy_safe_cooldown_frames: 8
+  gmq_legacy_safe_branch_quality_threshold: 0.45
+  gmq_ptz_safe_override_enabled: true
+  gmq_ptz_safe_global_motion_threshold: 0.75
+  gmq_ptz_safe_disagreement_threshold: 0.35
+  gmq_ptz_safe_activation_floor: 0.55
+  gmq_ptz_safe_min_legacy_branch_rate: 0.45
+  gmq_ptz_safe_max_legacy_branch_rate: 0.75
+  gmq_ptz_safe_burst_frames: 10
+  gmq_ptz_safe_cooldown_frames: 4
+  gmq_acc_block_under_global_motion_enabled: true
+  gmq_acc_min_temporal_consistency_global_motion: 0.20
+  gmq_acc_min_background_reliability_global_motion: 0.40
+  ptz_emergency_enabled: true
+  ptz_emergency_global_motion_threshold: 0.75
+  ptz_emergency_disagreement_threshold: 0.30
+  ptz_emergency_acc_temporal_consistency_min: 0.20
+  ptz_emergency_background_reliability_min: 0.45
+  ptz_emergency_activation_floor: 0.75
+  ptz_emergency_min_persistence_frames: 6
+  ptz_emergency_min_burst_frames: 12
+  ptz_emergency_max_burst_frames: 20
+  ptz_emergency_cooldown_frames: 3
+  ptz_emergency_allow_closed_empty: false
+  ptz_emergency_allow_acc: false
+  ptz_emergency_allow_lightweight_p3: false
+  gmq_event_continuity_enabled: true
+  gmq_event_memory_frames: 8
+  gmq_max_closed_empty_during_active_event: 0
+  gmq_low_light_event_risk_boost: 0.25
+  gmq_event_hard_veto_enabled: true
+  gmq_confident_empty_min_quality: 0.70
+  gmq_event_detect_min_interval_frames: 3
+  gmq_event_reuse_min_confidence: 0.20
+  final_action_sanitizer_enabled: true
+  final_sanitizer_block_closed_empty_ptz: true
+  final_sanitizer_block_closed_empty_event: true
+  final_sanitizer_event_reuse_min_confidence: 0.20
+  final_sanitizer_event_detect_min_interval_frames: 2
+  final_sanitizer_event_risk_threshold: 0.95
+  final_sanitizer_extreme_overload_ms: 1500
+  ptz_closed_empty_kill_switch_enabled: true
+  ptz_closed_empty_kill_requires_global_motion: true
+  ptz_closed_empty_replacement_min_quality: 0.15
+  ptz_closed_empty_allow_reuse_min_confidence: 0.10
+  ptz_closed_empty_allow_cadence_override: true
+  ptz_closed_empty_max_extra_refreshes_per_100_frames: 20
+  gmq_motion_compensation_enabled: false
+  gmq_motion_compensation_method: "phase_correlation_shift"
+  gmq_motion_compensation_resize_width: 160
+  motion_comp_probe_enabled: true
+  motion_comp_behavior_enabled: true
+  motion_comp_method: "phase_correlation_shift"
+  motion_comp_resize_width: 160
+  motion_comp_min_response: 0.20
+  motion_comp_max_residual_ratio_for_reuse: 0.35
+  motion_comp_min_compensated_iou_for_reuse: 0.20
+  motion_comp_min_compensated_iou_for_trust: 0.25
+  motion_comp_trust_band_enabled: true
+  motion_comp_iou_high_threshold: 0.55
+  motion_comp_iou_medium_threshold: 0.25
+  motion_comp_residual_high_threshold: 0.55
+  motion_comp_residual_medium_threshold: 0.35
+  motion_comp_disagreement_high_threshold: 0.55
+  motion_comp_max_shift_px_for_fast_path: 12
+  motion_comp_strict_risk_gate_enabled: true
+  motion_comp_behavior_mode: "strict_camera_motion_only"
+  motion_comp_diagnostics_mode: "risk_gated"
+  motion_comp_allow_behavior_on_low_light_only: false
+  motion_comp_allow_behavior_on_dynamic_background_only: false
+  motion_comp_allow_behavior_on_shadow_only: false
+  motion_comp_confirmed_global_motion_threshold: 0.80
+  motion_comp_confirmed_disagreement_threshold: 0.45
+  motion_comp_confirmed_persistence_frames: 4
+  ptz_detector_floor_enabled: true
+  ptz_detector_floor_min_activation: 0.70
+  ptz_detector_floor_strict_budget_enabled: true
+  ptz_detector_floor_interval_frames: 3
+  ptz_detector_floor_max_extra_refreshes_per_100_frames: 20
+  ptz_detector_floor_high_residual_interval_frames: 2
+  ptz_detector_floor_min_gap_frames: 2
+  ptz_cadence_thinning_enabled: true
+  ptz_legacy_safe_max_rate: 0.45
+  ptz_detector_like_min_interval_frames: 3
+  ptz_medium_trust_allow_lightweight_acc: true
+  ptz_medium_trust_allow_reuse_acc: true
+  ptz_reuse_min_compensated_iou: 0.30
+  ptz_lightweight_acc_min_compensated_iou: 0.25
+  continuous_pan_signature_enabled: true
+  continuous_pan_min_persistence_frames: 4
+  continuous_pan_max_shift_variance: 0.35
+  continuous_pan_block_if_position_switch: true
+  continuous_pan_block_if_zoom_scale_suspect: true
+  continuous_pan_trust_relaxation_enabled: true
+  continuous_pan_relaxed_iou_threshold: 0.18
+  continuous_pan_recent_anchor_frames: 2
+  continuous_pan_max_residual_for_relaxed_trust: 0.65
+  continuous_pan_allow_medium_trust_after_anchor: true
+  continuous_pan_anchor_cadence_enabled: true
+  continuous_pan_real_high_trust_iou: 0.55
+  continuous_pan_real_high_trust_residual: 0.35
+  continuous_pan_relaxed_trust_allows_reuse: false
+  continuous_pan_relaxed_trust_allows_lightweight_acc: true
+  continuous_pan_max_reuse_acc_rate: 0.05
+  continuous_pan_reuse_requires_real_high_trust: true
+  continuous_pan_reuse_replacement_prefer_lightweight_acc: true
+  continuous_pan_anchor_interval_frames: 2
+  continuous_pan_max_legacy_safe_rate: 0.60
+  continuous_pan_min_detector_like_anchor_rate: 0.50
+  continuous_pan_inter_anchor_prefer_lightweight_acc: true
+  continuous_pan_allow_reuse_only_if_anchor_recent: true
+  continuous_pan_reuse_max_frames_after_anchor: 1
+  continuous_pan_lightweight_acc_min_quality: 0.15
+  continuous_pan_reuse_min_confidence: 0.25
+  continuous_pan_block_lightweight_p3: true
+  continuous_pan_suppress_on_shift_instability: true
+  continuous_pan_shift_instability_threshold: 0.40
+  position_switch_overrides_continuous_pan: true
+  geometry_strategy_enabled: true
+  fallback_to_phase6b3_position_switch_logic: true
+  fallback_to_phase5b_non_ptz_fast_path: true
+  geometry_probe_enabled: true
+  geometry_probe_behavior_enabled: true
+  geometry_probe_method: "orb_affine_partial"
+  geometry_probe_resize_width: 240
+  geometry_probe_max_features: 200
+  geometry_probe_min_matches: 12
+  geometry_probe_min_inlier_ratio: 0.25
+  geometry_probe_max_compute_ms: 20
+  geometry_high_trust_iou: 0.50
+  geometry_medium_trust_iou: 0.25
+  geometry_high_trust_residual: 0.30
+  geometry_medium_trust_residual: 0.55
+  geometry_allow_reuse_high_trust_only: true
+  geometry_allow_lightweight_acc_medium_trust: true
+  geometry_block_lightweight_p3: true
+  geometry_position_switch_enabled: true
+  geometry_position_switch_min_inlier_ratio: 0.25
+  geometry_position_switch_max_unstable_frames: 4
+  geometry_position_switch_detector_burst_frames: 3
+  geometry_position_switch_exit_trust_iou: 0.25
+  geometry_position_switch_exit_residual: 0.45
+  zoom_scale_suspect_enabled: true
+  zoom_scale_residual_threshold: 0.55
+  zoom_scale_area_change_threshold: 0.20
+  zoom_scale_force_detector_floor: true
+  gmq_restrict_non_ptz_behavior_enabled: true
+  gmq_non_ptz_behavior_requires_camera_motion: true
+  non_ptz_confirmed_motion_required_for_motion_comp_behavior: true
+  non_ptz_max_motion_comp_behavior_rate: 0.02
+  gmq_dynamic_background_escape_enabled: true
+  low_framerate_cadence_guard_enabled: true
+  low_framerate_min_activation_floor: 0.70
+  low_framerate_max_reuse_age_frames: 1
+  position_switch_guard_enabled: true
+  position_switch_reuse_block_frames: 3
+  position_switch_detector_refresh_frames: 2
+  position_switch_emergency_max_frames: 4
+  position_switch_reset_enabled: true
+  position_switch_reset_detector_frames: 3
+  position_switch_max_emergency_frames: 5
+  position_switch_exit_iou_threshold: 0.25
+  position_switch_exit_residual_threshold: 0.40
+  position_switch_allow_fast_path_after_reset: true
+  teacher_ranker_enabled: true
+  teacher_ranker_behavior_enabled: true
+  teacher_ranker_scope: "confirmed_camera_motion_only"
+  teacher_ranker_block_closed_empty: true
+  teacher_ranker_block_reuse_low_trust: true
+  teacher_ranker_block_lightweight_p3_ptz: true
+  teacher_ranker_require_detector_like_legacy: true
+  teacher_ranker_max_frames_since_detector_low_trust: 2
+  teacher_ranker_low_trust_prefer: "FALLBACK_P3_GUARD"
+  teacher_ranker_medium_trust_prefer: "LIGHTWEIGHT_MASK_ACC"
+  teacher_ranker_high_trust_prefer: "LIGHTWEIGHT_MASK_ACC"
+  teacher_ranker_acc_quality_min_medium: 0.20
+  teacher_ranker_acc_quality_min_low: 0.35
+  teacher_ranker_reuse_requires_real_high_trust: true
+  teacher_ranker_reuse_max_age_frames: 1
+  event_safe_cadence_thinning_enabled: true
+  event_detect_acc_max_rate: 0.50
+  event_detect_acc_min_interval_frames: 2
+  event_safe_reuse_min_confidence: 0.20
+  event_safe_lightweight_acc_min_quality: 0.25
+
+cdnet_gt:
+  enabled: true
+  foreground_values: [255]
+  background_values: [0]
+  ignore_values: [50, 85, 170]
+
+object_level_metrics:
+  enabled: true
+  source: "mask_to_boxes"
+  iou_thresholds: [0.3, 0.5, 0.75]
+  map_50_95: true
+  min_gt_area: 20
+  min_pred_area: 20
+  confidence_mode: "proxy_if_missing"
+
+event_metrics:
+  enabled: true
+
+energy_proxy:
+  enabled: true
+  mode: "proxy"
+  E_base: 1.0
+  E_gate: 0.2
+  E_yolo: 5.0
+  E_reuse: 0.1
+  E_mog2: 0.5
+  E_framediff: 0.1
+  unit: "relative_energy_unit"
+
+pareto:
+  enabled: true
+  ae_score_formula:
+    FMeasure_weight: 0.25
+    Event_F1_weight: 0.25
+    mAP_50_weight: 0.20
+    Activation_saving_weight: 0.15
+    FPS_norm_weight: 0.10
+    Energy_saving_weight: 0.05
+
+p4_asmag_plus:
+  min_area_ratio: 0.0008
+  open_threshold: 0.55
+  close_threshold: 0.30
+  watchdog_closed_frames: 12
+  watchdog_interval: 6
+  recent_object_memory: 30
+  entropy_threshold: 8.5
+  use_component_entropy: true
+  use_hysteresis: true
+  use_dual_mask: true
+
+p4_efficient:
+  open_threshold: 0.72
+  close_threshold: 0.45
+  force_close_threshold: 0.78
+  beta: 0.7
+  max_open_streak: 12
+  cooldown_frames: 1
+  sample_interval: 10
+  min_area_ratio: 0.0015
+  use_final_mask_from: "P4_ASMAG_PLUS"
+  reuse_max_age: 5
+  reuse_max_eval_age: 5
+  reuse_max_raw_age: null
+  reuse_decay: false
+  reuse_stop_closed_streak: 8

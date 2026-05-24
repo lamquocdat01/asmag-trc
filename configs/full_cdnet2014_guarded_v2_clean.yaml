@@ -1,0 +1,40 @@
+base_config: guarded_v2_residual_risk_subset_dryrun.yaml
+
+experiment_name: full_cdnet2014_guarded_v2_clean
+output_root: "outputs"
+resume_existing_results: false
+checkpoint_resume: true
+
+# Run all 11 categories (subset only had 9, missing baseline + cameraJitter)
+categories:
+  - badWeather
+  - baseline
+  - cameraJitter
+  - dynamicBackground
+  - intermittentObjectMotion
+  - lowFramerate
+  - nightVideos
+  - PTZ
+  - shadow
+  - thermal
+  - turbulence
+
+# Clear the 14-video filter from subset — process all 53 videos
+videos: "auto"
+
+# Only GUARDED pipeline (subset had 4)
+pipelines:
+  - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+# Full frame evaluation (subset used frame_step=5, max 500)
+evaluation:
+  frame_step: 1
+  max_frames_per_video: null
+
+edge_profile:
+  name: full_cdnet2014_guarded_v2_clean_cpu_edge
+
+# NOTE: ai_intervention_dry_run is intentionally NOT set here.
+# The subset chain sets online_controller_guarded.ai_intervention_dry_run: true (nested, controller-level).
+# The top-level ai_intervention_dry_run defaults to False, allowing arb_v2 to fire.
+# The old full_cdnet2014_guarded_v2_only.yaml had top-level ai_intervention_dry_run: True which blocked arb_v2.

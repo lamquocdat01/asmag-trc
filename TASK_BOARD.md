@@ -28,18 +28,18 @@
 <!-- G2G3_AUTO_STATUS_START -->
 ## G2G3 Auto Resume Status
 
-- Updated at: `2026-05-21T13:58:07`
+- Updated at: `2026-05-24T10:23:01`
 - Event: run completed or paused after selected batch
-- Completed: `56 / 56`
+- Completed: `53 / 53`
 - Pending: `0`
 - Running: `0`
 - Failed: `0`
 - Overall progress: `100.0000%`
-- Completed videos: `0 / 14`
-- Jobs completed this session: `30`
-- Last completed job: `turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED`
+- Completed videos: `0 / 53`
+- Jobs completed this session: `12`
+- Last completed job: `turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED`
 - Next pending job: `-`
-- Resume command: `python src/run_experiment.py --config configs/guarded_v2_residual_risk_subset_dryrun.yaml --max-jobs-per-run 30`
+- Resume command: `python src/run_experiment.py --config configs/full_cdnet2014_guarded_v2_clean.yaml --max-jobs-per-run 15`
 
 ### Failed Jobs
 

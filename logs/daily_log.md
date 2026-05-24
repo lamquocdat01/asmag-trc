@@ -11292,3 +11292,245 @@ Ket qua representative:
 - `2026-05-21T13:57:51` G2G3 auto status: completed turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=56/56, pending=0, running=0, failed=0, videos=0/14, session_completed=30, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
 
 - `2026-05-21T13:58:07` G2G3 auto status: run completed or paused after selected batch; completed=56/56, pending=0, running=0, failed=0, videos=0/14, session_completed=30, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-21T17:06:03` G2G3 auto status: completed badWeather/blizzard/P1_YOLO_Only; completed=1/371, pending=370, running=0, failed=0, videos=0/53, session_completed=1, last=badWeather/blizzard/P1_YOLO_Only, next=badWeather/blizzard/P2_FrameDiff
+
+- `2026-05-21T17:16:00` G2G3 auto status: completed badWeather/blizzard/P2_FrameDiff; completed=2/371, pending=369, running=0, failed=0, videos=0/53, session_completed=2, last=badWeather/blizzard/P2_FrameDiff, next=badWeather/blizzard/P3_MOG2
+
+- `2026-05-21T17:34:59` G2G3 auto status: completed badWeather/blizzard/P3_MOG2; completed=3/371, pending=368, running=0, failed=0, videos=0/53, session_completed=3, last=badWeather/blizzard/P3_MOG2, next=badWeather/blizzard/ASMAG_TR_FAST
+
+- `2026-05-21T18:44:37` G2G3 auto status: completed badWeather/blizzard/ASMAG_TR_FAST; completed=4/371, pending=367, running=0, failed=0, videos=0/53, session_completed=4, last=badWeather/blizzard/ASMAG_TR_FAST, next=badWeather/blizzard/ASMAG_TR_CONTROLLER
+
+- `2026-05-21T19:01:55` G2G3 auto status: completed badWeather/blizzard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=1/53, pending=52, running=0, failed=0, videos=0/53, session_completed=1, last=badWeather/blizzard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=badWeather/skating/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:14:44` G2G3 auto status: completed badWeather/skating/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=2/53, pending=51, running=0, failed=0, videos=0/53, session_completed=2, last=badWeather/skating/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:30:18` G2G3 auto status: completed badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=3/53, pending=50, running=0, failed=0, videos=0/53, session_completed=3, last=badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=badWeather/wetSnow/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:42:31` G2G3 auto status: completed badWeather/wetSnow/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=4/53, pending=49, running=0, failed=0, videos=0/53, session_completed=4, last=badWeather/wetSnow/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/highway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:45:46` G2G3 auto status: completed baseline/highway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=5/53, pending=48, running=0, failed=0, videos=0/53, session_completed=5, last=baseline/highway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/office/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:50:36` G2G3 auto status: completed baseline/office/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=6/53, pending=47, running=0, failed=0, videos=0/53, session_completed=6, last=baseline/office/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/pedestrians/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:53:18` G2G3 auto status: completed baseline/pedestrians/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=7/53, pending=46, running=0, failed=0, videos=0/53, session_completed=7, last=baseline/pedestrians/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/PETS2006/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:57:00` G2G3 auto status: completed baseline/PETS2006/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=8/53, pending=45, running=0, failed=0, videos=0/53, session_completed=8, last=baseline/PETS2006/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/badminton/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T19:58:23` G2G3 auto status: completed cameraJitter/badminton/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=9/53, pending=44, running=0, failed=0, videos=0/53, session_completed=9, last=cameraJitter/badminton/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/boulevard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T20:05:12` G2G3 auto status: completed cameraJitter/boulevard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=10/53, pending=43, running=0, failed=0, videos=0/53, session_completed=10, last=cameraJitter/boulevard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T20:05:39` G2G3 auto status: run completed or paused after selected batch; completed=10/53, pending=43, running=0, failed=0, videos=0/53, session_completed=10, last=cameraJitter/boulevard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T20:22:35` G2G3 auto status: completed cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=11/53, pending=42, running=0, failed=0, videos=0/53, session_completed=1, last=cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/traffic/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T20:25:04` G2G3 auto status: completed cameraJitter/traffic/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=12/53, pending=41, running=0, failed=0, videos=0/53, session_completed=2, last=cameraJitter/traffic/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/boats/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:02:15` G2G3 auto status: completed dynamicBackground/boats/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=13/53, pending=40, running=0, failed=0, videos=0/53, session_completed=3, last=dynamicBackground/boats/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/canoe/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:04:03` G2G3 auto status: completed dynamicBackground/canoe/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=14/53, pending=39, running=0, failed=0, videos=0/53, session_completed=4, last=dynamicBackground/canoe/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:21:31` G2G3 auto status: completed dynamicBackground/fall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=15/53, pending=38, running=0, failed=0, videos=0/53, session_completed=5, last=dynamicBackground/fall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:25:59` G2G3 auto status: completed dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=16/53, pending=37, running=0, failed=0, videos=0/53, session_completed=6, last=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:28:02` G2G3 auto status: completed dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=17/53, pending=36, running=0, failed=0, videos=0/53, session_completed=7, last=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/overpass/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:35:11` G2G3 auto status: completed dynamicBackground/overpass/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=18/53, pending=35, running=0, failed=0, videos=0/53, session_completed=8, last=dynamicBackground/overpass/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/abandonedBox/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:43:52` G2G3 auto status: completed intermittentObjectMotion/abandonedBox/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=19/53, pending=34, running=0, failed=0, videos=0/53, session_completed=9, last=intermittentObjectMotion/abandonedBox/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:48:05` G2G3 auto status: completed intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=20/53, pending=33, running=0, failed=0, videos=0/53, session_completed=10, last=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T21:49:31` G2G3 auto status: run completed or paused after selected batch; completed=20/53, pending=33, running=0, failed=0, videos=0/53, session_completed=10, last=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T22:44:41` G2G3 auto status: completed intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=21/53, pending=32, running=0, failed=0, videos=0/53, session_completed=1, last=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/streetLight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T22:57:22` G2G3 auto status: completed intermittentObjectMotion/streetLight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=22/53, pending=31, running=0, failed=0, videos=0/53, session_completed=2, last=intermittentObjectMotion/streetLight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/tramstop/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-21T23:04:42` G2G3 auto status: completed intermittentObjectMotion/tramstop/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=23/53, pending=30, running=0, failed=0, videos=0/53, session_completed=3, last=intermittentObjectMotion/tramstop/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/winterDriveway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:00:28` G2G3 auto status: completed intermittentObjectMotion/winterDriveway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=24/53, pending=29, running=0, failed=0, videos=0/53, session_completed=1, last=intermittentObjectMotion/winterDriveway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:06:32` G2G3 auto status: completed lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=25/53, pending=28, running=0, failed=0, videos=0/53, session_completed=2, last=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/tramCrossroad_1fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:08:52` G2G3 auto status: completed lowFramerate/tramCrossroad_1fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=26/53, pending=27, running=0, failed=0, videos=0/53, session_completed=3, last=lowFramerate/tramCrossroad_1fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:17:23` G2G3 auto status: completed lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=27/53, pending=26, running=0, failed=0, videos=0/53, session_completed=4, last=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/turnpike_0_5fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:19:42` G2G3 auto status: completed lowFramerate/turnpike_0_5fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=28/53, pending=25, running=0, failed=0, videos=0/53, session_completed=5, last=lowFramerate/turnpike_0_5fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:27:05` G2G3 auto status: completed nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=29/53, pending=24, running=0, failed=0, videos=0/53, session_completed=6, last=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/busyBoulvard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:35:55` G2G3 auto status: completed nightVideos/busyBoulvard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=30/53, pending=23, running=0, failed=0, videos=0/53, session_completed=7, last=nightVideos/busyBoulvard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/fluidHighway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:40:37` G2G3 auto status: completed nightVideos/fluidHighway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=31/53, pending=22, running=0, failed=0, videos=0/53, session_completed=8, last=nightVideos/fluidHighway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/streetCornerAtNight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T09:51:22` G2G3 auto status: completed nightVideos/streetCornerAtNight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=32/53, pending=21, running=0, failed=0, videos=0/53, session_completed=9, last=nightVideos/streetCornerAtNight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/tramStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T10:02:21` G2G3 auto status: completed nightVideos/tramStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=33/53, pending=20, running=0, failed=0, videos=0/53, session_completed=10, last=nightVideos/tramStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/winterStreet/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T10:04:31` G2G3 auto status: run completed or paused after selected batch; completed=33/53, pending=20, running=0, failed=0, videos=0/53, session_completed=10, last=nightVideos/tramStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/winterStreet/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T10:53:13` G2G3 auto status: completed nightVideos/winterStreet/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=34/53, pending=19, running=0, failed=0, videos=0/53, session_completed=1, last=nightVideos/winterStreet/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:00:33` G2G3 auto status: completed PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=35/53, pending=18, running=0, failed=0, videos=0/53, session_completed=2, last=PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:11:11` G2G3 auto status: completed PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=36/53, pending=17, running=0, failed=0, videos=0/53, session_completed=3, last=PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/twoPositionPTZCam/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:16:51` G2G3 auto status: completed PTZ/twoPositionPTZCam/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=37/53, pending=16, running=0, failed=0, videos=0/53, session_completed=4, last=PTZ/twoPositionPTZCam/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/zoomInZoomOut/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:22:15` G2G3 auto status: completed PTZ/zoomInZoomOut/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=38/53, pending=15, running=0, failed=0, videos=0/53, session_completed=5, last=PTZ/zoomInZoomOut/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/backdoor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:25:51` G2G3 auto status: completed shadow/backdoor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=39/53, pending=14, running=0, failed=0, videos=0/53, session_completed=6, last=shadow/backdoor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/bungalows/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:30:09` G2G3 auto status: completed shadow/bungalows/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=40/53, pending=13, running=0, failed=0, videos=0/53, session_completed=7, last=shadow/bungalows/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/busStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:33:36` G2G3 auto status: completed shadow/busStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=41/53, pending=12, running=0, failed=0, videos=0/53, session_completed=8, last=shadow/busStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T11:45:59` G2G3 auto status: completed shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=42/53, pending=11, running=0, failed=0, videos=0/53, session_completed=9, last=shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T12:06:11` G2G3 auto status: completed shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=43/53, pending=10, running=0, failed=0, videos=0/53, session_completed=10, last=shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/peopleInShade/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T12:09:08` G2G3 auto status: run completed or paused after selected batch; completed=43/53, pending=10, running=0, failed=0, videos=0/53, session_completed=10, last=shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/peopleInShade/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T12:39:30` G2G3 auto status: completed shadow/peopleInShade/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=44/53, pending=9, running=0, failed=0, videos=0/53, session_completed=1, last=shadow/peopleInShade/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/corridor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T12:56:01` G2G3 auto status: completed thermal/corridor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=45/53, pending=8, running=0, failed=0, videos=0/53, session_completed=2, last=thermal/corridor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/diningRoom/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T13:08:21` G2G3 auto status: completed thermal/diningRoom/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=46/53, pending=7, running=0, failed=0, videos=0/53, session_completed=3, last=thermal/diningRoom/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T13:28:16` G2G3 auto status: completed thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=47/53, pending=6, running=0, failed=0, videos=0/53, session_completed=4, last=thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/library/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T13:44:06` G2G3 auto status: completed thermal/library/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=48/53, pending=5, running=0, failed=0, videos=0/53, session_completed=5, last=thermal/library/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/park/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T13:45:43` G2G3 auto status: completed thermal/park/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=49/53, pending=4, running=0, failed=0, videos=0/53, session_completed=6, last=thermal/park/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence0/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T14:07:11` G2G3 auto status: completed turbulence/turbulence0/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=50/53, pending=3, running=0, failed=0, videos=0/53, session_completed=7, last=turbulence/turbulence0/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence1/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T14:24:06` G2G3 auto status: completed turbulence/turbulence1/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=51/53, pending=2, running=0, failed=0, videos=0/53, session_completed=8, last=turbulence/turbulence1/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T14:34:51` G2G3 auto status: completed turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=52/53, pending=1, running=0, failed=0, videos=0/53, session_completed=9, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T14:42:38` G2G3 auto status: completed turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=53/53, pending=0, running=0, failed=0, videos=0/53, session_completed=10, last=turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-23T14:46:04` G2G3 auto status: run completed or paused after selected batch; completed=53/53, pending=0, running=0, failed=0, videos=0/53, session_completed=10, last=turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-23T16:05:05` G2G3 auto status: completed badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=1/1, pending=0, running=0, failed=0, videos=0/1, session_completed=1, last=badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-23T16:05:19` G2G3 auto status: run completed or paused after selected batch; completed=1/1, pending=0, running=0, failed=0, videos=0/1, session_completed=1, last=badWeather/snowFall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-23T16:28:53` G2G3 auto status: completed badWeather/blizzard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=2/53, pending=51, running=0, failed=0, videos=0/53, session_completed=1, last=badWeather/blizzard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=badWeather/skating/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T17:22:59` G2G3 auto status: completed badWeather/skating/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=3/53, pending=50, running=0, failed=0, videos=0/53, session_completed=2, last=badWeather/skating/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=badWeather/wetSnow/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T17:34:43` G2G3 auto status: completed badWeather/wetSnow/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=4/53, pending=49, running=0, failed=0, videos=0/53, session_completed=3, last=badWeather/wetSnow/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/highway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T17:38:30` G2G3 auto status: completed baseline/highway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=5/53, pending=48, running=0, failed=0, videos=0/53, session_completed=4, last=baseline/highway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/office/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T17:43:27` G2G3 auto status: completed baseline/office/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=6/53, pending=47, running=0, failed=0, videos=0/53, session_completed=5, last=baseline/office/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/pedestrians/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T17:46:06` G2G3 auto status: completed baseline/pedestrians/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=7/53, pending=46, running=0, failed=0, videos=0/53, session_completed=6, last=baseline/pedestrians/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=baseline/PETS2006/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T17:49:55` G2G3 auto status: completed baseline/PETS2006/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=8/53, pending=45, running=0, failed=0, videos=0/53, session_completed=7, last=baseline/PETS2006/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/badminton/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T17:52:09` G2G3 auto status: completed cameraJitter/badminton/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=9/53, pending=44, running=0, failed=0, videos=0/53, session_completed=8, last=cameraJitter/badminton/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/boulevard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T18:03:28` G2G3 auto status: completed cameraJitter/boulevard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=10/53, pending=43, running=0, failed=0, videos=0/53, session_completed=9, last=cameraJitter/boulevard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T18:05:39` G2G3 auto status: completed cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=11/53, pending=42, running=0, failed=0, videos=0/53, session_completed=10, last=cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/traffic/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T18:06:30` G2G3 auto status: run completed or paused after selected batch; completed=11/53, pending=42, running=0, failed=0, videos=0/53, session_completed=10, last=cameraJitter/sidewalk/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=cameraJitter/traffic/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T18:27:04` G2G3 auto status: completed cameraJitter/traffic/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=12/53, pending=41, running=0, failed=0, videos=0/53, session_completed=1, last=cameraJitter/traffic/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/boats/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T18:56:29` G2G3 auto status: completed dynamicBackground/boats/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=13/53, pending=40, running=0, failed=0, videos=0/53, session_completed=2, last=dynamicBackground/boats/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/canoe/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T18:59:42` G2G3 auto status: completed dynamicBackground/canoe/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=14/53, pending=39, running=0, failed=0, videos=0/53, session_completed=3, last=dynamicBackground/canoe/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T19:21:43` G2G3 auto status: completed dynamicBackground/fall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=15/53, pending=38, running=0, failed=0, videos=0/53, session_completed=4, last=dynamicBackground/fall/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T19:26:04` G2G3 auto status: completed dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=16/53, pending=37, running=0, failed=0, videos=0/53, session_completed=5, last=dynamicBackground/fountain01/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T19:28:44` G2G3 auto status: completed dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=17/53, pending=36, running=0, failed=0, videos=0/53, session_completed=6, last=dynamicBackground/fountain02/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=dynamicBackground/overpass/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T19:36:52` G2G3 auto status: completed dynamicBackground/overpass/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=18/53, pending=35, running=0, failed=0, videos=0/53, session_completed=7, last=dynamicBackground/overpass/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/abandonedBox/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T19:46:41` G2G3 auto status: completed intermittentObjectMotion/abandonedBox/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=19/53, pending=34, running=0, failed=0, videos=0/53, session_completed=8, last=intermittentObjectMotion/abandonedBox/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T19:50:53` G2G3 auto status: completed intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=20/53, pending=33, running=0, failed=0, videos=0/53, session_completed=9, last=intermittentObjectMotion/parking/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T20:01:06` G2G3 auto status: completed intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=21/53, pending=32, running=0, failed=0, videos=0/53, session_completed=10, last=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/streetLight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T20:02:39` G2G3 auto status: run completed or paused after selected batch; completed=21/53, pending=32, running=0, failed=0, videos=0/53, session_completed=10, last=intermittentObjectMotion/sofa/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/streetLight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:16:05` G2G3 auto status: completed intermittentObjectMotion/streetLight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=22/53, pending=31, running=0, failed=0, videos=0/53, session_completed=1, last=intermittentObjectMotion/streetLight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/tramstop/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:23:04` G2G3 auto status: completed intermittentObjectMotion/tramstop/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=23/53, pending=30, running=0, failed=0, videos=0/53, session_completed=2, last=intermittentObjectMotion/tramstop/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=intermittentObjectMotion/winterDriveway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:28:03` G2G3 auto status: completed intermittentObjectMotion/winterDriveway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=24/53, pending=29, running=0, failed=0, videos=0/53, session_completed=3, last=intermittentObjectMotion/winterDriveway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:34:48` G2G3 auto status: completed lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=25/53, pending=28, running=0, failed=0, videos=0/53, session_completed=4, last=lowFramerate/port_0_17fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/tramCrossroad_1fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:37:02` G2G3 auto status: completed lowFramerate/tramCrossroad_1fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=26/53, pending=27, running=0, failed=0, videos=0/53, session_completed=5, last=lowFramerate/tramCrossroad_1fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:44:16` G2G3 auto status: completed lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=27/53, pending=26, running=0, failed=0, videos=0/53, session_completed=6, last=lowFramerate/tunnelExit_0_35fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=lowFramerate/turnpike_0_5fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:50:43` G2G3 auto status: completed lowFramerate/turnpike_0_5fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=28/53, pending=25, running=0, failed=0, videos=0/53, session_completed=7, last=lowFramerate/turnpike_0_5fps/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T21:58:01` G2G3 auto status: completed nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=29/53, pending=24, running=0, failed=0, videos=0/53, session_completed=8, last=nightVideos/bridgeEntry/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/busyBoulvard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T22:08:46` G2G3 auto status: completed nightVideos/busyBoulvard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=30/53, pending=23, running=0, failed=0, videos=0/53, session_completed=9, last=nightVideos/busyBoulvard/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/fluidHighway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T22:13:45` G2G3 auto status: completed nightVideos/fluidHighway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=31/53, pending=22, running=0, failed=0, videos=0/53, session_completed=10, last=nightVideos/fluidHighway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/streetCornerAtNight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T22:16:01` G2G3 auto status: run completed or paused after selected batch; completed=31/53, pending=22, running=0, failed=0, videos=0/53, session_completed=10, last=nightVideos/fluidHighway/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/streetCornerAtNight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:00:56` G2G3 auto status: completed nightVideos/streetCornerAtNight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=32/53, pending=21, running=0, failed=0, videos=0/53, session_completed=1, last=nightVideos/streetCornerAtNight/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/tramStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:12:00` G2G3 auto status: completed nightVideos/tramStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=33/53, pending=20, running=0, failed=0, videos=0/53, session_completed=2, last=nightVideos/tramStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=nightVideos/winterStreet/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:15:29` G2G3 auto status: completed nightVideos/winterStreet/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=34/53, pending=19, running=0, failed=0, videos=0/53, session_completed=3, last=nightVideos/winterStreet/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:23:02` G2G3 auto status: completed PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=35/53, pending=18, running=0, failed=0, videos=0/53, session_completed=4, last=PTZ/continuousPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:33:46` G2G3 auto status: completed PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=36/53, pending=17, running=0, failed=0, videos=0/53, session_completed=5, last=PTZ/intermittentPan/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/twoPositionPTZCam/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:40:02` G2G3 auto status: completed PTZ/twoPositionPTZCam/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=37/53, pending=16, running=0, failed=0, videos=0/53, session_completed=6, last=PTZ/twoPositionPTZCam/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=PTZ/zoomInZoomOut/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:43:52` G2G3 auto status: completed PTZ/zoomInZoomOut/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=38/53, pending=15, running=0, failed=0, videos=0/53, session_completed=7, last=PTZ/zoomInZoomOut/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/backdoor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:46:58` G2G3 auto status: completed shadow/backdoor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=39/53, pending=14, running=0, failed=0, videos=0/53, session_completed=8, last=shadow/backdoor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/bungalows/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:51:24` G2G3 auto status: completed shadow/bungalows/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=40/53, pending=13, running=0, failed=0, videos=0/53, session_completed=9, last=shadow/bungalows/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/busStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:55:02` G2G3 auto status: completed shadow/busStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=41/53, pending=12, running=0, failed=0, videos=0/53, session_completed=10, last=shadow/busStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-23T23:56:56` G2G3 auto status: run completed or paused after selected batch; completed=41/53, pending=12, running=0, failed=0, videos=0/53, session_completed=10, last=shadow/busStation/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T07:50:43` G2G3 auto status: completed shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=42/53, pending=11, running=0, failed=0, videos=0/53, session_completed=1, last=shadow/copyMachine/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T08:11:30` G2G3 auto status: completed shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=43/53, pending=10, running=0, failed=0, videos=0/53, session_completed=2, last=shadow/cubicle/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=shadow/peopleInShade/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T08:14:12` G2G3 auto status: completed shadow/peopleInShade/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=44/53, pending=9, running=0, failed=0, videos=0/53, session_completed=3, last=shadow/peopleInShade/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/corridor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T08:32:07` G2G3 auto status: completed thermal/corridor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=45/53, pending=8, running=0, failed=0, videos=0/53, session_completed=4, last=thermal/corridor/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/diningRoom/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T08:44:22` G2G3 auto status: completed thermal/diningRoom/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=46/53, pending=7, running=0, failed=0, videos=0/53, session_completed=5, last=thermal/diningRoom/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T09:03:03` G2G3 auto status: completed thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=47/53, pending=6, running=0, failed=0, videos=0/53, session_completed=6, last=thermal/lakeSide/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/library/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T09:20:20` G2G3 auto status: completed thermal/library/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=48/53, pending=5, running=0, failed=0, videos=0/53, session_completed=7, last=thermal/library/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=thermal/park/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T09:22:13` G2G3 auto status: completed thermal/park/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=49/53, pending=4, running=0, failed=0, videos=0/53, session_completed=8, last=thermal/park/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence0/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T09:40:32` G2G3 auto status: completed turbulence/turbulence0/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=50/53, pending=3, running=0, failed=0, videos=0/53, session_completed=9, last=turbulence/turbulence0/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence1/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T09:57:25` G2G3 auto status: completed turbulence/turbulence1/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=51/53, pending=2, running=0, failed=0, videos=0/53, session_completed=10, last=turbulence/turbulence1/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T10:11:03` G2G3 auto status: completed turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=52/53, pending=1, running=0, failed=0, videos=0/53, session_completed=11, last=turbulence/turbulence2/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+- `2026-05-24T10:18:24` G2G3 auto status: completed turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED; completed=53/53, pending=0, running=0, failed=0, videos=0/53, session_completed=12, last=turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
+
+- `2026-05-24T10:23:01` G2G3 auto status: run completed or paused after selected batch; completed=53/53, pending=0, running=0, failed=0, videos=0/53, session_completed=12, last=turbulence/turbulence3/ASMAG_TR_CONTROLLER_ONLINE_GUARDED, next=-
