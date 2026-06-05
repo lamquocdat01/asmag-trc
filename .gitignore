@@ -1,6 +1,70 @@
-# Phase 8A generated datasets and model artifacts
-outputs/phase8a_policy_dataset/*.parquet
-outputs/phase8a_policy_dataset/*.pkl
-outputs/phase8a_policy_dataset/*.joblib
-outputs/phase8a_policy_dataset/cache/
-outputs/phase8a_policy_dataset/tmp/
+# Model weights (binary, large)
+models/*.pt
+models/*.onnx
+models/*.engine
+*.pt
+*.onnx
+*.engine
+
+# Generated outputs (large, reproducible)
+outputs/
+results/
+
+# Dataset caches (extracted frames)
+datasets/_frames_cache/
+datasets/**/_frames_cache/
+**/_adapter_cache/
+
+# Internal development docs (not for public release)
+docs/
+manuscript/
+paper/
+logs/
+NEXT_PROMPT_FOR_CODEX.md
+PROJECT_STATE.md
+TASK_BOARD.md
+RUNBOOK.md
+README_QUICKSTART.md
+DAILY_STATUS.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env
+venv/
+.venv/
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large media
+*.zip
+*.tar.gz
+*.mp4
+*.avi
+
+# Trained policy models (large)
+*.pkl
+*.joblib
+*.parquet
