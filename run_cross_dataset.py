@@ -23,6 +23,7 @@ from datasets.base_adapter import CDNet2014Adapter, BaseDatasetAdapter, safe_nam
 from datasets.bmc_adapter import BMCAdapter
 from datasets.lasiesta_adapter import LASIESTAAdapter
 from datasets.sbi2015_adapter import SBI2015Adapter
+from datasets.virat_adapter import VIRATAdapter
 from evaluation.ignore_mask_utils import combine_ignore_masks
 from evaluation.mask_normalization import encode_cdnet_style_gt, normalize_prediction_mask
 from tools.aggregate_cross_dataset import aggregate_cross_dataset
@@ -51,6 +52,8 @@ PIPELINES = [
     "ASMAG_TR_ACC",
     "ASMAG_TR_CONTROLLER",
     "ASMAG_TR_CONTROLLER_ONLINE",
+    "ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED",
+    "ASMAG_TR_CONTROLLER_ONLINE_GUARDED",
 ]
 
 ADAPTERS = {
@@ -63,6 +66,8 @@ ADAPTERS = {
     "sbmi2015": SBI2015Adapter,
     "bmc": BMCAdapter,
     "bmc2012": BMCAdapter,
+    "virat": VIRATAdapter,
+    "virat2": VIRATAdapter,
 }
 
 
