@@ -22,7 +22,10 @@ CODE_INCLUDE = [
     "PROJECT_STATE.md", "TASK_BOARD.md", "LICENSE",
     "run_cross_dataset.py", "jetson_gpu_profiler.py", "jetson_profiler.py",
 ]
-EXCLUDE_DIRS = {"__pycache__", ".git", "outputs", "logs", "models", "manuscript"}
+EXCLUDE_DIRS = {"__pycache__", ".git", "outputs", "logs", "models", "manuscript",
+                # bulky per-run intermediates — keep aggregated results in the record only
+                "raw_results", "charts", "qualitative", "masks", "runs"}
+EXCLUDE_FILES = {"frame_runtime_log.csv", "frame_metrics.csv", "live_progress.json"}
 
 
 def copy_tree(src: Path, dst: Path) -> int:
@@ -34,9 +37,13 @@ def copy_tree(src: Path, dst: Path) -> int:
             n += 1
         return n
     for p in src.rglob("*"):
-        if any(part in EXCLUDE_DIRS for part in p.parts):
-            continue
         rel = p.relative_to(src)
+        # Exclude by path RELATIVE to src (not the absolute path — otherwise a
+        # source under outputs/ excludes everything because "outputs" is a parent).
+        if any(part in EXCLUDE_DIRS for part in rel.parts):
+            continue
+        if p.is_file() and p.name in EXCLUDE_FILES:
+            continue
         out = dst / rel
         if p.is_dir():
             out.mkdir(parents=True, exist_ok=True)
