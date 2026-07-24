@@ -21,6 +21,30 @@ here so the repository is self-contained.
 - **Tailscale (when the Jetson has WAN):** `ssh dat@100.72.207.8` (node `dat-desktop`). The tunnel
   only establishes when the device has internet — if it shows `offline`, fall back to USB-C.
 
+## Network / connectivity diagnosis (2026-07-24)
+
+**Symptom:** Tailscale showed `dat-desktop` *offline, last seen ~4 days ago*; the PC could not
+SSH it over Tailscale or find it on the Wi-Fi subnet.
+
+**Root cause:** the Jetson was simply **powered off / down for ~4 days** — `uptime` showed
+`up 16 minutes` (booted 2026-07-24 19:43). There was **no Wi-Fi driver or profile fault**: on
+boot, `wlP1p1s0` (Realtek **RTL8822CE** PCIe adapter) auto-reconnected to SSID **"PhucMinh"**
+(`192.168.1.246/24`, signal −45 dBm, full WAN — `ping 8.8.8.8` and DNS both 0 % loss). The saved
+NetworkManager profile is intact with `autoconnect=yes`. `nmcli general` → `connected / full`;
+`rfkill` → no blocks. Once WAN returned, **Tailscale re-established automatically** (from the PC:
+`tailscale ping` → *pong via 192.168.1.246 in 31 ms*; SSH over `100.72.207.8` works).
+
+**Why direct LAN SSH failed even though both are on router "PhucMinh":** the router has
+**AP/client isolation** (the Jetson's Wi-Fi AP BSSID `EC:84:B4:BB:AC:6D` is the same router as the
+PC gateway `…AC:6C`, yet a full `192.168.1.0/24` port-22 scan from the PC found nothing). Client
+isolation blocks PC↔Jetson direct traffic — so **use Tailscale (preferred) or USB-C**, not the LAN IP.
+
+**Stability note for long E6 runs:** Wi-Fi `power_save` is **on** (a known RTL8822CE intermittent-drop
+cause). To harden the link before an overnight run:
+`sudo iw dev wlP1p1s0 set power_save off` (runtime) or persist via NetworkManager
+`nmcli c modify PhucMinh 802-11-wireless.powersave 2`. Regardless, run measurements **detached**
+(`nohup`/`tmux`) with an incremental CSV so a transient drop never kills the run.
+
 ## On-device layout
 
 | Path | What |
