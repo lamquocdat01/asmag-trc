@@ -1,9 +1,18 @@
-import os, time, csv, threading, subprocess, re, warnings, psutil
+import os, sys, time, csv, threading, subprocess, re, warnings, psutil
 import numpy as np
 import cv2
 warnings.filterwarnings("ignore")
 import torch
 from ultralytics import YOLO
+
+# E1 [R3.2] Persistent-motion circuit breaker — shared with the CPU runner
+# (src/safety/circuit_breaker.py). The repo's src/ must be present on device;
+# see jetson/README.md.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
+from safety.circuit_breaker import PersistentMotionCircuitBreaker
+
+CB_CFG = {"enabled": True, "theta_high": 0.85, "theta_low": 0.60,
+          "window": 60, "probe_every": 300, "probe_len": 30}
 
 print(f"torch {torch.__version__} CUDA:{torch.cuda.is_available()}")
 if torch.cuda.is_available():
@@ -177,16 +186,20 @@ FIELDS = [
     "ram_avg_mb", "ram_max_mb",
     "gpu_mem_peak_mb",
     "temp_avg_c", "temp_max_c",
+    "cb_entered", "cb_bypass_frames", "cb_bypass_rate",
 ]
 
 for cat, vid, idir in videos:
     files = sorted(f for f in os.listdir(idir) if f.endswith((".jpg", ".png")))
     print(f"\n--- {cat}/{vid} ({len(files)} frames, {W}x{H}) ---")
 
-    for pipe in ["P1_YOLO_Only", "P3_MOG2", "GUARDED"]:
+    for pipe in ["P1_YOLO_Only", "P3_MOG2", "GUARDED", "GUARDED_CB"]:
         print(f"  {pipe} ... ", end="", flush=True)
         bg = cv2.createBackgroundSubtractorMOG2(200, 16, True) if pipe != "P1_YOLO_Only" else None
         lat, yolo_n = [], 0
+        cb = PersistentMotionCircuitBreaker(CB_CFG) if pipe == "GUARDED_CB" else None
+        cb_prev_motion = 1.0
+        cb_bypass_n = 0
         tg = TegrastatsLogger()
 
         if torch.cuda.is_available():
@@ -211,7 +224,7 @@ for cat, vid, idir in videos:
                     yolo_n += 1
             elif pipe == "P3_MOG2":
                 bg.apply(frame)
-            else:
+            elif pipe == "GUARDED":
                 mask = bg.apply(frame)
                 ratio = np.count_nonzero(mask > 127) / mask.size
                 if ratio > 0.02:
@@ -219,6 +232,25 @@ for cat, vid, idir in videos:
                         model(frame, verbose=False, device=device)
                     if i >= WARMUP:
                         yolo_n += 1
+            else:  # GUARDED_CB — circuit breaker skips MOG2 during persistent motion
+                dec = cb.step(cb_prev_motion)
+                if dec["cb_bypass_active"]:
+                    # BYPASS: skip bg.apply() entirely, detect every frame (P1 behaviour)
+                    with torch.no_grad():
+                        model(frame, verbose=False, device=device)
+                    if i >= WARMUP:
+                        yolo_n += 1
+                        cb_bypass_n += 1
+                else:
+                    # ACTIVE/PROBE: run MOG2, measure motion, feed the breaker
+                    mask = bg.apply(frame)
+                    ratio = np.count_nonzero(mask > 127) / mask.size
+                    cb_prev_motion = 1.0 if ratio > 0.02 else 0.0
+                    if ratio > 0.02:
+                        with torch.no_grad():
+                            model(frame, verbose=False, device=device)
+                        if i >= WARMUP:
+                            yolo_n += 1
 
             if torch.cuda.is_available():
                 torch.cuda.synchronize()
@@ -262,6 +294,9 @@ for cat, vid, idir in videos:
             "gpu_mem_peak_mb": round(gpu_mem_peak, 1),
             "temp_avg_c": hw["temp_avg_c"],
             "temp_max_c": hw["temp_max_c"],
+            "cb_entered": (cb.cb_entered if cb else 0),
+            "cb_bypass_frames": cb_bypass_n,
+            "cb_bypass_rate": round(cb_bypass_n / n, 4) if n else 0.0,
         }
         rows.append(row)
         print(f"fps={fps:.1f} act={act:.2f} pwr={hw['vdd_in_avg_mw']:.0f}mW gpu={hw['gpu_avg_pct']:.0f}% temp={hw['temp_max_c']:.0f}C")
@@ -285,7 +320,7 @@ print(f"Model: yolo26s.pt ({os.path.getsize('/models/yolo26s.pt')/1024/1024:.1f}
 print(f"Resolution: {W}x{H}")
 
 print("\n===== PIPELINE SUMMARY =====")
-for p in ["P1_YOLO_Only", "P3_MOG2", "GUARDED"]:
+for p in ["P1_YOLO_Only", "P3_MOG2", "GUARDED", "GUARDED_CB"]:
     rs = [r for r in rows if r["pipeline"] == p]
     if not rs:
         continue
@@ -315,3 +350,19 @@ if p1_rs and gu_rs:
     print(f"  Power:  {p1_pwr:.0f} -> {gu_pwr:.0f}mW ({(1-gu_pwr/p1_pwr)*100:.0f}% saving)")
     print(f"  Energy: {p1_eng:.1f} -> {gu_eng:.1f}mJ ({(1-gu_eng/p1_eng)*100:.0f}% saving)")
     print(f"  Act:    1.000 -> {np.mean([r['activation_rate'] for r in gu_rs]):.3f}")
+
+cb_rs = [r for r in rows if r["pipeline"] == "GUARDED_CB"]
+if p1_rs and cb_rs:
+    print("\n===== GUARDED_CB vs P1_YOLO_Only (circuit breaker) =====")
+    p1_eng = np.mean([r["energy_per_frame_mj"] for r in p1_rs])
+    cb_eng = np.mean([r["energy_per_frame_mj"] for r in cb_rs])
+    cb_pwr = np.mean([r["vdd_in_avg_mw"] for r in cb_rs])
+    p1_pwr = np.mean([r["vdd_in_avg_mw"] for r in p1_rs])
+    print(f"  Power:  {p1_pwr:.0f} -> {cb_pwr:.0f}mW")
+    print(f"  Energy: {p1_eng:.1f} -> {cb_eng:.1f}mJ/frame  (target: <= P1 + epsilon)")
+    print(f"  Bypass: {np.mean([r['cb_bypass_rate'] for r in cb_rs])*100:.1f}% of frames, "
+          f"entered on {sum(1 for r in cb_rs if r['cb_entered'] > 0)}/{len(cb_rs)} videos")
+    if gu_rs:
+        gu_eng = np.mean([r["energy_per_frame_mj"] for r in gu_rs])
+        print(f"  vs GUARDED: {gu_eng:.1f} -> {cb_eng:.1f}mJ/frame "
+              f"({(1-cb_eng/gu_eng)*100:+.1f}% vs guarded)")

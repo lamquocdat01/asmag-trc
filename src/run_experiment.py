@@ -39,6 +39,7 @@ from gating.gates import (
 from metrics.metrics import pixel_metrics, event_state_from_masks, summarize_event, aggregate_pixel, valid_gt_mask
 from metrics.cdnet_pixel_metrics import build_cdnet_metrics_summary
 from metrics.edge_energy_metrics import energy_usage_flags, frame_energy, summarize_edge_energy
+from safety.circuit_breaker import PersistentMotionCircuitBreaker
 from metrics.object_level_metrics import (
     assign_proxy_scores,
     build_object_group_summary,
@@ -14609,6 +14610,13 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
     guarded_gate_bank = None
     ai_shadow_policy = None
     online_estimator = None
+    # E1 [R3.2] Persistent-motion circuit breaker: only active for the guarded
+    # controller and only when cfg["circuit_breaker"].enabled is true (default
+    # off => inert, byte-identical guarded behaviour).
+    circuit_breaker = PersistentMotionCircuitBreaker(
+        cfg.get("circuit_breaker", {}) if is_guarded_online_controller else {"enabled": False}
+    )
+    cb_prev_activation = 1.0
     if is_guarded_online_controller:
         guarded_gate_bank = SharedGuardedGateBank(cfg)
         ai_shadow_policy = AIShadowPolicy(cfg.get("online_controller_guarded", {}))
@@ -14770,6 +14778,9 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         selected_mode_before_guard = ""
         selected_mode_after_guard = ""
         previous_mode = guarded_previous_mode if is_guarded_online_controller else ""
+        cb_bypass_active = False
+        cb_decision = None
+        cb_motion_signal = None  # raw motion-gate presence for this measured frame
         mode_switch_reason = ""
         candidate_FAST_gate_open = ""
         candidate_ACC_gate_open = ""
@@ -15086,7 +15097,14 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         gate_mask = np.zeros(frame.shape[:2], dtype=np.uint8)
         gate_info = {"gate_score": 1.0, "motion_area": 0, "watchdog_triggered": 0}
 
-        if pipeline_key != "P1_YOLO_Only":
+        # E1 [R3.2] Circuit-breaker decision for this frame (guarded only). In
+        # BYPASS the MOG2+gate stage below is skipped and the detector runs on
+        # every frame (P1 behaviour); PROBE/ACTIVE frames run the full stage.
+        if is_guarded_online_controller:
+            cb_decision = circuit_breaker.step(cb_prev_activation)
+            cb_bypass_active = bool(cb_decision["cb_bypass_active"])
+
+        if pipeline_key != "P1_YOLO_Only" and not cb_bypass_active:
             gate_state = {
                 "is_evaluation": True,
                 "evaluated_index": evaluated_index,
@@ -15095,6 +15113,11 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             if is_guarded_online_controller:
                 guarded_select_t0 = time.time()
                 candidates, telemetry_info = guarded_gate_bank.process(frame, prev, gate_state)
+                # E1 [R3.2] raw motion-presence signal for the circuit breaker:
+                # the P3 (MOG2) motion gate is open whenever foreground motion is
+                # present, independent of the controller's reuse decision. On
+                # persistent-motion scenes (e.g. highway) it saturates to ~1.0.
+                cb_motion_signal = int(bool(candidates.get("P3_FALLBACK", {}).get("gate_open", False)))
                 latency_gate_features_ms = float(telemetry_info.get("latency_gate_features_ms", 0.0) or 0.0)
                 cache_hit_gate_features = int(telemetry_info.get("cache_hit_gate_features", 1))
                 gate_compute_resolution = telemetry_info.get("gate_compute_resolution", "")
@@ -18422,7 +18445,7 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         if gate_open:
             yolo_calls += 1
             detector_t0 = time.time()
-            detection = detector.predict(frame, proposal_mask=gate_mask if pipeline_key != "P1_YOLO_Only" else None)
+            detection = detector.predict(frame, proposal_mask=None if cb_bypass_active else (gate_mask if pipeline_key != "P1_YOLO_Only" else None))
             latency_detector_ms = (time.time() - detector_t0) * 1000.0
             postprocess_t0 = time.time()
             if is_guarded_online_controller:
@@ -18436,6 +18459,8 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
                     action_label = "FALLBACK_P3_POLICY"
                 else:
                     action_label = f"DETECT_{controller_selected_mode}"
+                if cb_bypass_active:
+                    action_label = "CB_BYPASS_DETECT"
             if pipeline_key in {"P4_ASMAG_PLUS_PRECISION", "P4_ASMAG_PLUS_BALANCED"}:
                 pred_mask = gate_mask.copy()
             elif detection.masks:
@@ -19468,9 +19493,14 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         obj_50 = object_counts_at_threshold(pred_boxes, gt_boxes, 0.5)
         obj_75 = object_counts_at_threshold(pred_boxes, gt_boxes, 0.75)
         energy_pipeline_key = pipeline_key
-        if is_online_controller:
+        if cb_bypass_active:
+            # BYPASS runs detector-only (P1): no MOG2/FrameDiff cost this frame.
+            energy_pipeline_key = "P1_YOLO_Only"
+        elif is_online_controller:
             energy_pipeline_key = canonical_pipeline_name(CONTROLLER_MODE_TO_PIPELINE[controller_selected_mode])
         mog2_used, framediff_used = energy_usage_flags(energy_pipeline_key)
+        if cb_bypass_active:
+            mog2_used, framediff_used = False, False
         energy_inputs = {
             "yolo_called": int(gate_open),
             "reused_prediction": reused_prediction,
@@ -19606,6 +19636,13 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             "night_refresh_triggered": night_refresh_triggered,
             "mog2_used": mog2_used,
             "framediff_used": framediff_used,
+            "cb_enabled": int(circuit_breaker.enabled),
+            "cb_state": (cb_decision["cb_state"] if cb_decision else ""),
+            "cb_phase": (cb_decision["cb_phase"] if cb_decision else ""),
+            "cb_bypass_active": int(cb_bypass_active),
+            "cb_rolling_activation": (cb_decision["cb_rolling_activation"] if cb_decision else ""),
+            "cb_entered_now": (int(cb_decision["cb_entered_now"]) if cb_decision else 0),
+            "cb_exited_now": (int(cb_decision["cb_exited_now"]) if cb_decision else 0),
             "energy_frame": energy_value,
             "energy_proxy_frame": energy_value,
             "simulated_runtime_energy_frame": "",
@@ -19712,6 +19749,10 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
                 force=evaluated_frames == total_eval_frames,
             )
 
+        if is_guarded_online_controller and cb_motion_signal is not None:
+            # Update the rolling motion-activation only on measured (ACTIVE/PROBE)
+            # frames; pure-bypass frames do not run the gate so carry no signal.
+            cb_prev_activation = float(cb_motion_signal)
         prev = frame.copy()
         processed += 1
 
@@ -19728,6 +19769,15 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             + 0.1 * df["reused_prediction"].astype(float)
         )
     df.to_csv(seq_out / "frame_metrics.csv", index=False)
+    if is_guarded_online_controller and circuit_breaker.enabled:
+        cb_stats = circuit_breaker.stats()
+        with open(seq_out / "circuit_breaker_summary.json", "w", encoding="utf-8") as _cbf:
+            json.dump(cb_stats, _cbf, indent=2)
+        print(
+            f"  [CB] {seq['category']}/{seq['video']}: entered={cb_stats['cb_entered']} "
+            f"exited={cb_stats['cb_exited']} bypass_frames={cb_stats['cb_frames_in_bypass']} "
+            f"({cb_stats['cb_bypass_fraction'] * 100:.1f}%) probe_frames={cb_stats['cb_frames_in_probe']}"
+        )
     edge_cols = [
         "pipeline",
         "category",

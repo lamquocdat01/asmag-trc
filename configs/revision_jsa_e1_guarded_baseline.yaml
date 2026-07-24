@@ -1,0 +1,29 @@
+# E1 [R3.2] — GUARDED baseline (circuit breaker OFF) for the highway edge case.
+# Validation subset: highway (persistent motion) + 2 low-motion controls.
+# Inherits all guarded controller params from the clean full-CDnet config.
+base_config: full_cdnet2014_guarded_v2_clean.yaml
+
+experiment_name: guarded_baseline
+output_root: "outputs/revision_jsa/e1_circuit_breaker"
+resume_existing_results: false
+checkpoint_resume: true
+
+categories:
+  - baseline
+  - intermittentObjectMotion
+
+videos:
+  baseline: [highway, office]
+  intermittentObjectMotion: [sofa]
+
+evaluation:
+  use_temporal_roi: true
+  warmup_frames: 50
+  frame_step: 1
+  max_frames_per_video: null
+
+pipelines:
+  - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+circuit_breaker:
+  enabled: false
