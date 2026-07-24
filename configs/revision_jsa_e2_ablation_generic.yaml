@@ -1,0 +1,45 @@
+# E2 ablation [R3.1] — GUARDED with the per-scene AI-intervention layer DISABLED.
+# The ~539 `ai_*` keys in online_controller_guarded include video-NAMED overrides
+# (ai_copymachine_*, ai_parking_*, ai_snowfall_*, ai_sofa_*, ai_turbulence2_*,
+# ai_thermal_lakeside_*, ai_cubicle_*, ...) — the clearest overfitting risk the
+# reviewer flags. This config turns that whole layer off (master switches) to
+# measure how much the per-scene tuning actually buys over the generic architecture.
+#
+# Reference ("tuned GUARDED") = the E2 sweep point tau_fd__25 (default params),
+# same subset/protocol. Delta = brittleness answer.
+base_config: full_cdnet2014_guarded_v2_clean.yaml
+
+experiment_name: ablation_generic_no_ai
+output_root: "outputs/revision_jsa/e2_sensitivity/runs"
+resume_existing_results: false
+checkpoint_resume: true
+
+categories: [baseline, dynamicBackground, nightVideos, badWeather, cameraJitter, thermal, turbulence, PTZ]
+videos:
+  baseline: [highway, office]
+  dynamicBackground: [canoe, fountain02]
+  nightVideos: [bridgeEntry, streetCornerAtNight]
+  badWeather: [snowFall, blizzard]
+  cameraJitter: [traffic]
+  thermal: [library]
+  turbulence: [turbulence2]
+  PTZ: [continuousPan]
+
+evaluation:
+  use_temporal_roi: true
+  warmup_frames: 50
+  frame_step: 1
+  max_frames_per_video: 400
+
+pipelines:
+  - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+circuit_breaker:
+  enabled: false
+
+# Disable the entire per-scene AI-intervention / shadow layer.
+online_controller_guarded:
+  ai_shadow_mode_enabled: false
+  ai_shadow_behavior_enabled: false
+  ai_intervention_enabled: false
+  ai_intervention_dry_run: true

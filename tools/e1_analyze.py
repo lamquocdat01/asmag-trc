@@ -164,6 +164,11 @@ def main():
     if not hw.empty:
         r = hw.iloc[0]
         lines.append("\n## Highway headline (answers R3.2)\n")
+        lines.append("- **Circuit-breaker config: θ_high=0.95, θ_low=0.60, W=300, K=300, P=30** "
+                     "(calibrated; see note below).")
+        lines.append(f"- **CPU energy/frame (proxy): GUARDED {_f(r.get('base_energy_per_frame'))} "
+                     f"→ GUARDED_CB {_f(r.get('cb_energy_per_frame'))} relative-energy-units "
+                     f"({r.get('energy_delta_pct'):+}% on the proxy — see caveat).**")
         lines.append(f"- Bypass engaged on **{r.get('cb_bypass_rate',0)*100:.1f}%** of frames "
                      f"(entered {int(r.get('cb_entered') or 0)}×).")
         lines.append(f"- MOG2-used rate: **{r.get('base_mog2_used_rate')} → {r.get('cb_mog2_used_rate')}** "
