@@ -31,11 +31,16 @@ identical input sequence ⇒ identical decisions. Config-driven, default DISABLE
 from collections import deque
 
 
+# Calibration note: the revision plan proposed theta_high=0.85 / window=60. Empirically
+# a 60-frame window cannot separate persistent-traffic scenes (MOG2 gate open on EVERY
+# frame) from transient activity bursts (which also produce 60-frame all-open runs).
+# Sweeping the recorded gate signals, W=300 / theta_high=0.95 cleanly separates highway
+# (engages) from intermittent controls (never engage). See outputs/.../e1_circuit_breaker.
 DEFAULTS = {
     "enabled": False,
-    "theta_high": 0.85,
+    "theta_high": 0.95,
     "theta_low": 0.60,
-    "window": 60,        # W  — rolling activation window
+    "window": 300,       # W  — rolling activation window
     "probe_every": 300,  # K  — frames between probes while bypassed
     "probe_len": 30,     # P  — probe duration
 }

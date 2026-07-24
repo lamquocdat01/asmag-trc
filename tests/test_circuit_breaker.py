@@ -34,9 +34,10 @@ def test_disabled_is_inert():
 
 # --- default parameters ------------------------------------------------------
 def test_defaults_match_spec():
+    # Calibrated defaults (revision plan proposed 0.85/60; see module note).
     cb = CB({"enabled": True})
-    assert cb.theta_high == 0.85 and cb.theta_low == 0.60
-    assert cb.window == 60 and cb.probe_every == 300 and cb.probe_len == 30
+    assert cb.theta_high == 0.95 and cb.theta_low == 0.60
+    assert cb.window == 300 and cb.probe_every == 300 and cb.probe_len == 30
 
 
 # --- never enters on low motion ---------------------------------------------

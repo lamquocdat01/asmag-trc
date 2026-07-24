@@ -14,7 +14,7 @@ categories:
 
 videos:
   baseline: [highway, office]
-  intermittentObjectMotion: [sofa]
+  intermittentObjectMotion: [sofa, parking]
 
 evaluation:
   use_temporal_roi: true

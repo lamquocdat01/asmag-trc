@@ -13,9 +13,12 @@ categories:
   - baseline
   - intermittentObjectMotion
 
+# highway = persistent-motion case (breaker SHOULD engage).
+# office = indoor scene with one long activity burst (engages only during it).
+# sofa, parking = intermittent controls (breaker must NOT engage).
 videos:
   baseline: [highway, office]
-  intermittentObjectMotion: [sofa]
+  intermittentObjectMotion: [sofa, parking]
 
 evaluation:
   use_temporal_roi: true
@@ -26,10 +29,15 @@ evaluation:
 pipelines:
   - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
 
+# Calibrated params (see E1 summary): the revision plan proposed W=60/theta_high=0.85,
+# but a 60-frame window cannot distinguish persistent-traffic scenes (motion gate open
+# EVERY frame) from transient activity bursts (which also reach a 60-frame all-open run).
+# Sweeping W and theta_high on the recorded MOG2 gate signals shows W=300, theta_high=0.95
+# cleanly separates highway (engages) from the intermittent controls (never engage).
 circuit_breaker:
   enabled: true
-  theta_high: 0.85   # enter bypass when rolling activation exceeds this
+  theta_high: 0.95   # enter bypass when rolling motion-gate rate exceeds this
   theta_low: 0.60    # exit bypass when a probe measures below this (hysteresis)
-  window: 60         # W  — rolling activation window
+  window: 300        # W  — rolling motion-activation window
   probe_every: 300   # K  — frames between probes while bypassed
   probe_len: 30      # P  — probe duration

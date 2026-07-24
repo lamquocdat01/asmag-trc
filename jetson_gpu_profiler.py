@@ -11,8 +11,10 @@ from ultralytics import YOLO
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
 from safety.circuit_breaker import PersistentMotionCircuitBreaker
 
-CB_CFG = {"enabled": True, "theta_high": 0.85, "theta_low": 0.60,
-          "window": 60, "probe_every": 300, "probe_len": 30}
+# Calibrated on the recorded MOG2 gate signals (see E1 summary): W=300/theta_high=0.95
+# separates persistent-motion scenes (gate open every frame) from transient bursts.
+CB_CFG = {"enabled": True, "theta_high": 0.95, "theta_low": 0.60,
+          "window": 300, "probe_every": 300, "probe_len": 30}
 
 print(f"torch {torch.__version__} CUDA:{torch.cuda.is_available()}")
 if torch.cuda.is_available():

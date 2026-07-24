@@ -19500,7 +19500,9 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
             energy_pipeline_key = canonical_pipeline_name(CONTROLLER_MODE_TO_PIPELINE[controller_selected_mode])
         mog2_used, framediff_used = energy_usage_flags(energy_pipeline_key)
         if cb_bypass_active:
-            mog2_used, framediff_used = False, False
+            # energy_usage_flags returns ints; keep the same dtype (not bool) so
+            # the frame_metrics column stays numeric for downstream aggregation.
+            mog2_used, framediff_used = 0, 0
         energy_inputs = {
             "yolo_called": int(gate_open),
             "reused_prediction": reused_prediction,
