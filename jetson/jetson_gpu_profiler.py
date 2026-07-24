@@ -109,6 +109,10 @@ class TegrastatsLogger:
                     pass
             except Exception:
                 pass
+            try:  # tj temperature from sysfs (tegrastats absent in-container)
+                self.temp_c.append(int(open("/sys/class/thermal/thermal_zone8/temp").read().strip()) / 1000.0)
+            except Exception:
+                pass
             time.sleep(0.5)
 
     def _parse(self, line):
@@ -160,7 +164,8 @@ class TegrastatsLogger:
 VIDEOS_ROOT = "/cdnet2014"
 
 # === E6 staged-run controls (env-driven; defaults = full-53, 300 frames) ===
-MAX_FRAMES  = int(os.environ.get("E6_MAX_FRAMES", "300"))
+MAX_FRAMES  = int(os.environ.get("E6_MAX_FRAMES", "300"))   # <=0 means no cap
+USE_ROI     = os.environ.get("E6_USE_ROI", "0") == "1"      # restrict to temporalROI range
 REPEATS     = int(os.environ.get("E6_REPEATS", "1"))
 PIPELINES   = [p.strip() for p in os.environ.get(
     "E6_PIPELINES", "P1_YOLO_Only,P3_MOG2,GUARDED,GUARDED_CB").split(",") if p.strip()]
@@ -243,7 +248,20 @@ FIELDS = [
 ]
 
 for cat, vid, idir in videos:
-    files = sorted(f for f in os.listdir(idir) if f.endswith((".jpg", ".png")))[:MAX_FRAMES]
+    files = sorted(f for f in os.listdir(idir) if f.endswith((".jpg", ".png")))
+    if USE_ROI:
+        roi_txt = os.path.join(os.path.dirname(idir), "temporalROI.txt")
+        try:
+            _a, _b = [int(x) for x in open(roi_txt).read().split()[:2]]
+            def _fnum(x):
+                m = re.findall(r"\d+", x)
+                return int(m[-1]) if m else -1
+            files = [f for f in files if _a <= _fnum(f) <= _b]
+            print(f"  [roi] {cat}/{vid} temporalROI {_a}-{_b} -> {len(files)} frames")
+        except Exception as _e:
+            print(f"  [roi] failed for {cat}/{vid} ({_e}); using all frames")
+    if MAX_FRAMES > 0:
+        files = files[:MAX_FRAMES]
     print(f"\n--- {cat}/{vid} ({len(files)} frames, {W}x{H}) ---")
     wait_cooldown()
 

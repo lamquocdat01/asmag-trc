@@ -10,7 +10,15 @@ here so the repository is self-contained.
 - **Jetson Orin Nano 8 GB**, L4T **R36.5.0 (JetPack 6)**, `aarch64`, kernel `5.15.x-tegra`.
 - Disk: 227 GB NVMe (~51 GB free at audit).
 - **Power:** INA3221 via sysfs hwmon — `/sys/bus/i2c/devices/1-0040/hwmon/hwmon1/` (VDD_IN rail).
-  Idle target ≈ **4.86 W**. Thermal floor ≈ 57 °C; **cooldown gate ≤ 58 °C** between runs.
+  Idle target ≈ **4.86 W** (paper era). Thermal floor ≈ 57 °C; **cooldown gate ≤ 58 °C** between runs.
+
+  **Idle baseline reconciliation (2026-07-24 revision):** measured idle VDD_IN (AAP stopped) =
+  **4.47 W** via sysfs (`curr1×in1`, 896 mA × 4.99 V) / **≈4.59 W** via tegrastats — **~0.3–0.4 W
+  below** the paper-era 4.86 W. **WiFi `power_save` is NOT the cause** (idle was 4.47 W both on and
+  off). The gap is a measurement-floor shift (L4T R36.5 vs the paper era + ambient), not a load
+  change. It does **not** affect E6's R3.2 conclusion: the GUARDED_CB-vs-P1-vs-GUARDED energy
+  comparison is **relative and all re-measured now under identical conditions**, so the absolute
+  floor offset cancels. Reported for transparency.
 - Also read via `tegrastats` (VDD_IN, VDD_CPU_GPU_CV, VDD_SOC, GR3D_FREQ, temps).
 
 ## Access
