@@ -68,3 +68,8 @@ venv/
 *.pkl
 *.joblib
 *.parquet
+
+# JSA revision hygiene
+__pycache__/
+*.pyc
+configs/_e2_tmp/
