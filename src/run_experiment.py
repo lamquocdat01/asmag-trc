@@ -164,6 +164,32 @@ def normalize01(value, scale):
         return 0.0
     return max(0.0, min(1.0, float(value) / float(scale)))
 
+
+def apply_input_perturbation(frame, cfg, rng):
+    """E2 [R3.1] sensor-robustness perturbation.
+
+    Optional resolution reduction (downscale then upscale back to the original
+    size) and additive Gaussian noise, simulating a lower-resolution or noisier
+    camera WITHOUT changing frame dimensions (so ground-truth alignment and
+    pixel metrics are unaffected). Config key `input_perturbation`:
+      downscale: float in (0,1]  (e.g. 0.5 halves resolution; 1.0 = no change)
+      noise_sigma: float          (std-dev of additive Gaussian noise, 0 = off)
+    Deterministic given the per-sequence rng seed.
+    """
+    if not cfg:
+        return frame
+    scale = float(cfg.get("downscale", 1.0) or 1.0)
+    if 0.0 < scale < 1.0:
+        h, w = frame.shape[:2]
+        small = cv2.resize(frame, (max(1, int(w * scale)), max(1, int(h * scale))),
+                           interpolation=cv2.INTER_AREA)
+        frame = cv2.resize(small, (w, h), interpolation=cv2.INTER_LINEAR)
+    sigma = float(cfg.get("noise_sigma", 0.0) or 0.0)
+    if sigma > 0.0:
+        noise = rng.normal(0.0, sigma, frame.shape)
+        frame = np.clip(frame.astype(np.float32) + noise, 0, 255).astype(np.uint8)
+    return frame
+
 def online_mode_from_difficulty(score, fast_threshold=0.30, p3_threshold=0.60):
     if score < fast_threshold:
         return "FAST"
@@ -336,19 +362,22 @@ class OnlineSceneDifficultyEstimator:
 def p4_efficient_cfg_for_pipeline(cfg, pipeline_name):
     efficient_cfg = dict(cfg.get("p4_asmag_plus", {}))
     efficient_cfg.update(cfg.get("p4_efficient", {}))
+    # open_threshold is config-driven for the E2 [R3.1] sensitivity sweep
+    # (defaults preserve the original hardcoded 0.65 / 0.75).
+    _eff = cfg.get("p4_efficient", {})
     if pipeline_name == "ASMAG_TR_ACC":
         efficient_cfg.update({
             "reuse_max_eval_age": 5,
             "reuse_max_raw_age": None,
             "sample_interval": 5,
-            "open_threshold": 0.65,
+            "open_threshold": float(_eff.get("open_threshold_acc", 0.65)),
         })
     elif pipeline_name == "ASMAG_TR_FAST":
         efficient_cfg.update({
             "reuse_max_eval_age": 8,
             "reuse_max_raw_age": None,
             "sample_interval": 10,
-            "open_threshold": 0.75,
+            "open_threshold": float(_eff.get("open_threshold_fast", 0.75)),
         })
     return efficient_cfg
 
@@ -357,6 +386,8 @@ class SharedGuardedGateBank:
         self.cfg = cfg
         self.base_cfg = dict(cfg.get("p4_asmag_plus", {}))
         self.guard_cfg = dict(cfg.get("online_controller_guarded", {}))
+        # E2 [R3.1] FrameDiff threshold tau_FD, config-driven (default 25).
+        self._framediff_tau = int(self.guard_cfg.get("framediff_tau", self.base_cfg.get("framediff_tau", 25)))
         edge_cfg = cfg.get("edge_profile", {})
         self.resize_width = int(self.guard_cfg.get("resize_width_for_gating", edge_cfg.get("resize_width_for_gating", 0)) or 0)
         self.bg_mog2 = cv2.createBackgroundSubtractorMOG2(history=500, varThreshold=16, detectShadows=False)
@@ -454,7 +485,7 @@ class SharedGuardedGateBank:
         fd_mask = np.zeros((h, w), dtype=np.uint8)
         if small_prev is not None:
             gprev = cv2.cvtColor(small_prev, cv2.COLOR_BGR2GRAY)
-            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), 25, 255, cv2.THRESH_BINARY)
+            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), self._framediff_tau, 255, cv2.THRESH_BINARY)
 
         lr = 0.01 if illum_diff < 25 else 0.05
         mog = self.bg_mog2.apply(small_frame, learningRate=lr)
@@ -14617,6 +14648,9 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         cfg.get("circuit_breaker", {}) if is_guarded_online_controller else {"enabled": False}
     )
     cb_prev_activation = 1.0
+    # E2 [R3.1] optional input perturbation (sensor noise / resolution), default off.
+    input_perturb_cfg = cfg.get("input_perturbation", {})
+    input_perturb_rng = np.random.default_rng(12345)
     if is_guarded_online_controller:
         guarded_gate_bank = SharedGuardedGateBank(cfg)
         ai_shadow_policy = AIShadowPolicy(cfg.get("online_controller_guarded", {}))
@@ -14721,6 +14755,8 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         frame = read_frame(frame_files[idx])
         if frame is None:
             continue
+        if input_perturb_cfg:
+            frame = apply_input_perturbation(frame, input_perturb_cfg, input_perturb_rng)
         if is_guarded_online_controller:
             guarded_gate_bank.process(frame, prev, {"is_evaluation": False})
         elif is_online_controller:
@@ -14749,6 +14785,9 @@ def process_sequence(cfg, seq, pipeline_name, detector, frames_source=None, gts_
         else:
             frame = frames_source[idx]
             gt = gts_source[idx]
+
+        if input_perturb_cfg:
+            frame = apply_input_perturbation(frame, input_perturb_cfg, input_perturb_rng)
 
         should_evaluate = idx in eval_position_set
         if not should_evaluate:
