@@ -167,6 +167,7 @@ VIDEOS_ROOT = "/cdnet2014"
 MAX_FRAMES  = int(os.environ.get("E6_MAX_FRAMES", "300"))   # <=0 means no cap
 USE_ROI     = os.environ.get("E6_USE_ROI", "0") == "1"      # restrict to temporalROI range
 REPEATS     = int(os.environ.get("E6_REPEATS", "1"))
+REP_OFFSET  = int(os.environ.get("E6_REPEAT_INDEX", "0"))   # label offset for host-interleaved repeats
 PIPELINES   = [p.strip() for p in os.environ.get(
     "E6_PIPELINES", "P1_YOLO_Only,P3_MOG2,GUARDED,GUARDED_CB").split(",") if p.strip()]
 VIDEO_FILTER = [v.strip() for v in os.environ.get("E6_VIDEOS", "").split(",") if v.strip()]  # "cat/video"; empty=all
@@ -265,7 +266,7 @@ for cat, vid, idir in videos:
     print(f"\n--- {cat}/{vid} ({len(files)} frames, {W}x{H}) ---")
     wait_cooldown()
 
-    for pipe, rep in [(p, r) for p in PIPELINES for r in range(REPEATS)]:
+    for pipe, rep in [(p, REP_OFFSET + r) for p in PIPELINES for r in range(REPEATS)]:
         if (cat, vid, pipe, str(rep)) in _done_keys:
             print(f"  {pipe} rep{rep} (skip: already in CSV)", flush=True)
             continue
