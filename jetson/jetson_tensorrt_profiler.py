@@ -154,20 +154,31 @@ class TegrastatsLogger:
             except: pass
         self._t.join(timeout=3)
     def _run(self):
-        try:
-            self._p = subprocess.Popen(
-                ["/usr/bin/tegrastats", "--interval", "500"],
-                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
-            while self._running:
-                line = self._p.stdout.readline()
-                if not line: break
-                m = re.search(r"VDD_IN\s+(\d+)", line)
-                if m: self.power_vdd_in.append(int(m.group(1)))
-                m2 = re.search(r"VDD_CPU_GPU_CV\s+(\d+)", line)
-                if m2: self.power_cpu_gpu.append(int(m2.group(1)))
-                m3 = re.search(r"VDD_SOC\s+(\d+)", line)
-                if m3: self.power_soc.append(int(m3.group(1)))
-        except: pass
+        if os.path.exists("/usr/bin/tegrastats"):
+            try:
+                self._p = subprocess.Popen(
+                    ["/usr/bin/tegrastats", "--interval", "500"],
+                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+                while self._running:
+                    line = self._p.stdout.readline()
+                    if not line: break
+                    m = re.search(r"VDD_IN\s+(\d+)", line)
+                    if m: self.power_vdd_in.append(int(m.group(1)))
+                    m2 = re.search(r"VDD_CPU_GPU_CV\s+(\d+)", line)
+                    if m2: self.power_cpu_gpu.append(int(m2.group(1)))
+                    m3 = re.search(r"VDD_SOC\s+(\d+)", line)
+                    if m3: self.power_soc.append(int(m3.group(1)))
+                return
+            except Exception: pass
+        # INA3221 sysfs fallback (works in-container with -v /sys:/sys:ro; tegrastats absent there)
+        H = "/sys/class/hwmon/hwmon1"
+        while self._running:
+            try:
+                self.power_vdd_in.append(int(open(f"{H}/in1_input").read()) * int(open(f"{H}/curr1_input").read()) // 1000)
+                self.power_cpu_gpu.append(int(open(f"{H}/in2_input").read()) * int(open(f"{H}/curr2_input").read()) // 1000)
+                self.power_soc.append(int(open(f"{H}/in3_input").read()) * int(open(f"{H}/curr3_input").read()) // 1000)
+            except Exception: pass
+            time.sleep(0.5)
     def summary(self):
         def sm(lst): return float(np.mean(lst)) if lst else 0
         def sp(lst): return float(np.percentile(lst, 90)) if lst else 0
@@ -179,6 +190,9 @@ class TegrastatsLogger:
         }
 
 # === STEP 3: Collect videos ===
+# Optional filter: E6_TRT_VIDEOS="cat/video,cat/video" (empty = all). E6_TRT_FRAMES overrides count.
+_VFILT = [v.strip() for v in os.environ.get("E6_TRT_VIDEOS", "").split(",") if v.strip()]
+FRAMES_PER_VIDEO = int(os.environ.get("E6_TRT_FRAMES", str(FRAMES_PER_VIDEO)))
 videos = []
 for cat in sorted(os.listdir(VIDEOS_ROOT)):
     cd = os.path.join(VIDEOS_ROOT, cat)
@@ -186,8 +200,9 @@ for cat in sorted(os.listdir(VIDEOS_ROOT)):
     for vid in sorted(os.listdir(cd)):
         vd = os.path.join(cd, vid)
         inp = os.path.join(vd, "input")
-        if os.path.isdir(inp): videos.append((cat, vid, inp))
-print(f"\nVideos: {len(videos)}")
+        if os.path.isdir(inp) and (not _VFILT or f"{cat}/{vid}" in _VFILT):
+            videos.append((cat, vid, inp))
+print(f"\nVideos: {len(videos)} | frames/video: {FRAMES_PER_VIDEO}")
 
 # === STEP 4: Run profiling ===
 print("\n" + "="*60)
