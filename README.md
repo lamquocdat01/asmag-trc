@@ -62,12 +62,18 @@ GUARDED achieves **FMeasure 0.521, Event F1 0.695** — best AE-Score (0.835) co
 > the values below. **New in this revision:** a `GUARDED_CB` persistent-motion **circuit breaker**
 > that bounds worst-case highway energy at ≤ the detector-only (P1) level on any operating point.
 
+Headline (GUARDED + TensorRT FP16 vs P1 + PyTorch, pinned stack):
+
 | Pipeline | FPS | Energy/frame |
 |---|---|---|
-| P1 (YOLO always-on) | _re-measuring_ | _re-measuring_ |
-| P3 (MOG2 only) | _re-measuring_ | _re-measuring_ |
-| **GUARDED** | _re-measuring_ | _re-measuring_ |
-| **GUARDED_CB** (new) | _re-measuring_ | ≤ P1 (bounded) |
+| P1 (YOLO always-on, PyTorch) | 25.8 | 351.1 mJ |
+| P1 (TensorRT FP16) | 30.3 | 213.9 mJ |
+| P3 (MOG2 only) | 314.5 | 18.2 mJ |
+| **GUARDED (TensorRT FP16)** | **130.8** | **140.2 mJ** |
+
+GUARDED+TRT-FP16 delivers **5.1× throughput** and **60.1% energy reduction** vs always-on YOLO.
+Full-53 (PyTorch): GUARDED −47.5% energy, 4.5× FPS. The **`GUARDED_CB` circuit breaker** bounds
+worst-case highway energy at ≤ P1 (the reviewer's edge case; see `outputs/revision_jsa/e6_jetson/`).
 
 ### Cross-dataset GUARDED consistency (no retraining)
 
