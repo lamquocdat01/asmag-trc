@@ -1,26 +1,9 @@
-import os, sys, time, csv, threading, subprocess, re, warnings, psutil
+import os, time, csv, threading, subprocess, re, warnings, psutil
 import numpy as np
 import cv2
 warnings.filterwarnings("ignore")
 import torch
 from ultralytics import YOLO
-
-# E1 [R3.2] Persistent-motion circuit breaker — shared with the CPU runner.
-# Import is container-robust: works from the repo (src/safety/circuit_breaker.py)
-# AND when this profiler is mounted as /profiler.py alongside a co-located
-# circuit_breaker.py (jetson/circuit_breaker.py). See jetson/README.md.
-_here = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _here)                          # co-located circuit_breaker.py
-sys.path.insert(0, os.path.join(_here, "src"))     # repo layout: src/safety/
-try:
-    from safety.circuit_breaker import PersistentMotionCircuitBreaker
-except ImportError:
-    from circuit_breaker import PersistentMotionCircuitBreaker
-
-# Calibrated on the recorded MOG2 gate signals (see E1 summary): W=300/theta_high=0.95
-# separates persistent-motion scenes (gate open every frame) from transient bursts.
-CB_CFG = {"enabled": True, "theta_high": 0.95, "theta_low": 0.60,
-          "window": 300, "probe_every": 300, "probe_len": 30}
 
 print(f"torch {torch.__version__} CUDA:{torch.cuda.is_available()}")
 if torch.cuda.is_available():
@@ -109,10 +92,6 @@ class TegrastatsLogger:
                     pass
             except Exception:
                 pass
-            try:  # tj temperature from sysfs (tegrastats absent in-container)
-                self.temp_c.append(int(open("/sys/class/thermal/thermal_zone8/temp").read().strip()) / 1000.0)
-            except Exception:
-                pass
             time.sleep(0.5)
 
     def _parse(self, line):
@@ -162,48 +141,6 @@ class TegrastatsLogger:
 
 
 VIDEOS_ROOT = "/cdnet2014"
-
-# === E6 staged-run controls (env-driven; defaults = full-53, 300 frames) ===
-MAX_FRAMES  = int(os.environ.get("E6_MAX_FRAMES", "300"))   # <=0 means no cap
-USE_ROI     = os.environ.get("E6_USE_ROI", "0") == "1"      # restrict to temporalROI range
-REPEATS     = int(os.environ.get("E6_REPEATS", "1"))
-REP_OFFSET  = int(os.environ.get("E6_REPEAT_INDEX", "0"))   # label offset for host-interleaved repeats
-PIPELINES   = [p.strip() for p in os.environ.get(
-    "E6_PIPELINES", "P1_YOLO_Only,P3_MOG2,GUARDED,GUARDED_CB").split(",") if p.strip()]
-VIDEO_FILTER = [v.strip() for v in os.environ.get("E6_VIDEOS", "").split(",") if v.strip()]  # "cat/video"; empty=all
-OUTPUT_CSV  = os.environ.get("E6_OUTPUT_CSV", "/output/jetson_gpu_profiling.csv")
-COOLDOWN_C  = float(os.environ.get("E6_COOLDOWN_C", "58"))
-COOLDOWN_MAX_WAIT = int(os.environ.get("E6_COOLDOWN_MAX_WAIT", "600"))
-TZ_PATH     = os.environ.get("E6_TZ", "/sys/class/thermal/thermal_zone8/temp")  # tj-thermal
-# E6_RESIZE="WxH" resizes every frame before processing (paper used 720x480 upscaled
-# from CDnet's 320x240). Matters for the operating point: larger frames make the
-# pipeline more CPU-preprocessing-bound, lowering avg GPU power and FPS.
-RESIZE = None
-if os.environ.get("E6_RESIZE"):
-    try:
-        _rw, _rh = os.environ["E6_RESIZE"].lower().split("x")
-        RESIZE = (int(_rw), int(_rh))
-    except Exception:
-        RESIZE = None
-
-def read_temp_c():
-    try:
-        with open(TZ_PATH) as _f:
-            return float(_f.read().strip()) / 1000.0
-    except Exception:
-        return 0.0
-
-def wait_cooldown():
-    t0 = time.time()
-    while True:
-        c = read_temp_c()
-        if c <= COOLDOWN_C or (time.time() - t0) > COOLDOWN_MAX_WAIT:
-            print(f"  [cooldown] temp={c:.1f}C (gate {COOLDOWN_C}C)"
-                  f"{' OK' if c <= COOLDOWN_C else ' TIMEOUT-proceeding'}", flush=True)
-            return c
-        print(f"  [cooldown] temp={c:.1f}C > {COOLDOWN_C}C, waiting 15s...", flush=True)
-        time.sleep(15)
-
 videos = []
 for cat in sorted(os.listdir(VIDEOS_ROOT)):
     cd = os.path.join(VIDEOS_ROOT, cat)
@@ -213,31 +150,13 @@ for cat in sorted(os.listdir(VIDEOS_ROOT)):
         vd = os.path.join(cd, vid)
         inp = os.path.join(vd, "input")
         if os.path.isdir(inp):
-            if VIDEO_FILTER and f"{cat}/{vid}" not in VIDEO_FILTER:
-                continue
             videos.append((cat, vid, inp))
 
-print(f"Videos: {len(videos)} | pipelines={PIPELINES} | max_frames={MAX_FRAMES} | repeats={REPEATS}")
-print(f"Output CSV: {OUTPUT_CSV}")
+print(f"Videos: {len(videos)}")
 WARMUP = 10
 rows = []
 
-# Resume: load already-completed (cat,video,pipeline,repeat) keys from the CSV.
-_done_keys = set()
-if os.path.exists(OUTPUT_CSV):
-    try:
-        with open(OUTPUT_CSV, newline="") as _f:
-            for _r in csv.DictReader(_f):
-                _done_keys.add((_r.get("category"), _r.get("video"),
-                                _r.get("pipeline"), _r.get("repeat", "0")))
-        print(f"Resume: {len(_done_keys)} completed (video,pipeline,repeat) rows already in CSV.")
-    except Exception as _e:
-        print(f"Resume: could not read existing CSV ({_e})")
-
 first_frame = cv2.imread(os.path.join(videos[0][2], sorted(os.listdir(videos[0][2]))[0]))
-if RESIZE and first_frame is not None:
-    first_frame = cv2.resize(first_frame, RESIZE)
-    print(f"E6_RESIZE active: frames resized to {RESIZE[0]}x{RESIZE[1]}")
 H, W = first_frame.shape[:2] if first_frame is not None else (0, 0)
 print(f"Input resolution: {W}x{H}")
 
@@ -246,7 +165,7 @@ if torch.cuda.is_available():
     print(f"GPU memory allocated (after warmup): {gpu_mem_before:.1f} MB")
 
 FIELDS = [
-    "category", "video", "pipeline", "repeat", "n_frames", "resolution",
+    "category", "video", "pipeline", "n_frames", "resolution",
     "fps", "throughput_total_s",
     "avg_latency_ms", "p90_latency_ms", "max_latency_ms",
     "activation_rate",
@@ -258,37 +177,16 @@ FIELDS = [
     "ram_avg_mb", "ram_max_mb",
     "gpu_mem_peak_mb",
     "temp_avg_c", "temp_max_c",
-    "cb_entered", "cb_bypass_frames", "cb_bypass_rate",
 ]
 
 for cat, vid, idir in videos:
     files = sorted(f for f in os.listdir(idir) if f.endswith((".jpg", ".png")))
-    if USE_ROI:
-        roi_txt = os.path.join(os.path.dirname(idir), "temporalROI.txt")
-        try:
-            _a, _b = [int(x) for x in open(roi_txt).read().split()[:2]]
-            def _fnum(x):
-                m = re.findall(r"\d+", x)
-                return int(m[-1]) if m else -1
-            files = [f for f in files if _a <= _fnum(f) <= _b]
-            print(f"  [roi] {cat}/{vid} temporalROI {_a}-{_b} -> {len(files)} frames")
-        except Exception as _e:
-            print(f"  [roi] failed for {cat}/{vid} ({_e}); using all frames")
-    if MAX_FRAMES > 0:
-        files = files[:MAX_FRAMES]
     print(f"\n--- {cat}/{vid} ({len(files)} frames, {W}x{H}) ---")
-    wait_cooldown()
 
-    for pipe, rep in [(p, REP_OFFSET + r) for p in PIPELINES for r in range(REPEATS)]:
-        if (cat, vid, pipe, str(rep)) in _done_keys:
-            print(f"  {pipe} rep{rep} (skip: already in CSV)", flush=True)
-            continue
-        print(f"  {pipe} rep{rep} ... ", end="", flush=True)
+    for pipe in ["P1_YOLO_Only", "P3_MOG2", "GUARDED"]:
+        print(f"  {pipe} ... ", end="", flush=True)
         bg = cv2.createBackgroundSubtractorMOG2(200, 16, True) if pipe != "P1_YOLO_Only" else None
         lat, yolo_n = [], 0
-        cb = PersistentMotionCircuitBreaker(CB_CFG) if pipe == "GUARDED_CB" else None
-        cb_prev_motion = 1.0
-        cb_bypass_n = 0
         tg = TegrastatsLogger()
 
         if torch.cuda.is_available():
@@ -301,8 +199,6 @@ for cat, vid, idir in videos:
             frame = cv2.imread(os.path.join(idir, fn))
             if frame is None:
                 continue
-            if RESIZE:
-                frame = cv2.resize(frame, RESIZE)
 
             if torch.cuda.is_available():
                 torch.cuda.synchronize()
@@ -315,7 +211,7 @@ for cat, vid, idir in videos:
                     yolo_n += 1
             elif pipe == "P3_MOG2":
                 bg.apply(frame)
-            elif pipe == "GUARDED":
+            else:
                 mask = bg.apply(frame)
                 ratio = np.count_nonzero(mask > 127) / mask.size
                 if ratio > 0.02:
@@ -323,25 +219,6 @@ for cat, vid, idir in videos:
                         model(frame, verbose=False, device=device)
                     if i >= WARMUP:
                         yolo_n += 1
-            else:  # GUARDED_CB — circuit breaker skips MOG2 during persistent motion
-                dec = cb.step(cb_prev_motion)
-                if dec["cb_bypass_active"]:
-                    # BYPASS: skip bg.apply() entirely, detect every frame (P1 behaviour)
-                    with torch.no_grad():
-                        model(frame, verbose=False, device=device)
-                    if i >= WARMUP:
-                        yolo_n += 1
-                        cb_bypass_n += 1
-                else:
-                    # ACTIVE/PROBE: run MOG2, measure motion, feed the breaker
-                    mask = bg.apply(frame)
-                    ratio = np.count_nonzero(mask > 127) / mask.size
-                    cb_prev_motion = 1.0 if ratio > 0.02 else 0.0
-                    if ratio > 0.02:
-                        with torch.no_grad():
-                            model(frame, verbose=False, device=device)
-                        if i >= WARMUP:
-                            yolo_n += 1
 
             if torch.cuda.is_available():
                 torch.cuda.synchronize()
@@ -364,7 +241,7 @@ for cat, vid, idir in videos:
         gpu_mem_peak = torch.cuda.max_memory_allocated() / 1024**2 if torch.cuda.is_available() else 0
 
         row = {
-            "category": cat, "video": vid, "pipeline": pipe, "repeat": rep,
+            "category": cat, "video": vid, "pipeline": pipe,
             "n_frames": n, "resolution": f"{W}x{H}",
             "fps": round(fps, 2),
             "throughput_total_s": round(t_total, 2),
@@ -385,43 +262,17 @@ for cat, vid, idir in videos:
             "gpu_mem_peak_mb": round(gpu_mem_peak, 1),
             "temp_avg_c": hw["temp_avg_c"],
             "temp_max_c": hw["temp_max_c"],
-            "cb_entered": (cb.cb_entered if cb else 0),
-            "cb_bypass_frames": cb_bypass_n,
-            "cb_bypass_rate": round(cb_bypass_n / n, 4) if n else 0.0,
         }
         rows.append(row)
-        # incremental crash-safe append (resumable)
-        _new = not os.path.exists(OUTPUT_CSV)
-        os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
-        with open(OUTPUT_CSV, "a", newline="") as _f:
-            _w = csv.DictWriter(_f, fieldnames=FIELDS)
-            if _new:
-                _w.writeheader()
-            _w.writerow(row)
-        _done_keys.add((cat, vid, pipe, str(rep)))
         print(f"fps={fps:.1f} act={act:.2f} pwr={hw['vdd_in_avg_mw']:.0f}mW gpu={hw['gpu_avg_pct']:.0f}% temp={hw['temp_max_c']:.0f}C")
 
-# CSV was written incrementally (crash-safe/resumable). Re-read ALL rows
-# (including any resumed from a previous run) for the summary below.
-print(f"\nSaved (incremental): {OUTPUT_CSV}")
-_num = ("fps", "avg_latency_ms", "p90_latency_ms", "max_latency_ms", "activation_rate",
-        "vdd_in_avg_mw", "vdd_in_p90_mw", "vdd_cpu_gpu_avg_mw", "vdd_soc_avg_mw",
-        "energy_per_frame_mj", "gpu_avg_pct", "gpu_max_pct", "cpu_avg_pct",
-        "ram_avg_mb", "ram_max_mb", "gpu_mem_peak_mb", "temp_avg_c", "temp_max_c",
-        "cb_entered", "cb_bypass_frames", "cb_bypass_rate")
-rows = []
-try:
-    with open(OUTPUT_CSV, newline="") as f:
-        for r in csv.DictReader(f):
-            for k in _num:
-                if r.get(k) not in (None, ""):
-                    try:
-                        r[k] = float(r[k])
-                    except ValueError:
-                        pass
-            rows.append(r)
-except Exception as e:
-    print("summary re-read failed:", e)
+out = "/output/jetson_gpu_profiling.csv"
+os.makedirs(os.path.dirname(out), exist_ok=True)
+with open(out, "w", newline="") as f:
+    w = csv.DictWriter(f, fieldnames=FIELDS)
+    w.writeheader()
+    w.writerows(rows)
+print(f"\nSaved: {out}")
 
 print("\n===== SYSTEM INFO =====")
 print(f"Platform: Jetson Orin Nano")
@@ -434,7 +285,7 @@ print(f"Model: yolo26s.pt ({os.path.getsize('/models/yolo26s.pt')/1024/1024:.1f}
 print(f"Resolution: {W}x{H}")
 
 print("\n===== PIPELINE SUMMARY =====")
-for p in ["P1_YOLO_Only", "P3_MOG2", "GUARDED", "GUARDED_CB"]:
+for p in ["P1_YOLO_Only", "P3_MOG2", "GUARDED"]:
     rs = [r for r in rows if r["pipeline"] == p]
     if not rs:
         continue
@@ -464,19 +315,3 @@ if p1_rs and gu_rs:
     print(f"  Power:  {p1_pwr:.0f} -> {gu_pwr:.0f}mW ({(1-gu_pwr/p1_pwr)*100:.0f}% saving)")
     print(f"  Energy: {p1_eng:.1f} -> {gu_eng:.1f}mJ ({(1-gu_eng/p1_eng)*100:.0f}% saving)")
     print(f"  Act:    1.000 -> {np.mean([r['activation_rate'] for r in gu_rs]):.3f}")
-
-cb_rs = [r for r in rows if r["pipeline"] == "GUARDED_CB"]
-if p1_rs and cb_rs:
-    print("\n===== GUARDED_CB vs P1_YOLO_Only (circuit breaker) =====")
-    p1_eng = np.mean([r["energy_per_frame_mj"] for r in p1_rs])
-    cb_eng = np.mean([r["energy_per_frame_mj"] for r in cb_rs])
-    cb_pwr = np.mean([r["vdd_in_avg_mw"] for r in cb_rs])
-    p1_pwr = np.mean([r["vdd_in_avg_mw"] for r in p1_rs])
-    print(f"  Power:  {p1_pwr:.0f} -> {cb_pwr:.0f}mW")
-    print(f"  Energy: {p1_eng:.1f} -> {cb_eng:.1f}mJ/frame  (target: <= P1 + epsilon)")
-    print(f"  Bypass: {np.mean([r['cb_bypass_rate'] for r in cb_rs])*100:.1f}% of frames, "
-          f"entered on {sum(1 for r in cb_rs if r['cb_entered'] > 0)}/{len(cb_rs)} videos")
-    if gu_rs:
-        gu_eng = np.mean([r["energy_per_frame_mj"] for r in gu_rs])
-        print(f"  vs GUARDED: {gu_eng:.1f} -> {cb_eng:.1f}mJ/frame "
-              f"({(1-cb_eng/gu_eng)*100:+.1f}% vs guarded)")

@@ -1,0 +1,33 @@
+# Normalize line endings to prevent CRLF/LF churn across machines (Windows PC + Jetson Linux).
+* text=auto
+
+*.py   text
+*.yaml text
+*.yml  text
+*.md   text
+*.csv  text
+*.txt  text
+*.json text
+*.cfg  text
+*.ini  text
+
+# Windows batch files must stay CRLF
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Shell scripts must stay LF (run on Jetson)
+*.sh   text eol=lf
+
+# Binary assets — never touch
+*.pt    binary
+*.engine binary
+*.onnx  binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.pdf   binary
+*.docx  binary
+*.xlsx  binary
+*.zip   binary
+*.npy   binary
+*.npz   binary

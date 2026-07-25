@@ -145,7 +145,7 @@ class ASMAGPlusGate:
         fd_mask = np.zeros((h,w), dtype=np.uint8)
         if prev_frame is not None:
             gprev = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), 25, 255, cv2.THRESH_BINARY)
+            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), int(self.cfg.get("framediff_tau", 25)), 255, cv2.THRESH_BINARY)
 
         # Source 2: MOG2
         mog = self.bg_mog2.apply(frame, learningRate=0.01 if illum_diff < 25 else 0.05)
@@ -253,7 +253,7 @@ class ASMAGPlusPrecisionGate(ASMAGPlusGate):
         fd_mask = np.zeros((h, w), dtype=np.uint8)
         if prev_frame is not None:
             gprev = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), 25, 255, cv2.THRESH_BINARY)
+            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), int(self.cfg.get("framediff_tau", 25)), 255, cv2.THRESH_BINARY)
 
         mog = self.bg_mog2.apply(frame, learningRate=0.01 if illum_diff < 25 else 0.05)
         _, mog_mask = cv2.threshold(mog, 200, 255, cv2.THRESH_BINARY)
@@ -362,7 +362,7 @@ class ASMAGPlusBalancedGate(ASMAGPlusGate):
         fd_mask = np.zeros((h, w), dtype=np.uint8)
         if prev_frame is not None:
             gprev = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), 25, 255, cv2.THRESH_BINARY)
+            _, fd_mask = cv2.threshold(cv2.absdiff(gprev, gray), int(self.cfg.get("framediff_tau", 25)), 255, cv2.THRESH_BINARY)
 
         mog = self.bg_mog2.apply(frame, learningRate=0.01 if illum_diff < 25 else 0.05)
         _, mog_mask = cv2.threshold(mog, 200, 255, cv2.THRESH_BINARY)
