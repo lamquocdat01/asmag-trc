@@ -175,6 +175,16 @@ OUTPUT_CSV  = os.environ.get("E6_OUTPUT_CSV", "/output/jetson_gpu_profiling.csv"
 COOLDOWN_C  = float(os.environ.get("E6_COOLDOWN_C", "58"))
 COOLDOWN_MAX_WAIT = int(os.environ.get("E6_COOLDOWN_MAX_WAIT", "600"))
 TZ_PATH     = os.environ.get("E6_TZ", "/sys/class/thermal/thermal_zone8/temp")  # tj-thermal
+# E6_RESIZE="WxH" resizes every frame before processing (paper used 720x480 upscaled
+# from CDnet's 320x240). Matters for the operating point: larger frames make the
+# pipeline more CPU-preprocessing-bound, lowering avg GPU power and FPS.
+RESIZE = None
+if os.environ.get("E6_RESIZE"):
+    try:
+        _rw, _rh = os.environ["E6_RESIZE"].lower().split("x")
+        RESIZE = (int(_rw), int(_rh))
+    except Exception:
+        RESIZE = None
 
 def read_temp_c():
     try:
@@ -225,6 +235,9 @@ if os.path.exists(OUTPUT_CSV):
         print(f"Resume: could not read existing CSV ({_e})")
 
 first_frame = cv2.imread(os.path.join(videos[0][2], sorted(os.listdir(videos[0][2]))[0]))
+if RESIZE and first_frame is not None:
+    first_frame = cv2.resize(first_frame, RESIZE)
+    print(f"E6_RESIZE active: frames resized to {RESIZE[0]}x{RESIZE[1]}")
 H, W = first_frame.shape[:2] if first_frame is not None else (0, 0)
 print(f"Input resolution: {W}x{H}")
 
@@ -288,6 +301,8 @@ for cat, vid, idir in videos:
             frame = cv2.imread(os.path.join(idir, fn))
             if frame is None:
                 continue
+            if RESIZE:
+                frame = cv2.resize(frame, RESIZE)
 
             if torch.cuda.is_available():
                 torch.cuda.synchronize()

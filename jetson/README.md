@@ -53,6 +53,27 @@ cause). To harden the link before an overnight run:
 `nmcli c modify PhucMinh 802-11-wireless.powersave 2`. Regardless, run measurements **detached**
 (`nohup`/`tmux`) with an incremental CSV so a transient drop never kills the run.
 
+## ⚠️ Measurement traps (READ before profiling)
+
+**1. `jetson_clocks --fan` PINS ALL CLOCKS at max (do NOT use it).** On this L4T, the `--fan`
+subcommand runs full `jetson_clocks` as a side effect: it sets CPU & GPU `scaling_min_freq =
+scaling_max_freq` (min==max==cur), so the device runs at **max clocks** — higher FPS *and*
+~1.5× power — which does **not** match the paper's default-DVFS measurements. `sudo -n
+jetson_clocks --restore` needs a password (sudoers only whitelists the exact `jetson_clocks
+--fan`). **Only a reboot (or `jetson_clocks --restore`) un-pins.** ✅ **Correct protocol:
+never call `jetson_clocks`. Leave `nvfancontrol` (auto fan) running; cool down by WAITING
+only** (at DVFS the chip runs cooler, so ≤58 °C is easy). Verify DVFS before measuring:
+`cat .../cpu0/cpufreq/scaling_{min,max}_freq` must have **min < max** (e.g. 729 < 1497), and
+GPU `min_freq < max_freq` (e.g. 306 < 612).
+
+**2. Operating point drifts with the (unpinned) software stack.** The paper's tables were made
+with `pip install ultralytics` (unpinned, May 2026). Current ultralytics (8.4.104) runs YOLO
+~18% faster at ~40% more power, so P1 highway is now ~26 FPS / 9.2 W (paper: 22.8 FPS / 6.64 W)
+and the reviewer's highway **GUARDED > P1 anomaly no longer reproduces** (now GUARDED < P1).
+Resolution is NOT the cause (paper used 720×480 upscaled; matching it changed nothing).
+**Pin the stack** (`requirements-jetson.lock`, baked into the profiling image) and re-measure all
+Jetson tables at that pinned op point; document the shift in Threats to Validity.
+
 ## On-device layout
 
 | Path | What |
