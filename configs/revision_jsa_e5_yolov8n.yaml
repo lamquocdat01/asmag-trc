@@ -1,0 +1,33 @@
+# E5 [R1.2] — GUARDED with a SWAPPED detector (yolov8n) — only the detector adapter changes.
+# Demonstrates generality: the when-to-infer controller is detector-agnostic.
+base_config: full_cdnet2014_guarded_v2_clean.yaml
+
+experiment_name: e5_yolov8n
+output_root: "outputs/revision_jsa/e5_generality"
+resume_existing_results: false
+checkpoint_resume: true
+
+categories: [baseline, dynamicBackground, cameraJitter, thermal, turbulence, PTZ]
+videos:
+  baseline: [highway, office]
+  dynamicBackground: [canoe, fountain02]
+  cameraJitter: [traffic]
+  thermal: [library]
+  turbulence: [turbulence2]
+  PTZ: [continuousPan]
+
+evaluation:
+  use_temporal_roi: true
+  warmup_frames: 50
+  frame_step: 1
+  max_frames_per_video: 300
+
+pipelines:
+  - ASMAG_TR_CONTROLLER_ONLINE_GUARDED
+
+circuit_breaker:
+  enabled: false
+
+# Swap the detector: empty model_path + yolov8n name -> ultralytics auto-downloads yolov8n.pt.
+model_path: ""
+model_name: "yolov8n.pt"
