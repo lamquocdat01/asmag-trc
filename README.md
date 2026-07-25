@@ -2,13 +2,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![JRTIP](https://img.shields.io/badge/Journal-JRTIP-green.svg)](https://link.springer.com/journal/11554)
+[![JSA](https://img.shields.io/badge/Journal-JSA-green.svg)](https://www.sciencedirect.com/journal/journal-of-systems-architecture)
 
 Official implementation of the paper:
 
 > **ASMAG-TRC: Adaptive Safety-Arbitrated Motion-Gated Inference Control for Real-Time Edge AI Surveillance Cameras**  
 > Dat Lam Quoc  
-> *Journal of Real-Time Image Processing (JRTIP), 2026 (under review)*
+> *Journal of Systems Architecture (JSA), 2026 (major revision, JSA-D-26-00979)*
 
 ## Overview
 
@@ -17,7 +17,8 @@ ASMAG-TRC is an adaptive motion-gated inference-control framework that decides *
 - **Lightweight motion proposals** (FrameDiff + MOG2) for activity estimation without YOLO
 - **Temporal prediction reuse** to cache and forward recent detections on quiet frames
 - **Controller hierarchy**: category-aware → online-calibrated → guarded variants
-- **Pure-function safety arbitration** protecting event-critical frames via stateless invariant checks, eliminating the shared-state Heisenbug that plagued earlier observer-based designs
+- **Pure-function safety arbitration** protecting event-critical frames via stateless invariant checks, eliminating the shared-state Heisenbug that plagued earlier observer-based designs. The arbiter is exhaustively checked over its entire finite input domain (`tests/test_arbitration_exhaustive.py`, 5,760 cases)
+- **Persistent-motion circuit breaker** (`src/safety/circuit_breaker.py`): a deterministic hysteresis bypass that suspends motion gating on scenes where motion is persistently saturated (e.g. rush-hour traffic), bounding worst-case energy at the detector-only level. Default off; enable via the `circuit_breaker:` config key
 
 ```
 Video Frame
@@ -54,13 +55,19 @@ GUARDED achieves **FMeasure 0.521, Event F1 0.695** — best AE-Score (0.835) co
 
 ### Jetson Orin Nano — real hardware, GPU + TensorRT FP16
 
+> **JSA revision note:** the Jetson hardware tables are being **re-measured on a pinned software
+> stack** (`jetson/requirements-jetson.lock`) because the original numbers were collected with an
+> unpinned inference stack that has since drifted — see `jetson/README.md` and
+> `outputs/revision_jsa/e6_jetson/software_drift_finding.md`. Updated Tables 6/7/10/11 will replace
+> the values below. **New in this revision:** a `GUARDED_CB` persistent-motion **circuit breaker**
+> that bounds worst-case highway energy at ≤ the detector-only (P1) level on any operating point.
+
 | Pipeline | FPS | Energy/frame |
 |---|---|---|
-| P1 (YOLO always-on) | 22.83 | 290.8 mJ |
-| P3 (MOG2 only) | 272.25 | 30.4 mJ |
-| **GUARDED** | **191.74** | **92.6 mJ** |
-
-GUARDED delivers **8.4× speedup** and **68.1% energy reduction** versus always-on YOLO on real hardware (activation = 0.16 on Jetson subset).
+| P1 (YOLO always-on) | _re-measuring_ | _re-measuring_ |
+| P3 (MOG2 only) | _re-measuring_ | _re-measuring_ |
+| **GUARDED** | _re-measuring_ | _re-measuring_ |
+| **GUARDED_CB** (new) | _re-measuring_ | ≤ P1 (bounded) |
 
 ### Cross-dataset GUARDED consistency (no retraining)
 
@@ -127,13 +134,17 @@ python jetson_gpu_profiler.py
 asmag-trc/
 ├── src/
 │   ├── run_experiment.py          # Main CDnet2014 runner + all pipeline logic
-│   ├── detectors/detectors.py     # YOLO wrapper + MockDetector
-│   ├── gating/gates.py            # FrameDiff + MOG2 motion gates
+│   ├── detectors/detectors.py     # YOLO wrapper + MockDetector (swap-in detector adapter)
+│   ├── gating/gates.py            # FrameDiff + MOG2 motion gates (config-driven τ_FD)
+│   ├── safety/                    # Pure-function arbiter + persistent-motion circuit breaker
+│   ├── baselines/                 # Learned-policy comparison (FrameHopper / DQN gate / periodic)
 │   ├── metrics/                   # FMeasure, Event F1, mAP50, AE Score, Energy
 │   ├── data/cdnet_loader.py       # CDnet2014 loader
 │   ├── controller/                # Online mode policy training
 │   ├── evaluation/                # Mask-to-box conversion
 │   └── utils/                     # I/O helpers, progress monitor
+├── tests/                         # Pure-logic tests: exhaustive arbiter (5,760 cases), circuit breaker
+├── jetson/                        # Jetson profilers (edge-GPU + TensorRT), power logger, pinned image
 ├── run_cross_dataset.py           # Cross-dataset unified evaluator
 ├── datasets/                      # Adapters: CDnet, BMC, LASIESTA, SBI2015, VIRAT
 ├── evaluation/                    # Mask normalization, ignore-mask utilities
@@ -172,7 +183,7 @@ Place each dataset in `datasets/<name>/` and point the corresponding config at i
   title   = {ASMAG-TRC: Adaptive Safety-Arbitrated Motion-Gated Inference Control
              for Real-Time Edge AI Surveillance Cameras},
   author  = {Lam Quoc, Dat},
-  journal = {Journal of Real-Time Image Processing},
+  journal = {Journal of Systems Architecture},
   year    = {2026},
   publisher = {Springer}
 }
