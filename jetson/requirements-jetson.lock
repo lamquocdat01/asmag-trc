@@ -1,0 +1,18 @@
+# Pinned Jetson profiling environment (E6 revision, 2026-07-25).
+# The paper's original tables used an UNPINNED `pip install ultralytics` (May 2026),
+# which has since drifted (see jetson/README.md "Measurement traps" and
+# outputs/revision_jsa/e6_jetson/software_drift_finding.md). ALL revised Jetson
+# tables are measured on this single pinned stack (canonical image
+# `l4t-pytorch-asmag:local`) so absolute numbers are reproducible going forward.
+#
+# Base image: dustynv/l4t-pytorch:r36.4.0  (L4T R36.x / JetPack 6, aarch64, CUDA)
+# Build:
+#   FROM dustynv/l4t-pytorch:r36.4.0
+#   RUN pip install ultralytics==8.4.104 psutil && pip install numpy==1.26.4 --force-reinstall
+
+ultralytics==8.4.104
+torch==2.4.0
+torchvision==0.19.0a0+48b1edf
+numpy==1.26.4
+opencv-python==5.0.0
+psutil
