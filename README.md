@@ -46,36 +46,35 @@ Video Frame
 | P1 (YOLO always-on) | 1.000 | 4.72 | 6.200 |
 | P2 (FrameDiff only) | 0.599 | 73.94 | 4.294 |
 | P3 (MOG2 only) | 0.809 | 43.78 | 5.744 |
-| ASMAG_TR_FAST | 0.664 | 33.03 | 5.145 |
-| ASMAG_TR_CONTROLLER | 0.771 | 34.22 | 5.602 |
-| ASMAG_TR_CONTROLLER_ONLINE_CALIBRATED | 0.750 | 13.33 | 5.513 |
-| **ASMAG_TR_CONTROLLER_ONLINE_GUARDED** | **0.430** | **17.70** | **3.945** |
+| Oracle (GT-label upper bound — not deployable) | 0.771 | 34.22 | 5.602 |
+| Calibrated | 0.750 | 13.33 | 5.513 |
+| **Guarded** | **0.430** | **17.70** | **3.945** |
 
-GUARDED achieves **FMeasure 0.521, Event F1 0.695** — best AE-Score (0.835) combining accuracy and efficiency.
+Guarded achieves **FMeasure 0.521, Event F1 0.695** — best AE-Score (0.835) combining accuracy and efficiency.
 
 ### Jetson Orin Nano — real hardware, GPU + TensorRT FP16
 
-> **JSA revision note:** the Jetson hardware tables are being **re-measured on a pinned software
-> stack** (`jetson/requirements-jetson.lock`) because the original numbers were collected with an
-> unpinned inference stack that has since drifted — see `jetson/README.md` and
-> `outputs/revision_jsa/e6_jetson/software_drift_finding.md`. Updated Tables 6/7/10/11 will replace
-> the values below. **New in this revision:** a `GUARDED_CB` persistent-motion **circuit breaker**
-> that bounds worst-case highway energy at ≤ the detector-only (P1) level on any operating point.
+> **JSA revision note:** the Jetson hardware tables below are **measured on a version-pinned
+> software stack** — lock file `jetson/requirements-jetson.lock` and `jetson/Dockerfile` — after
+> the original submission's unpinned inference stack was found to have drifted (see
+> `jetson/README.md` and `outputs/revision_jsa/e6_jetson/software_drift_finding.md`). **New in
+> this revision:** a `Guarded+CB` persistent-motion **circuit breaker** that bounds worst-case
+> highway energy at ≤ the detector-only (P1) level at any operating point.
 
-Headline (GUARDED + TensorRT FP16 vs P1 + PyTorch, pinned stack):
+Headline (Guarded + TensorRT FP16 vs P1 + PyTorch, pinned stack):
 
 | Pipeline | FPS | Energy/frame |
 |---|---|---|
 | P1 (YOLO always-on, PyTorch) | 25.8 | 351.1 mJ |
 | P1 (TensorRT FP16) | 30.3 | 213.9 mJ |
 | P3 (MOG2 only) | 314.5 | 18.2 mJ |
-| **GUARDED (TensorRT FP16)** | **130.8** | **140.2 mJ** |
+| **Guarded (TensorRT FP16)** | **130.8** | **140.2 mJ** |
 
-GUARDED+TRT-FP16 delivers **5.1× throughput** and **60.1% energy reduction** vs always-on YOLO.
-Full-53 (PyTorch): GUARDED −47.5% energy, 4.5× FPS. The **`GUARDED_CB` circuit breaker** bounds
+Guarded+TRT-FP16 delivers **5.1× throughput** and **60.1% energy reduction** vs always-on YOLO.
+Full-53 (PyTorch): Guarded −47.5% energy, 4.5× FPS. The **`Guarded+CB` circuit breaker** bounds
 worst-case highway energy at ≤ P1 (the reviewer's edge case; see `outputs/revision_jsa/e6_jetson/`).
 
-### Cross-dataset GUARDED consistency (no retraining)
+### Cross-dataset Guarded consistency (no retraining)
 
 | Dataset | Videos | Activation | FPS |
 |---|---|---|---|
@@ -83,7 +82,7 @@ worst-case highway energy at ≤ P1 (the reviewer's edge case; see `outputs/revi
 | LASIESTA (indoor/outdoor) | 48 | 0.447 | 13.95 |
 | VIRAT (real-world surveillance) | 10 | 0.570 | 12.05 |
 
-GUARDED activation never reaches 1.0 on any dataset — it always skips some frames — and the range (0.43–0.57) is consistent across fundamentally different environments.
+Guarded activation never reaches 1.0 on any dataset — it always skips some frames — and the range (0.43–0.57) is consistent across fundamentally different environments.
 
 ## Installation
 

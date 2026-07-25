@@ -1,7 +1,6 @@
-# Model weights (binary, large)
-models/*.pt
-models/*.onnx
-models/*.engine
+# Model weights (binary, large) — not tracked; see models/README.md for downloads
+models/*
+!models/README.md
 *.pt
 *.onnx
 *.engine
